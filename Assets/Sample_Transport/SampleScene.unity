@@ -464,7 +464,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   apiKeys: {fileID: 11400000, guid: f138a31354bb19b4ea0154003ed55b45, type: 2}
-  authInterfaceLogin: 1
+  authInterfaceLogin: 0
   authInterfaceCredentialType: 6
   devAuthToolPort: 7878
   devAuthToolCredentialName: 
