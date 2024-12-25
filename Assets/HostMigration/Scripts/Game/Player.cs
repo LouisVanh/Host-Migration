@@ -1,14 +1,32 @@
 using UnityEngine;
+using Mirror;
+using System;
 
-public class Player : MonoBehaviour
+public class Player : NetworkBehaviour
 {
-    private int _diceCount;
+    public int DiceCount;
     private bool _hasAlreadyRolled;
     private bool _canRoll;
     private BoostersManager _boostersManager;
     private int _health;
 
-    public void RollDice()
+    [SerializeField] private GameObject _dicePrefab;
+    [SerializeField] private Transform _cup;
+
+    private void Awake()
+    {
+        _boostersManager = this.gameObject.GetComponent<BoostersManager>();
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Debug.Log("Rolling dice from player");
+            RollDice(this.gameObject.GetComponent<NetworkIdentity>().netId);
+        }
+    }
+    [Command(requiresAuthority =false)]
+    public void RollDice(uint playerNetId)
     {
         if (_canRoll && !_hasAlreadyRolled)
         {
@@ -20,5 +38,14 @@ public class Player : MonoBehaviour
     public void ShakeDiceJar()
     {
         // Play dice shake animation
+    }
+
+    internal void ReceiveDice(int diceCount)
+    {
+        Debug.Log(this.ToString() + " received " + diceCount + "dice");
+        _canRoll = true;
+        _hasAlreadyRolled = false;
+        throw new NotImplementedException();
+        // enable cup, allow for rolling
     }
 }

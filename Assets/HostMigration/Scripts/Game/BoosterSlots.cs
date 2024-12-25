@@ -1,5 +1,8 @@
+using System;
 using UnityEngine;
-public class BoosterSlot
+
+[Serializable]
+public class BoosterSlot : MonoBehaviour
 {
     public IBooster CurrentBooster;
     public bool IsEmpty => CurrentBooster == null;

@@ -1,4 +1,6 @@
 using UnityEngine;
+using Mirror;
+using System.Collections.Generic;
 
 public enum GameState
 {
@@ -11,23 +13,42 @@ public enum GameState
 }
 
 // **TurnManager.cs**
-public class TurnManager : MonoBehaviour
+public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERYTHING ONCE)
 {
-    private GameState _currentGameState;
+    public GameState CurrentGameState;
+    private Dictionary<NetworkConnectionToClient, Player> _players = new Dictionary<NetworkConnectionToClient, Player>();
 
+    [Server]
     public void GiveAllPlayersDice()
     {
-        _currentGameState = GameState.PreDiceReceived;
-        // Distribute dice to all players
+        if (CurrentGameState != GameState.PreDiceReceived) return;
+
+        foreach (var player in _players)
+        {
+            GivePlayerDice(player.Key);
+        }
     }
 
+    [TargetRpc]
+    private void GivePlayerDice(NetworkConnectionToClient playerConnection)
+    {
+        // Get how many dice the player should have from the Player class attached to the gameobject with that netId
+        if (_players.TryGetValue(playerConnection, out Player player))
+        {
+            var diceCount = player.DiceCount;
+            player.ReceiveDice(diceCount); // Assuming a method to handle dice assignment
+        }
+    }
+
+    [Server]
     private void UpdateGameState(GameState newState)
     {
-        _currentGameState = newState;
+        CurrentGameState = newState;
         // Handle state transitions
         switch (newState)
         {
             case GameState.PreDiceReceived:
+                // ADD STUFF HERE
                 break;
             case GameState.EveryoneRollingTime:
                 break;
@@ -42,5 +63,10 @@ public class TurnManager : MonoBehaviour
             default:
                 break;
         }
+    }
+
+    private void CountTotalRollAmount()
+    {
+
     }
 }

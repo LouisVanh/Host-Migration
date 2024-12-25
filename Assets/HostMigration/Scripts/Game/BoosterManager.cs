@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BoostersManager
+public class BoostersManager : MonoBehaviour
 {
     private const int MAX_SLOTS = 7;
     public BoosterSlot[] Slots = new BoosterSlot[MAX_SLOTS];
