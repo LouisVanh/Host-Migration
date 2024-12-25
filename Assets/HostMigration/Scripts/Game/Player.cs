@@ -15,18 +15,22 @@ public class Player : NetworkBehaviour
 
     private void Awake()
     {
+        if (!isLocalPlayer) return;
+
         _boostersManager = this.gameObject.GetComponent<BoostersManager>();
     }
     private void Update()
     {
+        if (!isLocalPlayer) return;
+
         if (Input.GetKeyDown(KeyCode.R))
         {
             Debug.Log("Rolling dice from player");
-            RollDice(this.gameObject.GetComponent<NetworkIdentity>().netId);
+            RollDice(this);
         }
     }
     [Command(requiresAuthority =false)]
-    public void RollDice(uint playerNetId)
+    public void RollDice(Player player)
     {
         if (_canRoll && !_hasAlreadyRolled)
         {
