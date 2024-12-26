@@ -5,16 +5,6 @@ public class BoostersManager : NetworkBehaviour
 {
     private const int MAX_SLOTS = 7;
     public BoosterSlot[] Slots = new BoosterSlot[MAX_SLOTS];
-    private RectTransform _layoutCanvas;
-    private RectTransform _newCardsLayoutCanvas;
-    private float _smallScaleMultiplier;
-    private float _largeScaleMultiplier;
-
-    private void Awake()
-    {
-        _layoutCanvas = GameObject.FindWithTag("CardLayout").GetComponent<RectTransform>();
-        _newCardsLayoutCanvas = GameObject.FindWithTag("NewCardLayout").GetComponent<RectTransform>();
-    }
 
     public bool AddBooster(IBooster booster)
     {
@@ -65,51 +55,4 @@ public class BoostersManager : NetworkBehaviour
         }
         return counter;
     }
-
-    #region UI (all should be synced)
-
-    [ClientRpc]
-    public void EnlargeOwnedBoosterLayout()
-    {
-        var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
-        var smallScale = new Vector3(_smallScaleMultiplier, _smallScaleMultiplier, _smallScaleMultiplier);
-        _layoutCanvas.localScale = smallScale;
-        LeanTweenUtility.ScaleTo(_layoutCanvas, bigScale, 1);
-    }
-
-    [ClientRpc]
-    public void ShrinkOwnedBoosterLayout()
-    {
-        var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
-        var smallScale = new Vector3(_smallScaleMultiplier, _smallScaleMultiplier, _smallScaleMultiplier);
-        _layoutCanvas.localScale = bigScale;
-        LeanTweenUtility.ScaleTo(_layoutCanvas, smallScale, 1);
-    }
-
-    [ClientRpc]
-    public void HideOwnedBoosterLayout()
-    {
-        LeanTweenUtility.ScaleOut(_layoutCanvas, 0.75f, true);
-    }
-
-    [ClientRpc]
-    public void ShowOwnedBoosterLayout()
-    {
-        var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
-        LeanTweenUtility.ScaleIn(_layoutCanvas, bigScale, 0.75f);
-    }
-
-    // Could also not be rpcs down here these 2
-    [ClientRpc]
-    public void ShowPotentialBoosterLayout()
-    {
-        LeanTweenUtility.ScaleIn(_newCardsLayoutCanvas, Vector3.one, 0.75f);
-    }
-
-    [ClientRpc]
-    public void HidePotentialBoosterLayout()
-    {
-        LeanTweenUtility.ScaleOut(_newCardsLayoutCanvas, 0.75f, true);
-    }
-    #endregion
 }

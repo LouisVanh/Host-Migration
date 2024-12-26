@@ -8,6 +8,7 @@ public class MyNetworkManager : NetworkManager
     public override void OnStartServer()
     {
         Debug.Log("Server Started!");
+        UIManager.Instance.StartTheUI();
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {

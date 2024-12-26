@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public enum GameState
 {
+    WaitingLobby,
     PreDiceReceived,
     EveryoneRollingTime,
     EveryoneJustRolled,
@@ -20,6 +21,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     private int _currentDiceRoll;
     private Enemy _currentEnemy;
 
+    public int TurnCount;
     public static TurnManager Instance { get; private set; }
     private void Awake()
     {
@@ -40,6 +42,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         {
             GivePlayerDice(player.Key);
         }
+        TurnCount++;
     }
 
     [TargetRpc]
@@ -84,6 +87,10 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         // Handle state transitions
         switch (newState)
         {
+            case GameState.WaitingLobby:
+
+                break;
+
             case GameState.PreDiceReceived:
                 // Show the right screen
                 // Explain anything if it's the first time

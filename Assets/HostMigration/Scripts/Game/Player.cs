@@ -32,8 +32,7 @@ public class Player : NetworkBehaviour
             if (isServer) // if you're the host
             {
                 Debug.Log("Hiding canvas stuff!");
-                _boostersManager.HideOwnedBoosterLayout();
-                _boostersManager.HidePotentialBoosterLayout();
+                UIManager.Instance.ChangeScreenState(ScreenState.WaitingLobby);
             }
         }
     }
