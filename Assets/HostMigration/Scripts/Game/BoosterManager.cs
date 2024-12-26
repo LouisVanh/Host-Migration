@@ -4,6 +4,14 @@ public class BoostersManager : MonoBehaviour
 {
     private const int MAX_SLOTS = 7;
     public BoosterSlot[] Slots = new BoosterSlot[MAX_SLOTS];
+    private RectTransform _layoutCanvas;
+    private float _smallScale;
+    private float _largeScale;
+
+    private void Awake()
+    {
+        _layoutCanvas = GameObject.FindWithTag("CardLayout").GetComponent<RectTransform>();
+    }
 
     public bool AddBooster(IBooster booster)
     {
@@ -53,5 +61,11 @@ public class BoostersManager : MonoBehaviour
             if (slot.CurrentBooster.Rarity == BoosterRarity.Common) counter++;
         }
         return counter;
+    }
+
+    private void EnlargeBoosterLayout()
+    {
+        _layoutCanvas.localScale = new Vector3(_largeScale, _largeScale, _largeScale);
+
     }
 }

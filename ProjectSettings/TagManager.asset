@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - CardCanvas
+  - CardLayout
+  - NewCardCanvas
+  - NewCardLayout
   layers:
   - Default
   - TransparentFX

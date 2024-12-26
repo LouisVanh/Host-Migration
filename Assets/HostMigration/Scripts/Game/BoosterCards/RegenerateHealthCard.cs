@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class RegenerateHealthBooster : IBoosterConsumable
+public class RegenerateHealthBooster : MonoBehaviour, IBoosterConsumable
 {
     public string Name => "Regenerate";
     public string Description => "Regenerate your player health (one-time-use)";
     public BoosterRarity Rarity => BoosterRarity.Common;
-    Player PlayerShownTo { get; }
+    public Player PlayerShownTo { get; }
 
 
     private int _healthToRestore;

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: e832a8ee5e2677040b890c07820306d7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 162991
+  packageName: Smooth Camera Shaker
+  packageVersion: 2.12
+  assetPath: Assets/FirstGearGames/SmoothCameraShaker/Demo/ShakeData/OffRoad.asset
+  uploadId: 376379

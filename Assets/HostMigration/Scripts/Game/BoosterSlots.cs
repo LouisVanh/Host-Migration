@@ -6,6 +6,7 @@ public class BoosterSlot : MonoBehaviour
 {
     public IBooster CurrentBooster;
     public bool IsEmpty => CurrentBooster == null;
+    public bool IsAlreadyOwned;
     [Range(1, 7)]
     [SerializeField] private int _slotIndex;
 

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 925c9f05d63a6fe49add246fdb4ff657
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 162991
+  packageName: Smooth Camera Shaker
+  packageVersion: 2.12
+  assetPath: Assets/FirstGearGames/SmoothCameraShaker/Demo/Scripts/CanvasButtonActions.cs
+  uploadId: 376379
