@@ -13,6 +13,6 @@ public class SaviourBooster : MonoBehaviour, IBoosterConsumable
         if (player.IsDead) return;
 
         var deadGuy = TurnManager.Instance.GetRandomDeadPlayer();
-        deadGuy.HealthBar.UpdateHealth(deadGuy.HealthBar.TotalHealth / 2);
+        deadGuy.HealthBar.UpdateHealth(deadGuy.HealthBar.CurrentHealth, +deadGuy.HealthBar.TotalHealth / 2);
     }
 }

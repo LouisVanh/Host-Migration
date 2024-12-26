@@ -14,14 +14,6 @@ public class HealthBar : NetworkBehaviour
     public Vector3 Position;
     public GameObject Visual;
 
-    //public HealthBar(int totalHealth, GameObject visual, Vector3 position)
-    //{
-    //    TotalHealth = totalHealth;
-    //    CurrentHealth = totalHealth;
-    //    Visual = visual;
-    //    Instantiate(Visual, position, Quaternion.identity);
-    //}
-
     public void CreateBar()
     {
         Instantiate(Visual, Position, Quaternion.identity);
@@ -29,14 +21,14 @@ public class HealthBar : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void UpdateHealth(int amount)
+    public void UpdateHealth(int oldValue, int amount)
     {
         CurrentHealth = Mathf.Clamp(CurrentHealth + amount, 0, TotalHealth);
         UpdateBar();
     }
 
     [ClientRpc]
-    public void AdjustTotalHealth(int amount)
+    public void AdjustTotalHealth(int oldValue, int amount)
     {
         TotalHealth += amount;
         UpdateBar();

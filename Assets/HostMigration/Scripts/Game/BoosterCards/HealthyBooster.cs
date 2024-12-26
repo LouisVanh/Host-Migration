@@ -11,11 +11,13 @@ public class HealthyBooster : MonoBehaviour, IBoosterPermanent
 
     public void AddPermanentEffect(Player player)
     {
-        player.GetComponent<HealthBar>().AdjustTotalHealth(HealthToAdd);
+        var healthBar = player.GetComponent<HealthBar>();
+        healthBar.AdjustTotalHealth(healthBar.CurrentHealth, +HealthToAdd);
     }
 
     public void RemovePermanentEffect(Player player)
     {
-        player.GetComponent<HealthBar>().AdjustTotalHealth(- HealthToAdd);
+        var healthBar = player.GetComponent<HealthBar>();
+        healthBar.AdjustTotalHealth(healthBar.CurrentHealth, -HealthToAdd);
     }
 }

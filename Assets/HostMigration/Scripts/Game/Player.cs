@@ -9,7 +9,7 @@ public class Player : NetworkBehaviour
     private bool _canRoll;
     private BoostersManager _boostersManager;
     public HealthBar HealthBar { get; private set; }
-    [SerializeField] GameObject HealthBarVisual { get; set; }
+    [SerializeField] GameObject PlayerHealthBarVisual;
 
     public bool IsDead => HealthBar.CurrentHealth == 0;
     public int StartingHealth = 20;
@@ -27,7 +27,12 @@ public class Player : NetworkBehaviour
             Debug.Log("found the local player :)");
 
             _boostersManager = this.gameObject.GetComponent<BoostersManager>();
-            HealthBar = new HealthBar(StartingHealth, HealthBarVisual);
+
+            var obj = Instantiate(new GameObject());
+            HealthBar = (HealthBar)obj.AddComponent(typeof(HealthBar));
+            HealthBar.TotalHealth = StartingHealth;
+            HealthBar.CurrentHealth = StartingHealth;
+            HealthBar.Visual = PlayerHealthBarVisual;
 
             if (isServer) // if you're the host
             {
