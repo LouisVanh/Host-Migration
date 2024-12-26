@@ -9,6 +9,7 @@ public class MyNetworkManager : NetworkManager
     {
         Debug.Log("Server Started!");
         UIManager.Instance.StartTheUI();
+        TurnManager.Instance.UpdateGameState(GameState.WaitingLobby);
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {

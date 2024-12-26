@@ -9,7 +9,7 @@ public class Enemy : NetworkBehaviour
 {
     public int Health => HealthBar.CurrentHealth;
     public EnemyType EnemyType { get; private set; }
-    [SerializeField] GameObject HealthBarVisual { get; set; }
+    [SerializeField] GameObject EnemyHealthBarVisual;
     public HealthBar HealthBar;
     public GameObject CurrentEnemyVisual;
 
@@ -21,7 +21,11 @@ public class Enemy : NetworkBehaviour
 
     public Enemy(int health, EnemyType enemyType)
     {
-        HealthBar = new HealthBar(health, HealthBarVisual);
+        var obj = Instantiate(new GameObject());
+        HealthBar = (HealthBar) obj.AddComponent(typeof(HealthBar));
+        HealthBar.TotalHealth = health;
+        HealthBar.CurrentHealth = health;
+        HealthBar.Visual = EnemyHealthBarVisual;
         EnemyType = enemyType;
         ChosenVisual = enemyType switch
         {

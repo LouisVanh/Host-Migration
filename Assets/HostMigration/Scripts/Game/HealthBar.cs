@@ -1,29 +1,49 @@
 using Mirror;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HealthBar : NetworkBehaviour
 {
-    public int TotalHealth { get; private set; }
-    public int CurrentHealth { get; private set; }
-    public GameObject Visual { get; private set; }
+    [SyncVar(hook = nameof(AdjustTotalHealth))]
+    public int TotalHealth;
 
-    public HealthBar(int totalHealth, GameObject visual)
+    [SyncVar(hook = nameof(UpdateHealth))]
+    public int CurrentHealth;
+
+    private Image _greenHealth;
+    public Vector3 Position;
+    public GameObject Visual;
+
+    //public HealthBar(int totalHealth, GameObject visual, Vector3 position)
+    //{
+    //    TotalHealth = totalHealth;
+    //    CurrentHealth = totalHealth;
+    //    Visual = visual;
+    //    Instantiate(Visual, position, Quaternion.identity);
+    //}
+
+    public void CreateBar()
     {
-        TotalHealth = totalHealth;
-        CurrentHealth = totalHealth;
-        Visual = visual;
+        Instantiate(Visual, Position, Quaternion.identity);
+        UpdateBar();
     }
 
     [ClientRpc]
     public void UpdateHealth(int amount)
     {
         CurrentHealth = Mathf.Clamp(CurrentHealth + amount, 0, TotalHealth);
-        // Update UI visual progress bar
+        UpdateBar();
     }
 
     [ClientRpc]
     public void AdjustTotalHealth(int amount)
     {
         TotalHealth += amount;
+        UpdateBar();
+    }
+
+   void UpdateBar()
+    {
+        _greenHealth.fillAmount = CurrentHealth / TotalHealth;
     }
 }
