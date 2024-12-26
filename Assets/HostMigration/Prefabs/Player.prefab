@@ -217,9 +217,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  DiceCount: 0
-  HealthBar: {fileID: 0}
+  DiceCount: 1
   StartingHealth: 20
   CurrentDiceRollAmount: 0
   _dicePrefab: {fileID: 4378862580125669272, guid: d3dbd98762399bd4b9bb00479bc6c26f, type: 3}
-  _cup: {fileID: 0}
+  _cup: {fileID: 7534330084645286803, guid: 2bfa3ed724af8ad4e97bedf6762d75a0, type: 3}

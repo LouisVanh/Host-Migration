@@ -18,13 +18,24 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameObject _dicePrefab;
     [SerializeField] private Transform _cup;
 
-    private void Awake()
+    private void Start()
     {
-        if (!isLocalPlayer) return;
+        Debug.Log("i woke up lol");
 
-        _boostersManager = this.gameObject.GetComponent<BoostersManager>();
-        HealthBar = new HealthBar(StartingHealth, HealthBarVisual);
+        if (isLocalPlayer)
+        {
+            Debug.Log("found the local player :)");
 
+            _boostersManager = this.gameObject.GetComponent<BoostersManager>();
+            HealthBar = new HealthBar(StartingHealth, HealthBarVisual);
+
+            if (isServer) // if you're the host
+            {
+                Debug.Log("Hiding canvas stuff!");
+                _boostersManager.HideOwnedBoosterLayout();
+                _boostersManager.HidePotentialBoosterLayout();
+            }
+        }
     }
 
     private void Update()
@@ -48,7 +59,7 @@ public class Player : NetworkBehaviour
             int totalRoll = 0;
             for (int i = 0; i < DiceCount; i++)
             {
-                int eyes = UnityEngine.Random.Range(0, 6);
+                int eyes = UnityEngine.Random.Range(1, 7);
                 totalRoll += eyes;
                 SpawnDiceWithEyes(eyes);
             }

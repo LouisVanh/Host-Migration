@@ -14,8 +14,6 @@ public class BoostersManager : NetworkBehaviour
     {
         _layoutCanvas = GameObject.FindWithTag("CardLayout").GetComponent<RectTransform>();
         _newCardsLayoutCanvas = GameObject.FindWithTag("NewCardLayout").GetComponent<RectTransform>();
-
-        HideOwnedBoosterLayout();
     }
 
     public bool AddBooster(IBooster booster)
@@ -71,7 +69,7 @@ public class BoostersManager : NetworkBehaviour
     #region UI (all should be synced)
 
     [ClientRpc]
-    private void EnlargeOwnedBoosterLayout()
+    public void EnlargeOwnedBoosterLayout()
     {
         var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
         var smallScale = new Vector3(_smallScaleMultiplier, _smallScaleMultiplier, _smallScaleMultiplier);
@@ -80,7 +78,7 @@ public class BoostersManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void ShrinkOwnedBoosterLayout()
+    public void ShrinkOwnedBoosterLayout()
     {
         var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
         var smallScale = new Vector3(_smallScaleMultiplier, _smallScaleMultiplier, _smallScaleMultiplier);
@@ -89,16 +87,29 @@ public class BoostersManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void HideOwnedBoosterLayout()
+    public void HideOwnedBoosterLayout()
     {
         LeanTweenUtility.ScaleOut(_layoutCanvas, 0.75f, true);
     }
 
     [ClientRpc]
-    private void ShowOwnedBoosterLayout()
+    public void ShowOwnedBoosterLayout()
     {
         var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
         LeanTweenUtility.ScaleIn(_layoutCanvas, bigScale, 0.75f);
+    }
+
+    // Could also not be rpcs down here these 2
+    [ClientRpc]
+    public void ShowPotentialBoosterLayout()
+    {
+        LeanTweenUtility.ScaleIn(_newCardsLayoutCanvas, Vector3.one, 0.75f);
+    }
+
+    [ClientRpc]
+    public void HidePotentialBoosterLayout()
+    {
+        LeanTweenUtility.ScaleOut(_newCardsLayoutCanvas, 0.75f, true);
     }
     #endregion
 }
