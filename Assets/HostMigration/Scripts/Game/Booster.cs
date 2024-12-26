@@ -1,7 +1,7 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public class Booster : MonoBehaviour
+public class BoosterContainer : MonoBehaviour
 {
-    public MonoBehaviour BoosterScript; // The booster object
-    public float Chance; // The chance (weight) of this booster being selected
+    public List<BoosterEntry> Boosters = new(); // List of all boosters
 }

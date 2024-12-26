@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5507068606767667024}
   - component: {fileID: -1939432797055166067}
   - component: {fileID: 4375065353945201916}
+  - component: {fileID: 3491607666516907562}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -190,11 +191,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d22a3de6f36c5146a4ec2c509edcf72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   Slots:
-  - _slotIndex: 0
-  - _slotIndex: 2
-  - _slotIndex: 3
-  - _slotIndex: 4
-  - _slotIndex: 5
-  - _slotIndex: 6
-  - _slotIndex: 2
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+--- !u!114 &3491607666516907562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4064726528608695600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4cdd4db4a66ed5408eed4e9bfaae3d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  DiceCount: 0
+  HealthBar: {fileID: 0}
+  StartingHealth: 20
+  CurrentDiceRollAmount: 0
+  _dicePrefab: {fileID: 4378862580125669272, guid: d3dbd98762399bd4b9bb00479bc6c26f, type: 3}
+  _cup: {fileID: 0}

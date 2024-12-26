@@ -1,25 +1,44 @@
+using Mirror;
 using UnityEngine;
 
 public enum EnemyType
 {
     DefaultEnemyCube, DefaultEnemyCapsule, DefaultEnemySphere
 }
-public class Enemy
+public class Enemy : NetworkBehaviour
 {
-    public int Health { get; private set; }
+    public int Health => HealthBar.CurrentHealth;
     public EnemyType EnemyType { get; private set; }
-    public GameObject Visual { get; private set; }
+    [SerializeField] GameObject HealthBarVisual { get; set; }
+    public HealthBar HealthBar;
+    public GameObject CurrentEnemyVisual;
 
-    public Enemy(int health, EnemyType enemyType, GameObject visual)
+    [SerializeField] Transform SpawnPosition;
+    [SerializeField] GameObject ChosenVisual;
+    [SerializeField] GameObject VisualCubePrefab;
+    [SerializeField] GameObject VisualCapsulePrefab;
+    [SerializeField] GameObject VisualSpherePrefab;
+
+    public Enemy(int health, EnemyType enemyType)
     {
-        Health = health;
+        HealthBar = new HealthBar(health, HealthBarVisual);
         EnemyType = enemyType;
-        Visual = visual;
+        ChosenVisual = enemyType switch
+        {
+            EnemyType.DefaultEnemyCube => VisualCubePrefab,
+            EnemyType.DefaultEnemyCapsule => VisualCubePrefab,
+            EnemyType.DefaultEnemySphere => VisualCubePrefab,
+            _ => VisualCapsulePrefab,
+        };
+
+        CurrentEnemyVisual = Instantiate(ChosenVisual, SpawnPosition.transform.position, Quaternion.identity);
     }
 
+    [Server]
     public void TakeDamage(int damage)
     {
-        Health -= damage;
+        HealthBar.UpdateHealth(-damage);
+
         if (Health <= 0)
         {
             Die();
@@ -30,26 +49,36 @@ public class Enemy
         }
     }
 
+    [ClientRpc]
     private void PlayHitAnimation()
     {
         // Trigger hit animation
+        Debug.LogWarning("Play hit animation, but unimplemented");
     }
 
-    private void Die()
+    [ClientRpc]
+     public virtual void Die()
     {
-        // Handle enemy death logic
+        // Handle enemy death logic (go to next enemy)
+        Debug.LogWarning("Enemy died, but unimplemented");
+        WaveManager.Instance.AdvanceToNextEnemy();
+        Destroy(this.gameObject);
     }
 }
 
 public class Boss : Enemy
 {
-    public Boss(int health, EnemyType bossType, GameObject visual)
-        : base(health, bossType, visual)
+    public Boss(int health, EnemyType bossType)
+        : base(health, bossType)
     {
+        // optional: other health bar visual here
     }
 
-    private void Die()
+    [ClientRpc]
+    public override void Die() // FUN FACT THIS MIGHT NEVER RUN, GOT NO CLUE LOL
     {
-
+        base.Die();
+        Debug.LogError("Boss died, but unimplemented");
+        // ADD EFFECTS HERE
     }
 }

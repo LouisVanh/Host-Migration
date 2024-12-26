@@ -1,16 +1,21 @@
 using UnityEngine;
+using Mirror;
 
-public class BoostersManager : MonoBehaviour
+public class BoostersManager : NetworkBehaviour
 {
     private const int MAX_SLOTS = 7;
     public BoosterSlot[] Slots = new BoosterSlot[MAX_SLOTS];
     private RectTransform _layoutCanvas;
-    private float _smallScale;
-    private float _largeScale;
+    private RectTransform _newCardsLayoutCanvas;
+    private float _smallScaleMultiplier;
+    private float _largeScaleMultiplier;
 
     private void Awake()
     {
         _layoutCanvas = GameObject.FindWithTag("CardLayout").GetComponent<RectTransform>();
+        _newCardsLayoutCanvas = GameObject.FindWithTag("NewCardLayout").GetComponent<RectTransform>();
+
+        HideOwnedBoosterLayout();
     }
 
     public bool AddBooster(IBooster booster)
@@ -63,9 +68,37 @@ public class BoostersManager : MonoBehaviour
         return counter;
     }
 
-    private void EnlargeBoosterLayout()
-    {
-        _layoutCanvas.localScale = new Vector3(_largeScale, _largeScale, _largeScale);
+    #region UI (all should be synced)
 
+    [ClientRpc]
+    private void EnlargeOwnedBoosterLayout()
+    {
+        var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
+        var smallScale = new Vector3(_smallScaleMultiplier, _smallScaleMultiplier, _smallScaleMultiplier);
+        _layoutCanvas.localScale = smallScale;
+        LeanTweenUtility.ScaleTo(_layoutCanvas, bigScale, 1);
     }
+
+    [ClientRpc]
+    private void ShrinkOwnedBoosterLayout()
+    {
+        var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
+        var smallScale = new Vector3(_smallScaleMultiplier, _smallScaleMultiplier, _smallScaleMultiplier);
+        _layoutCanvas.localScale = bigScale;
+        LeanTweenUtility.ScaleTo(_layoutCanvas, smallScale, 1);
+    }
+
+    [ClientRpc]
+    private void HideOwnedBoosterLayout()
+    {
+        LeanTweenUtility.ScaleOut(_layoutCanvas, 0.75f, true);
+    }
+
+    [ClientRpc]
+    private void ShowOwnedBoosterLayout()
+    {
+        var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
+        LeanTweenUtility.ScaleIn(_layoutCanvas, bigScale, 0.75f);
+    }
+    #endregion
 }

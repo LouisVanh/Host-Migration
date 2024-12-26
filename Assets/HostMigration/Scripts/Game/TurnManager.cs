@@ -17,6 +17,19 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
 {
     public GameState CurrentGameState;
     private Dictionary<NetworkConnectionToClient, Player> _players = new Dictionary<NetworkConnectionToClient, Player>();
+    private int _currentDiceRoll;
+    private Enemy _currentEnemy;
+
+    public static TurnManager Instance { get; private set; }
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+            Destroy(this.gameObject);
+        else
+            Instance = this;
+
+        DontDestroyOnLoad(this.gameObject);
+    }
 
     [Server]
     public void GiveAllPlayersDice()
@@ -40,21 +53,59 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         }
     }
 
+    public Player GetRandomDeadPlayer()
+    {
+        // return a random dead player (through player.IsDead prop)
+        List<Player> deadPlayers = new List<Player>();
+
+        foreach (var player in _players.Values)
+        {
+            if (player.IsDead)
+            {
+                deadPlayers.Add(player);
+            }
+        }
+
+        // If there are no dead players, return null
+        if (deadPlayers.Count == 0)
+        {
+            return null;
+        }
+
+        // Return a random dead player from the list
+        int randomIndex = Random.Range(0, deadPlayers.Count);
+        return deadPlayers[randomIndex];
+    }
+
     [Server]
-    private void UpdateGameState(GameState newState)
+    public void UpdateGameState(GameState newState)
     {
         CurrentGameState = newState;
         // Handle state transitions
         switch (newState)
         {
             case GameState.PreDiceReceived:
-                // ADD STUFF HERE
+                // Show the right screen
+                // Explain anything if it's the first time
+                WaveManager.Instance.CreateNewWave();
+                //When done waiting for a few seconds, switch to the next
                 break;
+
             case GameState.EveryoneRollingTime:
+                // Give people their dice
+                GiveAllPlayersDice();
+
+                // When all players are done rolling, switch to the next
                 break;
+
             case GameState.EveryoneJustRolled:
+                // Count up the dice
+                _currentDiceRoll = CountTotalRollAmount();
+                _currentEnemy.TakeDamage(_currentDiceRoll);
                 break;
             case GameState.AfterRollDamageEnemy:
+                _currentDiceRoll = 0;
+
                 break;
             case GameState.AfterRollEnemyAttack:
                 break;
@@ -64,9 +115,14 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 break;
         }
     }
-
-    private void CountTotalRollAmount()
+    [Server]
+    private int CountTotalRollAmount()
     {
-
+        var total = 0;
+        foreach (var player in _players)
+        {
+            total += player.Value.DiceCount;
+        }
+        return total;
     }
 }

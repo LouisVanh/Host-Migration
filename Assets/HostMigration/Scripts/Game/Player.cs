@@ -4,11 +4,16 @@ using System;
 
 public class Player : NetworkBehaviour
 {
-    public int DiceCount;
+    public int DiceCount = 1;
     private bool _hasAlreadyRolled;
     private bool _canRoll;
     private BoostersManager _boostersManager;
-    private int _health;
+    public HealthBar HealthBar { get; private set; }
+    [SerializeField] GameObject HealthBarVisual { get; set; }
+
+    public bool IsDead => HealthBar.CurrentHealth == 0;
+    public int StartingHealth = 20;
+    public int CurrentDiceRollAmount;
 
     [SerializeField] private GameObject _dicePrefab;
     [SerializeField] private Transform _cup;
@@ -18,7 +23,10 @@ public class Player : NetworkBehaviour
         if (!isLocalPlayer) return;
 
         _boostersManager = this.gameObject.GetComponent<BoostersManager>();
+        HealthBar = new HealthBar(StartingHealth, HealthBarVisual);
+
     }
+
     private void Update()
     {
         if (!isLocalPlayer) return;
@@ -29,14 +37,28 @@ public class Player : NetworkBehaviour
             RollDice(this);
         }
     }
-    [Command(requiresAuthority =false)]
+
+    [Command(requiresAuthority = false)]
     public void RollDice(Player player)
     {
         if (_canRoll && !_hasAlreadyRolled)
         {
             // Perform dice roll logic
             _hasAlreadyRolled = true;
+            int totalRoll = 0;
+            for (int i = 0; i < DiceCount; i++)
+            {
+                int eyes = UnityEngine.Random.Range(0, 6);
+                totalRoll += eyes;
+                SpawnDiceWithEyes(eyes);
+            }
         }
+    }
+
+    public void SpawnDiceWithEyes(int eyesRolled)
+    {
+        // Spawn the dice object with the amount of eyes rolled showing upwards. I'd make like 6 prefab variations tbh, too lazy.
+        Debug.Log("spawning dice (unimplemented)");
     }
 
     public void ShakeDiceJar()

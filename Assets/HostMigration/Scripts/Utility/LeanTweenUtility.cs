@@ -16,6 +16,19 @@ public static class LeanTweenUtility
     }
 
     /// <summary>
+    /// Scales a RectTransform to the specified scale.
+    /// </summary>
+    /// <param name="target">The target RectTransform.</param>
+    /// <param name="targetScale">The scale to animate to.</param>
+    /// <param name="duration">The duration of the scale animation.</param>
+    public static void ScaleTo(RectTransform targetR, Vector3 targetScale, float duration)
+    {
+        if (targetR == null) return;
+
+        LeanTween.scale(targetR, targetScale, duration).setEase(LeanTweenType.easeInOutQuad);
+    }
+
+    /// <summary>
     /// Scales a GameObject in (to its normal size) and activates it if not already active.
     /// </summary>
     /// <param name="target">The target GameObject.</param>
@@ -27,6 +40,20 @@ public static class LeanTweenUtility
 
         target.SetActive(true);
         ScaleTo(target, normalScale, duration);
+    }
+
+    /// <summary>
+    /// Scales a RectTransform in (to its normal size) and activates it if not already active.
+    /// </summary>
+    /// <param name="target">The target RectTransform.</param>
+    /// <param name="normalScale">The normal scale of the RectTransform.</param>
+    /// <param name="duration">The duration of the scale-in animation.</param>
+    public static void ScaleIn(RectTransform targetR, Vector3 normalScale, float duration)
+    {
+        if (targetR == null) return;
+
+        targetR.gameObject.SetActive(true);
+        ScaleTo(targetR, normalScale, duration);
     }
 
     /// <summary>
@@ -44,6 +71,25 @@ public static class LeanTweenUtility
             if (deactivateAfter)
             {
                 target.SetActive(false);
+            }
+        });
+    }
+
+    /// <summary>
+    /// Scales a RectTransform out (to zero) and optionally deactivates it afterward.
+    /// </summary>
+    /// <param name="target">The target GameObject.</param>
+    /// <param name="duration">The duration of the scale-out animation.</param>
+    /// <param name="deactivateAfter">Whether to deactivate the GameObject after scaling out.</param>
+    public static void ScaleOut(RectTransform target, float duration, bool deactivateAfter = true)
+    {
+        if (target == null) return;
+
+        LeanTween.scale(target, Vector3.zero, duration).setEase(LeanTweenType.easeInOutQuad).setOnComplete(() =>
+        {
+            if (deactivateAfter)
+            {
+                target.gameObject.SetActive(false);
             }
         });
     }

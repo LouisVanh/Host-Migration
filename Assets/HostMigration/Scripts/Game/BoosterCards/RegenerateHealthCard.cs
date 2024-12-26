@@ -8,18 +8,13 @@ public class RegenerateHealthBooster : MonoBehaviour, IBoosterConsumable
     public Player PlayerShownTo { get; }
 
 
-    private int _healthToRestore;
-
-    public RegenerateHealthBooster(int healthToRestore)
-    {
-        _healthToRestore = healthToRestore;
-    }
+    public int HealthToRestore;
 
     public void ConsumeEffect(Player player)
     {
         if (player != null)
         {
-            player.GetComponent<HealthBar>().UpdateHealth(_healthToRestore);
+            player.GetComponent<HealthBar>().UpdateHealth(HealthToRestore);
         }
     }
 }

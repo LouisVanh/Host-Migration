@@ -1,6 +1,7 @@
+using Mirror;
 using UnityEngine;
 
-public class HealthBar : MonoBehaviour
+public class HealthBar : NetworkBehaviour
 {
     public int TotalHealth { get; private set; }
     public int CurrentHealth { get; private set; }
@@ -13,9 +14,16 @@ public class HealthBar : MonoBehaviour
         Visual = visual;
     }
 
+    [ClientRpc]
     public void UpdateHealth(int amount)
     {
         CurrentHealth = Mathf.Clamp(CurrentHealth + amount, 0, TotalHealth);
         // Update UI visual progress bar
+    }
+
+    [ClientRpc]
+    public void AdjustTotalHealth(int amount)
+    {
+        TotalHealth += amount;
     }
 }
