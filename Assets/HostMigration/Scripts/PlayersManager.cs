@@ -3,6 +3,24 @@ using Mirror;
 
 public class PlayersManager : NetworkBehaviour
 {
+    /* README: ENSURE YOUR PLAYER HAS THIS OR IT WILL DO NOTHING
+     * 
+    private void OnDestroy()
+    {
+        if (isServer)
+        {
+            PlayersManager.Instance.RemovePlayer(gameObject.GetComponent<NetworkIdentity>().netId);
+        }
+    }
+
+    [Command]
+    private void CmdRegisterPlayer() // Call this on Start, make sure to check for isLocalPlayer
+    {
+        PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
+    }
+    *
+    */
+
 
     public static PlayersManager Instance { get; private set; }
     private void Awake()

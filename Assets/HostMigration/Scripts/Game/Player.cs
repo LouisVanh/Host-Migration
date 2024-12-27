@@ -29,27 +29,15 @@ public class Player : NetworkBehaviour
     }
 
     [Command]
-    private void CmdRegisterPlayer()
+    private void CmdRegisterPlayer() // Call this on Start, make sure to check for isLocalPlayer
     {
         PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
     }
 
-    private void Start()
+    private void HandleHealthBarSetup()
     {
-        Debug.Log("i woke up lol");
-
         if (isLocalPlayer)
         {
-            CmdRegisterPlayer();
-
-            // Ensure BoostersManager is properly assigned
-            _boostersManager = GetComponent<BoostersManager>();
-            if (_boostersManager == null)
-            {
-                Debug.LogError("BoostersManager component is missing!");
-                return;
-            }
-
             if (PlayerHealthBarVisual != null)
             {
                 // Add HealthBar component but delay initialization
@@ -70,12 +58,20 @@ public class Player : NetworkBehaviour
             {
                 Debug.LogError("PlayerHealthBarVisual is not assigned in the Inspector!");
             }
+        }
+    }
 
-            if (isServer)
-            {
-                Debug.Log("Hiding canvas stuff!");
-                UIManager.Instance.ChangeScreenState(ScreenState.WaitingLobby);
-            }
+    private void Start()
+    {
+        if (isLocalPlayer) // never use localplayer in awake
+        {
+            CmdRegisterPlayer();
+
+            _boostersManager = GetComponent<BoostersManager>();
+
+            HandleHealthBarSetup();
+
+            UIManager.Instance.ChangeScreenState(ScreenState.WaitingLobby);
         }
     }
 
