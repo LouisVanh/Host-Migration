@@ -24,14 +24,14 @@ public class Player : NetworkBehaviour
     {
         if (isServer)
         {
-            PlayersManager.Instance.RemovePlayer(gameObject);
+            PlayersManager.Instance.RemovePlayer(gameObject.GetComponent<NetworkIdentity>().netId);
         }
     }
 
     [Command]
     private void CmdRegisterPlayer()
     {
-        PlayersManager.Instance.AddPlayer(gameObject);
+        PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
     }
 
     private void Start()
@@ -41,7 +41,6 @@ public class Player : NetworkBehaviour
         if (isLocalPlayer)
         {
             CmdRegisterPlayer();
-            Debug.Log("found the local player :)");
 
             // Ensure BoostersManager is properly assigned
             _boostersManager = GetComponent<BoostersManager>();

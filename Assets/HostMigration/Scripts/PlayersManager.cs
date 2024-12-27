@@ -1,61 +1,95 @@
-using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
 public class PlayersManager : NetworkBehaviour
 {
-    public static PlayersManager Instance;
 
-    // A synchronized list of players
-    private readonly SyncList<GameObject> _players = new SyncList<GameObject>();
-
-    // Publicly accessible list of players
-    public IReadOnlyList<GameObject> Players => _players;
-
+    public static PlayersManager Instance { get; private set; }
     private void Awake()
     {
-        // Singleton pattern
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
+        if (Instance != null && Instance != this)
+            Destroy(this);
         else
+            Instance = this;
+
+        DontDestroyOnLoad(this.gameObject);
+    }
+
+    public readonly SyncList<uint> Players = new SyncList<uint>();
+
+    [Server]
+    public void AddPlayer(uint netId)
+    {
+        if (!Players.Contains(netId))
         {
-            Destroy(gameObject);
+            Players.Add(netId);
+            Debug.Log($"Server: Added player with NetID {netId}");
         }
     }
 
-    // Called when a player joins the game
-    [ServerCallback]
-    public void AddPlayer(GameObject player)
+    [Server]
+    public void RemovePlayer(uint netId)
     {
-        if (!_players.Contains(player))
+        if (Players.Contains(netId))
         {
-            _players.Add(player);
-            RpcPlayerListUpdated();
+            Players.Remove(netId);
+            Debug.Log($"Server: Removed player with NetID {netId}");
         }
     }
 
-    // Called when a player leaves the game
-    [ServerCallback]
-    public void RemovePlayer(GameObject player)
+    public override void OnStartClient()
     {
-        if (_players.Contains(player))
-        {
-            _players.Remove(player);
-            RpcPlayerListUpdated();
-        }
+        // Add handlers for SyncList Actions
+        Players.OnAdd += OnItemAdded;
+        Players.OnInsert += OnItemInserted;
+        Players.OnSet += OnItemChanged;
+        Players.OnRemove += OnItemRemoved;
+        Players.OnClear += OnListCleared;
+
+        // List is populated before handlers are wired up so we
+        // need to manually invoke OnAdd for each element.
+        for (int i = 0; i < Players.Count; i++)
+            Players.OnAdd.Invoke(i);
     }
 
-    // Notify clients that the player list has updated
-    [ClientRpc]
-    private void RpcPlayerListUpdated()
+    public override void OnStopClient()
     {
-        Debug.Log($"Player list updated: {_players.Count} players connected.");
-        foreach (var player in _players)
+        // Remove handlers when client stops
+        Players.OnAdd -= OnItemAdded;
+        Players.OnInsert -= OnItemInserted;
+        Players.OnSet -= OnItemChanged;
+        Players.OnRemove -= OnItemRemoved;
+        Players.OnClear -= OnListCleared;
+    }
+
+    void OnItemAdded(int index)
+    {
+        Debug.Log($"Element added at index {index} {Players[index]}");
+    }
+
+    void OnItemInserted(int index)
+    {
+        Debug.Log($"Element inserted at index {index} {Players[index]}");
+    }
+
+    void OnItemChanged(int index, uint oldValue)
+    {
+        Debug.Log($"Element changed at index {index} from {oldValue} to {Players[index]}");
+    }
+
+    void OnItemRemoved(int index, uint oldValue)
+    {
+        Debug.Log($"Element removed at index {index} {oldValue}");
+    }
+
+    void OnListCleared()
+    {
+        // OnListCleared is called before the list is actually cleared
+        // so we can iterate the list to get the elements if needed.
+        foreach (uint id in Players)
         {
-            Debug.Log($"Player: {player.name}");
+        if (NetworkClient.spawned.TryGetValue(id, out NetworkIdentity objNetIdentity))
+            Debug.Log($"Element cleared {objNetIdentity.transform.name}");
         }
     }
 }
