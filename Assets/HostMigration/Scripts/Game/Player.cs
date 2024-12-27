@@ -5,6 +5,8 @@ using System;
 public enum PlayerPosition { BottomLeft, BottomRight, TopLeft, TopRight, None }
 public class Player : NetworkBehaviour
 {
+    [SyncVar]
+    public bool ReadyToPlay;
     public int DiceCount = 1;
     private bool _hasAlreadyRolled;
     private bool _canRoll;
@@ -36,16 +38,14 @@ public class Player : NetworkBehaviour
         PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
     }
 
-    public void HandleHealthBarSetup()
+    [Command]
+    public void CmdHandleHealthBarSetup()
     {
-        if (isLocalPlayer)
-        {
             var scriptObj = Instantiate(PlayerHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
             HealthBar = scriptObj.GetComponent<HealthBar>();
             NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-            HealthBar.SetupHealthBar(HealthBarType.Player, PlayerHealthBarVisual, StartingHealth, PlayerScreenPosition);
+            HealthBar.SetupHealthBar(PlayerHealthBarVisual, StartingHealth, PlayerScreenPosition);
             Debug.Log("Setting up health bar for player " + this.gameObject.name + "!");
-        }
     }
 
     private void Start()

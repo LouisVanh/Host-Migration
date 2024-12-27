@@ -146,7 +146,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         foreach (var player in GetPlayers())
         {
             Debug.Log(player.name);
-            player.HandleHealthBarSetup();
+            player.CmdHandleHealthBarSetup();
         }
     }
 }

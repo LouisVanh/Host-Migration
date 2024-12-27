@@ -22,6 +22,7 @@ public class MyNetworkManager : NetworkManager
     public override void OnStartClient() 
     {
         Debug.Log("OnStartClient!");
+        if(UIManager.Instance)
         UIManager.Instance.StartTheUI();
         // make player activate controls
 

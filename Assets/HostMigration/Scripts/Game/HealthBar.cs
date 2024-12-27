@@ -1,7 +1,7 @@
 using Mirror;
 using UnityEngine;
 using UnityEngine.UI;
-public enum HealthBarType { Player, Enemy}
+
 public class HealthBar : NetworkBehaviour
 {
     [SyncVar(hook = nameof(OnTotalHealthChanged))]
@@ -13,14 +13,32 @@ public class HealthBar : NetworkBehaviour
     private Image _greenHealth;
     public Vector3 Position;
     public GameObject VisualPreset { get; private set; }
-    public GameObject ActualVisualOfHealthBar { get; private set; }
+    private GameObject _actualVisualOfHealthBar;
 
+    public GameObject ActualVisualOfHealthBar
+    {
+        get
+        {
+            if (_actualVisualOfHealthBar != null) return _actualVisualOfHealthBar;
+            if (NetworkServer.spawned.TryGetValue(BarNetId, out NetworkIdentity bar))
+            {
+                _actualVisualOfHealthBar = bar.gameObject;
+                return bar.gameObject;
+            }
+            Debug.LogError("Couldnt find the damn visual for the health bar man");
+            return null;
+                }
+        set { _actualVisualOfHealthBar = value; }
+    }
+    [SyncVar]
+    public uint BarNetId;
 
-    public void SetupHealthBar(HealthBarType type, GameObject playerHealthBarVisual, int startingHealth, PlayerPosition position = PlayerPosition.None)
+    public void SetupHealthBar(GameObject playerHealthBarVisual, int startingHealth, PlayerPosition position = PlayerPosition.None)
     {
         this.VisualPreset = playerHealthBarVisual;
         this.TotalHealth = startingHealth; // Initialize SyncVars after spawn
         this.CurrentHealth = startingHealth;
+        this.BarNetId = GetComponent<NetworkIdentity>().netId;
         CmdCreateBar(position);
         // TODO RPC MOVE HEALTHBAR TO POSITION --------------------------------------------------------------------
     }
@@ -29,7 +47,7 @@ public class HealthBar : NetworkBehaviour
     {
         ActualVisualOfHealthBar = Instantiate(VisualPreset, Position, Quaternion.identity);
         NetworkServer.Spawn(ActualVisualOfHealthBar);
-        RpcCreateBar(ActualVisualOfHealthBar.GetComponent<NetworkIdentity>().netId, playerPosition);
+        RpcCreateBar(BarNetId, playerPosition);
     }
 
     [ClientRpc]
@@ -77,6 +95,7 @@ public class HealthBar : NetworkBehaviour
 
         if (TotalHealth > 0)
         {
+            Debug.Log("Changing health!");
             _greenHealth.fillAmount = (float)CurrentHealth / TotalHealth; // Fixed division
         }
         else

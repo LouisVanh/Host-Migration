@@ -11,9 +11,9 @@ public enum ScreenState
     AfterRollEnemyAttack,
     EveryonePickBooster
 }
-public class UIManager : NetworkBehaviour 
-    // IMPORTANT: DO NOT SYNC UI, NO MATTER HOW TEMPTING. BAD IDEA.
-    //  seriously. sync the values, call the changes on the client. 
+public class UIManager : NetworkBehaviour
+// IMPORTANT: DO NOT SYNC UI, NO MATTER HOW TEMPTING. BAD IDEA.
+//  seriously. sync the values, call the changes on the client. 
 {
     public static UIManager Instance { get; private set; }
 
@@ -42,8 +42,6 @@ public class UIManager : NetworkBehaviour
                     _allDiceRolledScreen.gameObject.SetActive(false);
                     HealthBarsCanvas.gameObject.SetActive(false);
                     // ... animations under here
-                    HideOwnedBoosterLayout();
-                    HidePotentialBoosterLayout();
                     break;
                 case ScreenState.PreDiceReceived:
                     _preDiceScreen.gameObject.SetActive(true);
@@ -162,23 +160,55 @@ public class UIManager : NetworkBehaviour
         ShowOwnedBoosterLayout();
     }
 
+    [ClientRpc]
+    private void RpcPlayGameWhenEverybodyReady()
+    {
+        DebugStartGame();
+    }
+
+    [Command(requiresAuthority = false)]
+    private void CmdSetReadyAndPossiblyStartGame()
+    {
+        var player = connectionToClient.identity.GetComponent<Player>();
+        player.ReadyToPlay = true;
+        bool checkSum = true;
+        foreach (uint id in PlayersManager.Instance.Players)
+        {
+            if (NetworkClient.spawned.TryGetValue(id, out NetworkIdentity objNetIdentity))
+            {
+                if (objNetIdentity.GetComponent<Player>().ReadyToPlay == false) checkSum = false;
+            }
+        }
+        if (checkSum)
+            RpcPlayGameWhenEverybodyReady();
+    }
+
     public void StartGameWithOnePlayer()
     {
-        if(PlayersManager.Instance.Players.Count == 1) { DebugStartGame(); }
+        if (PlayersManager.Instance.Players.Count == 1)
+        {
+            CmdSetReadyAndPossiblyStartGame();
+        }
     }
     public void StartGameWithTwoPlayers()
     {
-        if (PlayersManager.Instance.Players.Count == 2) { DebugStartGame(); }
-
+        if (PlayersManager.Instance.Players.Count == 2)
+        {
+            CmdSetReadyAndPossiblyStartGame();
+        }
     }
     public void StartGameWithThreePlayers()
     {
-        if (PlayersManager.Instance.Players.Count == 3) { DebugStartGame(); }
-
+        if (PlayersManager.Instance.Players.Count == 3)
+        {
+            CmdSetReadyAndPossiblyStartGame();
+        }
     }
     public void StartGameWithFourPlayers()
     {
-        if (PlayersManager.Instance.Players.Count == 4) { DebugStartGame(); }
-
+        if (PlayersManager.Instance.Players.Count == 4)
+        {
+            CmdSetReadyAndPossiblyStartGame();
+        }
     }
 }
