@@ -46,7 +46,7 @@ public class WaveManager : NetworkBehaviour
         var scriptObj = Instantiate(EnemyScriptPrefab, Vector3.zero, Quaternion.identity);
         CurrentEnemy = scriptObj.GetComponent<Enemy>();
         NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-        CurrentEnemy.SetupEnemy(StandardEnemyHealth, GetRandomEnemyType());
+        CurrentEnemy.CmdSetupEnemy(StandardEnemyHealth, GetRandomEnemyType());
         CurrentWave.CurrentEnemyIndex++;
         // TODO RPC MOVE ENEMY TO POSITION --------------------------------------------------------------------
     }

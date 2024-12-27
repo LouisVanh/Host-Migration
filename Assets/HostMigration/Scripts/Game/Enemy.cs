@@ -19,17 +19,15 @@ public class Enemy : NetworkBehaviour
     [SerializeField] GameObject VisualCapsulePrefab;
     [SerializeField] GameObject VisualSpherePrefab;
 
-    public virtual void SetupEnemy(int health, EnemyType enemyType)
+    [Command(requiresAuthority = false)]
+    public virtual void CmdSetupEnemy(int health, EnemyType enemyType)
     {
-        if (isLocalPlayer)
-        {
-            var scriptObj = Instantiate(EnemyHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
-            HealthBar = scriptObj.GetComponent<HealthBar>();
-            NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-            HealthBar.SetupHealthBar(EnemyHealthBarVisual, health);
-            HealthBar.SetPositionOfHealthBarEnemy();
-            Debug.Log("Setting up health bar for enemy " + this.gameObject.name + "!");
-        }
+        var scriptObj = Instantiate(EnemyHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
+        HealthBar = scriptObj.GetComponent<HealthBar>();
+        NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
+        HealthBar.SetupHealthBar(HealthBarType.Enemy, EnemyHealthBarVisual, health);
+        Debug.Log("Setting up health bar for enemy " + this.gameObject.name + "!");
+
         EnemyType = enemyType;
         ChosenVisual = enemyType switch
         {
@@ -78,9 +76,10 @@ public class Enemy : NetworkBehaviour
 
 public class Boss : Enemy
 {
-    public override void SetupEnemy(int health, EnemyType bossType)
+    [Command(requiresAuthority = false)]
+    public override void CmdSetupEnemy(int health, EnemyType bossType)
     {
-        base.SetupEnemy(health, bossType);
+        base.CmdSetupEnemy(health, bossType);
         // optional: other health bar visual here
     }
 

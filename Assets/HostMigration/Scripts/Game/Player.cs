@@ -2,7 +2,7 @@ using UnityEngine;
 using Mirror;
 using System;
 
-public enum PlayerPosition { BottomLeft, BottomRight, TopLeft, TopRight }
+public enum PlayerPosition { BottomLeft, BottomRight, TopLeft, TopRight, None }
 public class Player : NetworkBehaviour
 {
     public int DiceCount = 1;
@@ -43,8 +43,7 @@ public class Player : NetworkBehaviour
             var scriptObj = Instantiate(PlayerHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
             HealthBar = scriptObj.GetComponent<HealthBar>();
             NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-            HealthBar.SetupHealthBar(PlayerHealthBarVisual, StartingHealth);
-            HealthBar.SetPositionOfHealthBarPlayer(PlayerScreenPosition);
+            HealthBar.SetupHealthBar(HealthBarType.Player, PlayerHealthBarVisual, StartingHealth, PlayerScreenPosition);
             Debug.Log("Setting up health bar for player " + this.gameObject.name + "!");
         }
     }
@@ -77,6 +76,7 @@ public class Player : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void RollDice(Player player)
     {
+        WaveManager.Instance.CurrentEnemy.TakeDamage(3); // obviously for testing only
         if (_canRoll && !_hasAlreadyRolled)
         {
             // Perform dice roll logic
