@@ -14,6 +14,15 @@ public class HealthBar : NetworkBehaviour
     public Vector3 Position;
     public GameObject Visual { get; set; }
 
+
+    public void SetupHealthBar(GameObject playerHealthBarVisual, int startingHealth)
+    {
+        this.Visual = playerHealthBarVisual;
+        this.TotalHealth = startingHealth; // Initialize SyncVars after spawn
+        this.CurrentHealth = startingHealth;
+        CmdCreateBar();
+        // TODO RPC MOVE HEALTHBAR TO POSITION --------------------------------------------------------------------
+    }
     [Command(requiresAuthority = false)]
     public void CmdCreateBar()
     {
@@ -21,9 +30,11 @@ public class HealthBar : NetworkBehaviour
         NetworkServer.Spawn(obj);
         RpcCreateBar(obj.GetComponent<NetworkIdentity>().netId);
     }
+
     [ClientRpc]
     public void RpcCreateBar(uint netId)
     {
+        Debug.Log("RpcCreateBar running here");
         if (Visual == null)
         {
             Debug.LogError("HealthBar Visual prefab is not assigned!");
@@ -31,6 +42,7 @@ public class HealthBar : NetworkBehaviour
         }
         if (NetworkClient.spawned.TryGetValue(netId, out NetworkIdentity objNetIdentity))
         {
+            Debug.Log("PARENTING THE HEALTH BAR HERE");
             objNetIdentity.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
             _greenHealth = objNetIdentity.transform.GetChild(2).GetComponent<Image>();
             UpdateBar();
@@ -69,8 +81,33 @@ public class HealthBar : NetworkBehaviour
     }
 
 
-    private void SetPositionOfHealthBar()
+    public void SetPositionOfHealthBarPlayer(PlayerPosition screenPos)
     {
-
+        RectTransform bar = Visual.GetComponent<RectTransform>();
+        bar.localScale = new Vector3(1f, 1f, 1f);
+        switch (screenPos)
+        {
+            case PlayerPosition.BottomLeft:
+                bar.position = new Vector3(-600, -450);
+                break;
+            case PlayerPosition.BottomRight:
+                bar.position = new Vector3(+600, -450);
+                break;
+            case PlayerPosition.TopLeft:
+                bar.position = new Vector3(-600, 300);
+                break;
+            case PlayerPosition.TopRight:
+                bar.position = new Vector3(+600, 300);
+                break;
+            default:
+                break;
+        }
+    }
+    public void SetPositionOfHealthBarEnemy()
+    {
+        // Set rect transform of health bar to X: 0, Y: -350, and local scale to 1.25f
+        RectTransform bar = Visual.GetComponent<RectTransform>();
+        bar.localScale = new Vector3(1.25f, 1.25f, 1.25f);
+        bar.position = new Vector3(0, -350);
     }
 }

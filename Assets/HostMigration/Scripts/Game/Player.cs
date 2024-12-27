@@ -20,6 +20,8 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameObject _dicePrefab;
     [SerializeField] private Transform _cup;
 
+    public PlayerPosition PlayerScreenPosition;
+
     private void OnDestroy()
     {
         if (isServer)
@@ -34,30 +36,16 @@ public class Player : NetworkBehaviour
         PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
     }
 
-    private void HandleHealthBarSetup()
+    public void HandleHealthBarSetup()
     {
         if (isLocalPlayer)
         {
-            if (PlayerHealthBarVisual != null)
-            {
-                // Add HealthBar component but delay initialization
-                var scriptObj = Instantiate(PlayerHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
-                HealthBar = scriptObj.GetComponent<HealthBar>();
-
-                if (isServer)
-                {
-                    Debug.Log("Server initializing HealthBar!");
-                    NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-                    HealthBar.Visual = PlayerHealthBarVisual;
-                    HealthBar.TotalHealth = StartingHealth; // Initialize SyncVars after spawn
-                    HealthBar.CurrentHealth = StartingHealth;
-                    HealthBar.CmdCreateBar();
-                }
-            }
-            else
-            {
-                Debug.LogError("PlayerHealthBarVisual is not assigned in the Inspector!");
-            }
+            var scriptObj = Instantiate(PlayerHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
+            HealthBar = scriptObj.GetComponent<HealthBar>();
+            NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
+            HealthBar.SetupHealthBar(PlayerHealthBarVisual, StartingHealth);
+            HealthBar.SetPositionOfHealthBarPlayer(PlayerScreenPosition);
+            Debug.Log("Setting up health bar for player " + this.gameObject.name + "!");
         }
     }
 
@@ -69,7 +57,7 @@ public class Player : NetworkBehaviour
 
             _boostersManager = GetComponent<BoostersManager>();
 
-            HandleHealthBarSetup();
+            //HandleHealthBarSetup();
 
             UIManager.Instance.ChangeScreenState(ScreenState.WaitingLobby);
         }

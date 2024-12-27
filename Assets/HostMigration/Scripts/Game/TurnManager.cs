@@ -17,7 +17,6 @@ public enum GameState
 public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERYTHING ONCE)
 {
     public GameState CurrentGameState;
-    private Dictionary<NetworkConnectionToClient, Player> _players = new Dictionary<NetworkConnectionToClient, Player>();
     private int _currentDiceRoll;
     private Enemy _currentEnemy;
 
@@ -33,27 +32,34 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         DontDestroyOnLoad(this.gameObject);
     }
 
+    private List<Player> GetPlayers()
+    {
+        List<Player> playerList = new();
+        foreach (uint playerId in PlayersManager.Instance.Players)
+        {
+            if (NetworkClient.spawned.TryGetValue(playerId, out NetworkIdentity playerObj))
+                playerList.Add(playerObj.GetComponent<Player>());
+        }
+        return playerList;
+    }
+
     [Server]
     public void GiveAllPlayersDice()
     {
         if (CurrentGameState != GameState.PreDiceReceived) return;
 
-        foreach (var player in _players)
+        foreach (var player in GetPlayers())
         {
-            GivePlayerDice(player.Key);
+            GivePlayerDice(player);
         }
         TurnCount++;
     }
 
     [TargetRpc]
-    private void GivePlayerDice(NetworkConnectionToClient playerConnection)
+    private void GivePlayerDice(Player player)
     {
-        // Get how many dice the player should have from the Player class attached to the gameobject with that netId
-        if (_players.TryGetValue(playerConnection, out Player player))
-        {
             var diceCount = player.DiceCount;
             player.ReceiveDice(diceCount); // Assuming a method to handle dice assignment
-        }
     }
 
     public Player GetRandomDeadPlayer()
@@ -61,7 +67,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         // return a random dead player (through player.IsDead prop)
         List<Player> deadPlayers = new List<Player>();
 
-        foreach (var player in _players.Values)
+        foreach (var player in GetPlayers())
         {
             if (player.IsDead)
             {
@@ -94,6 +100,8 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
             case GameState.PreDiceReceived:
                 // Show the right screen
                 // Explain anything if it's the first time
+                // Healthbar shit
+                GivePlayersHealthBars();
                 WaveManager.Instance.CreateNewWave();
                 //When done waiting for a few seconds, switch to the next
                 break;
@@ -126,10 +134,19 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     private int CountTotalRollAmount()
     {
         var total = 0;
-        foreach (var player in _players)
+        foreach (var player in GetPlayers())
         {
-            total += player.Value.DiceCount;
+            total += player.DiceCount;
         }
         return total;
+    }
+
+    private void GivePlayersHealthBars()
+    {
+        foreach (var player in GetPlayers())
+        {
+            Debug.Log(player.name);
+            player.HandleHealthBarSetup();
+        }
     }
 }
