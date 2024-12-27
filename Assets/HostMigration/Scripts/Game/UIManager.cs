@@ -11,7 +11,9 @@ public enum ScreenState
     AfterRollEnemyAttack,
     EveryonePickBooster
 }
-public class UIManager : NetworkBehaviour
+public class UIManager : NetworkBehaviour 
+    // IMPORTANT: DO NOT SYNC UI, NO MATTER HOW TEMPTING. BAD IDEA.
+    //  seriously. sync the values, call the changes on the client. 
 {
     public static UIManager Instance { get; private set; }
 
@@ -107,7 +109,6 @@ public class UIManager : NetworkBehaviour
 
     #region UI animations
 
-    [ClientRpc]
     public void EnlargeOwnedBoosterLayout()
     {
         var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
@@ -116,7 +117,6 @@ public class UIManager : NetworkBehaviour
         LeanTweenUtility.ScaleTo(_layoutOwnedBoosterRect, bigScale, 1);
     }
 
-    [ClientRpc]
     public void ShrinkOwnedBoosterLayout()
     {
         var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
@@ -125,28 +125,24 @@ public class UIManager : NetworkBehaviour
         LeanTweenUtility.ScaleTo(_layoutOwnedBoosterRect, smallScale, 1);
     }
 
-    [ClientRpc]
     public void HideOwnedBoosterLayout()
     {
         if (_layoutOwnedBoosterRect.gameObject.activeSelf)
             LeanTweenUtility.ScaleOut(_layoutOwnedBoosterRect, 0.25f, true);
     }
 
-    [ClientRpc]
     public void ShowOwnedBoosterLayout()
     {
         var bigScale = new Vector3(_largeScaleMultiplier, _largeScaleMultiplier, _largeScaleMultiplier);
         LeanTweenUtility.ScaleIn(_layoutOwnedBoosterRect, bigScale, 0.75f);
     }
 
-    // Could also not be rpcs down here these 2
-    [ClientRpc]
+
     public void ShowPotentialBoosterLayout()
     {
         LeanTweenUtility.ScaleIn(_layoutPotentialBoosterRect, Vector3.one, 0.75f);
     }
 
-    [ClientRpc]
     public void HidePotentialBoosterLayout()
     {
         if (_layoutOwnedBoosterRect.gameObject.activeSelf)
@@ -159,6 +155,7 @@ public class UIManager : NetworkBehaviour
     public void DebugStartGame()
     {
         ChangeScreenState(ScreenState.PreDiceReceived);
+        TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
     }
     public void DebugAnimationPlay()
     {

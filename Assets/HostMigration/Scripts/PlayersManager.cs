@@ -83,6 +83,10 @@ public class PlayersManager : NetworkBehaviour
     void OnItemAdded(int index)
     {
         Debug.Log($"Element added at index {index} {Players[index]}");
+        if (NetworkServer.spawned.TryGetValue(Players[index], out NetworkIdentity playerId))
+        {
+            playerId.GetComponent<Player>().PlayerScreenPosition = (PlayerPosition)index;
+        }
     }
 
     void OnItemInserted(int index)
@@ -106,8 +110,8 @@ public class PlayersManager : NetworkBehaviour
         // so we can iterate the list to get the elements if needed.
         foreach (uint id in Players)
         {
-        if (NetworkClient.spawned.TryGetValue(id, out NetworkIdentity objNetIdentity))
-            Debug.Log($"Element cleared {objNetIdentity.transform.name}");
+            if (NetworkClient.spawned.TryGetValue(id, out NetworkIdentity objNetIdentity))
+                Debug.Log($"Element cleared {objNetIdentity.transform.name}");
         }
     }
 }

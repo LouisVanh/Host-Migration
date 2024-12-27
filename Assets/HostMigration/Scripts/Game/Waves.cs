@@ -1,11 +1,13 @@
 using UnityEngine;
+using Mirror;
 
-public class WaveManager : MonoBehaviour
+public class WaveManager : NetworkBehaviour
 {
     public Wave CurrentWave;
     public int CurrentWaveIndex;
     public int StandardEnemyHealth;
     public Enemy CurrentEnemy;
+    public GameObject EnemyScriptPrefab;
 
     public static WaveManager Instance { get; private set; }
     private void Awake()
@@ -18,30 +20,45 @@ public class WaveManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
+    [Server]
     public void CreateNewWave()
     {
         CurrentWave = new Wave(5);
+        SpawnEnemy();
     }
 
+    [Server]
     public void AdvanceToNextEnemy()
     {
         if (CurrentWaveIndex == CurrentWave.TotalEnemiesCount - 1) Debug.Log("BOSS COMING UP NEXT!");// Right before the boss 
-        if(CurrentWaveIndex == CurrentWave.TotalEnemiesCount) // If this was the boss
+        if (CurrentWaveIndex == CurrentWave.TotalEnemiesCount) // If this was the boss
         {
             SuccesfullyBeatWave();
             return;
         }
 
-        CurrentEnemy = new Enemy(StandardEnemyHealth, GetRandomEnemyType());
-        CurrentWave.CurrentEnemyIndex++;
+        SpawnEnemy();
     }
 
+    [Server]
+    private void SpawnEnemy()
+    {
+        var scriptObj = Instantiate(EnemyScriptPrefab, Vector3.zero, Quaternion.identity);
+        CurrentEnemy = scriptObj.GetComponent<Enemy>();
+        NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
+        CurrentEnemy.SetupEnemy(StandardEnemyHealth, GetRandomEnemyType());
+        CurrentWave.CurrentEnemyIndex++;
+        // TODO RPC MOVE ENEMY TO POSITION --------------------------------------------------------------------
+    }
+
+    [Server]
     public void SuccesfullyBeatWave()
     {
         Debug.LogWarning("Insert reward here (unimplemented)");
         TurnManager.Instance.UpdateGameState(GameState.EveryonePickBooster);
     }
 
+    [Server]
     public EnemyType GetRandomEnemyType()
     {
         var random = UnityEngine.Random.Range(1, 4);

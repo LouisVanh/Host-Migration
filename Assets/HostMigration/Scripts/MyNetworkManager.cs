@@ -8,7 +8,6 @@ public class MyNetworkManager : NetworkManager
     public override void OnStartServer()
     {
         Debug.Log("Server Started!");
-        UIManager.Instance.StartTheUI();
         TurnManager.Instance.UpdateGameState(GameState.WaitingLobby);
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
@@ -23,6 +22,7 @@ public class MyNetworkManager : NetworkManager
     public override void OnStartClient() 
     {
         Debug.Log("OnStartClient!");
+        UIManager.Instance.StartTheUI();
         // make player activate controls
 
     }
