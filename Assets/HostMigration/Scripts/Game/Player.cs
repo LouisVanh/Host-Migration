@@ -2,6 +2,7 @@ using UnityEngine;
 using Mirror;
 using System;
 
+public enum PlayerPosition { BottomLeft, BottomRight, TopLeft, TopRight }
 public class Player : NetworkBehaviour
 {
     public int DiceCount = 1;
@@ -10,6 +11,7 @@ public class Player : NetworkBehaviour
     private BoostersManager _boostersManager;
     public HealthBar HealthBar { get; private set; }
     [SerializeField] GameObject PlayerHealthBarVisual;
+    [SerializeField] GameObject PlayerHealthBarScriptPrefab;
 
     public bool IsDead => HealthBar.CurrentHealth == 0;
     public int StartingHealth = 20;
@@ -18,23 +20,59 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameObject _dicePrefab;
     [SerializeField] private Transform _cup;
 
+    private void OnDestroy()
+    {
+        if (isServer)
+        {
+            PlayersManager.Instance.RemovePlayer(gameObject);
+        }
+    }
+
+    [Command]
+    private void CmdRegisterPlayer()
+    {
+        PlayersManager.Instance.AddPlayer(gameObject);
+    }
+
     private void Start()
     {
         Debug.Log("i woke up lol");
 
         if (isLocalPlayer)
         {
+            CmdRegisterPlayer();
             Debug.Log("found the local player :)");
 
-            _boostersManager = this.gameObject.GetComponent<BoostersManager>();
+            // Ensure BoostersManager is properly assigned
+            _boostersManager = GetComponent<BoostersManager>();
+            if (_boostersManager == null)
+            {
+                Debug.LogError("BoostersManager component is missing!");
+                return;
+            }
 
-            var obj = Instantiate(new GameObject());
-            HealthBar = (HealthBar)obj.AddComponent(typeof(HealthBar));
-            HealthBar.TotalHealth = StartingHealth;
-            HealthBar.CurrentHealth = StartingHealth;
-            HealthBar.Visual = PlayerHealthBarVisual;
+            if (PlayerHealthBarVisual != null)
+            {
+                // Add HealthBar component but delay initialization
+                var scriptObj = Instantiate(PlayerHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
+                HealthBar = scriptObj.GetComponent<HealthBar>();
 
-            if (isServer) // if you're the host
+                if (isServer)
+                {
+                    Debug.Log("Server initializing HealthBar!");
+                    NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
+                    HealthBar.Visual = PlayerHealthBarVisual;
+                    HealthBar.TotalHealth = StartingHealth; // Initialize SyncVars after spawn
+                    HealthBar.CurrentHealth = StartingHealth;
+                    HealthBar.CmdCreateBar();
+                }
+            }
+            else
+            {
+                Debug.LogError("PlayerHealthBarVisual is not assigned in the Inspector!");
+            }
+
+            if (isServer)
             {
                 Debug.Log("Hiding canvas stuff!");
                 UIManager.Instance.ChangeScreenState(ScreenState.WaitingLobby);

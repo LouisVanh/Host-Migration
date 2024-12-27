@@ -218,6 +218,8 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0
   DiceCount: 1
+  PlayerHealthBarVisual: {fileID: 3715556358907279028, guid: 2740c1a6d27528f4d8b28dfa9c4194a1, type: 3}
+  PlayerHealthBarScriptPrefab: {fileID: 3280933692971394408, guid: d601731c47a7120458166667f2c8e1df, type: 3}
   StartingHealth: 20
   CurrentDiceRollAmount: 0
   _dicePrefab: {fileID: 4378862580125669272, guid: d3dbd98762399bd4b9bb00479bc6c26f, type: 3}

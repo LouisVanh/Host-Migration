@@ -41,7 +41,7 @@ public class Enemy : NetworkBehaviour
     [Server]
     public void TakeDamage(int damage)
     {
-        HealthBar.UpdateHealth(HealthBar.CurrentHealth, -damage);
+        HealthBar.CurrentHealth -= damage;
 
         if (Health <= 0)
         {

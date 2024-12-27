@@ -17,7 +17,7 @@ public class UIManager : NetworkBehaviour
 
     // For simple on / offs
     [SerializeField] private Canvas _startScreen, _preDiceScreen, _diceRollingScreen, _allDiceRolledScreen;
-
+    public Canvas HealthBarsCanvas;
     // For animations, things that move or change in size (leave canvas on here, change transforms)
     RectTransform _layoutOwnedBoosterRect, _layoutPotentialBoosterRect;
 
@@ -38,12 +38,14 @@ public class UIManager : NetworkBehaviour
                     _preDiceScreen.gameObject.SetActive(false);
                     _diceRollingScreen.gameObject.SetActive(false);
                     _allDiceRolledScreen.gameObject.SetActive(false);
+                    HealthBarsCanvas.gameObject.SetActive(false);
                     // ... animations under here
                     HideOwnedBoosterLayout();
                     HidePotentialBoosterLayout();
                     break;
                 case ScreenState.PreDiceReceived:
                     _preDiceScreen.gameObject.SetActive(true);
+                    HealthBarsCanvas.gameObject.SetActive(true);
                     _startScreen.gameObject.SetActive(false);
                     _diceRollingScreen.gameObject.SetActive(false);
                     _allDiceRolledScreen.gameObject.SetActive(false);
@@ -63,6 +65,7 @@ public class UIManager : NetworkBehaviour
                 case ScreenState.AfterRollEnemyAttack:
                     break;
                 case ScreenState.EveryonePickBooster:
+                    HealthBarsCanvas.gameObject.SetActive(true);
                     _startScreen.gameObject.SetActive(false);
                     _preDiceScreen.gameObject.SetActive(false);
                     _diceRollingScreen.gameObject.SetActive(false);
@@ -160,5 +163,25 @@ public class UIManager : NetworkBehaviour
     public void DebugAnimationPlay()
     {
         ShowOwnedBoosterLayout();
+    }
+
+    public void StartGameWithOnePlayer()
+    {
+        if(PlayersManager.Instance.Players.Count == 1) { DebugStartGame(); }
+    }
+    public void StartGameWithTwoPlayers()
+    {
+        if (PlayersManager.Instance.Players.Count == 2) { DebugStartGame(); }
+
+    }
+    public void StartGameWithThreePlayers()
+    {
+        if (PlayersManager.Instance.Players.Count == 3) { DebugStartGame(); }
+
+    }
+    public void StartGameWithFourPlayers()
+    {
+        if (PlayersManager.Instance.Players.Count == 4) { DebugStartGame(); }
+
     }
 }
