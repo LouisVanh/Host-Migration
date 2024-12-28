@@ -19,6 +19,11 @@ public class Enemy : NetworkBehaviour
     [SerializeField] GameObject VisualCapsulePrefab;
     [SerializeField] GameObject VisualSpherePrefab;
 
+    [Header("Animation")]
+    private float _normalScale = 5;
+    private float _hitScale = 5.5f;
+    private float _hitShakeDuration = 0.3f;
+
     [Command(requiresAuthority = false)]
     public virtual void CmdSetupEnemy(int health, EnemyType enemyType)
     {
@@ -62,16 +67,35 @@ public class Enemy : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
     private void PlayHitAnimation()
     {
         // Trigger hit animation
-        Debug.LogWarning("Play hit animation, but unimplemented");
+        var randomX = Random.Range(-15, 15);
+        var randomY = Random.Range(-15, 15);
+        var randomZ = Random.Range(-15, 15);
+        Vector3 rotation = new(randomX, randomY, randomZ);
+
+        Vector3 oldScale = new Vector3(_normalScale, _normalScale, _normalScale);
+        Vector3 hitScale = new Vector3(_hitScale, _hitScale, _hitScale);
+        LeanTween.scale(CurrentEnemyVisual, hitScale, _hitShakeDuration / 2).setOnComplete(() =>
+          {
+              LeanTween.scale(CurrentEnemyVisual, oldScale, _hitShakeDuration / 2);
+          });
+        LeanTween.rotate(CurrentEnemyVisual, rotation, _hitShakeDuration / 2).setOnComplete(() =>
+        {
+            LeanTween.rotate(CurrentEnemyVisual, Vector3.zero, _hitShakeDuration / 2);
+        });
+    }
+
+    [ClientRpc]
+    private void PlayHitAnimationFlash()
+    {
+        // Trigger hit animation (flash)
+        Debug.LogWarning("Play hit animation flash, but unimplemented");
     }
 
     public virtual void Die()
     {
-        // Handle enemy death logic (go to next enemy)
         Debug.LogWarning("Enemy died, but unimplemented");
         WaveManager.Instance.AdvanceToNextEnemy();
         NetworkServer.UnSpawn(CurrentEnemyVisual);

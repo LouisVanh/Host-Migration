@@ -18,67 +18,15 @@ public class UIManager : NetworkBehaviour
     public static UIManager Instance { get; private set; }
 
     // For simple on / offs
-    [SerializeField] private Canvas _startScreen, _preDiceScreen, _diceRollingScreen, _allDiceRolledScreen;
+    [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen;
     public Canvas HealthBarsCanvas;
     // For animations, things that move or change in size (leave canvas on here, change transforms)
     RectTransform _layoutOwnedBoosterRect, _layoutPotentialBoosterRect;
-
+    [SerializeField] private FadePanel _fadePanel;
     private float _largeScaleMultiplier = 1;
     private float _smallScaleMultiplier = 0.5f;
 
-    private ScreenState _screenState;
-    public ScreenState ScreenState
-    {
-        get { return _screenState; }
-        private set
-        {
-            _screenState = value;
-            switch (value)
-            {
-                case ScreenState.WaitingLobby:
-                    _startScreen.gameObject.SetActive(true);
-                    _preDiceScreen.gameObject.SetActive(false);
-                    _diceRollingScreen.gameObject.SetActive(false);
-                    _allDiceRolledScreen.gameObject.SetActive(false);
-                    HealthBarsCanvas.gameObject.SetActive(false);
-                    // ... animations under here
-                    break;
-                case ScreenState.PreDiceReceived:
-                    _preDiceScreen.gameObject.SetActive(true);
-                    HealthBarsCanvas.gameObject.SetActive(true);
-                    _startScreen.gameObject.SetActive(false);
-                    _diceRollingScreen.gameObject.SetActive(false);
-                    _allDiceRolledScreen.gameObject.SetActive(false);
-                    // ... animations under here
-                    if (TurnManager.Instance.TurnCount > 1) // is this not the first time playing?
-                    {
-                        ShowOwnedBoosterLayout();
-                    }
-                    break;
-                case ScreenState.EveryoneRollingTime:
-                    ShrinkOwnedBoosterLayout();
-                    break;
-                case ScreenState.EveryoneJustRolled:
-                    break;
-                case ScreenState.AfterRollDamageEnemy:
-                    break;
-                case ScreenState.AfterRollEnemyAttack:
-                    break;
-                case ScreenState.EveryonePickBooster:
-                    HealthBarsCanvas.gameObject.SetActive(true);
-                    _startScreen.gameObject.SetActive(false);
-                    _preDiceScreen.gameObject.SetActive(false);
-                    _diceRollingScreen.gameObject.SetActive(false);
-                    _allDiceRolledScreen.gameObject.SetActive(false);
-                    // ... animations under here
-                    HideOwnedBoosterLayout();
-                    ShowPotentialBoosterLayout();
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    //public ScreenState ScreenState;
 
     private void Awake()
     {
@@ -96,12 +44,73 @@ public class UIManager : NetworkBehaviour
         _layoutPotentialBoosterRect = GameObject.FindWithTag("NewCardLayout").GetComponent<RectTransform>();
         _layoutOwnedBoosterRect.gameObject.SetActive(false);
         _layoutPotentialBoosterRect.gameObject.SetActive(false);
-        ScreenState = ScreenState.WaitingLobby;
+        UpdateUIState(ScreenState.WaitingLobby);
     }
-
-    public void ChangeScreenState(ScreenState newScreenState)
+    private void SetEverythingFalse()
     {
-        ScreenState = newScreenState;
+        _startScreen.gameObject.SetActive(false);
+        _preDiceScreen.gameObject.SetActive(false);
+        _rollingTimePopupScreen.gameObject.SetActive(false);
+        _diceRollingScreen.gameObject.SetActive(false);
+        _allDiceRolledScreen.gameObject.SetActive(false);
+        HealthBarsCanvas.gameObject.SetActive(false);
+        _fadePanel.FadeOut(0);
+    }
+    public async void UpdateUIState(ScreenState newScreenState)
+    {
+        switch (newScreenState)
+        {
+            case ScreenState.WaitingLobby:
+                SetEverythingFalse();
+                _startScreen.gameObject.SetActive(true);
+                // ... animations under here
+                break;
+            case ScreenState.PreDiceReceived:
+                SetEverythingFalse();
+                _fadePanel.FadeIn(1.5f);
+
+                await System.Threading.Tasks.Task.Delay(1500);
+                _rollingTimePopupScreen.gameObject.SetActive(true);
+                await System.Threading.Tasks.Task.Delay(1000);
+
+                _fadePanel.FadeOut(1.5f);
+                _rollingTimePopupScreen.gameObject.SetActive(false);
+
+                await System.Threading.Tasks.Task.Delay(1500);
+
+                _preDiceScreen.gameObject.SetActive(true);
+                HealthBarsCanvas.gameObject.SetActive(true);
+                // ... animations under here
+                if (TurnManager.Instance.TurnCount > 1) // is this not the first time playing?
+                {
+                    ShowOwnedBoosterLayout();
+                }
+                break;
+            case ScreenState.EveryoneRollingTime:
+                if (TurnManager.Instance.TurnCount > 1) // is this not the first time playing?
+                {
+                ShrinkOwnedBoosterLayout();
+                }
+                break;
+            case ScreenState.EveryoneJustRolled:
+                break;
+            case ScreenState.AfterRollDamageEnemy:
+                break;
+            case ScreenState.AfterRollEnemyAttack:
+                break;
+            case ScreenState.EveryonePickBooster:
+                HealthBarsCanvas.gameObject.SetActive(true);
+                _startScreen.gameObject.SetActive(false);
+                _preDiceScreen.gameObject.SetActive(false);
+                _diceRollingScreen.gameObject.SetActive(false);
+                _allDiceRolledScreen.gameObject.SetActive(false);
+                // ... animations under here
+                HideOwnedBoosterLayout();
+                ShowPotentialBoosterLayout();
+                break;
+            default:
+                break;
+        }
     }
 
 
@@ -152,7 +161,7 @@ public class UIManager : NetworkBehaviour
 
     public void DebugStartGame()
     {
-        ChangeScreenState(ScreenState.PreDiceReceived);
+        UpdateUIState(ScreenState.PreDiceReceived);
         if(isServer) // to avoid warnings, wont run on client anyway
         TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
     }

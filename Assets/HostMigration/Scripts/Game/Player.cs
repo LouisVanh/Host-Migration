@@ -57,7 +57,7 @@ public class Player : NetworkBehaviour
 
             //HandleHealthBarSetup();
 
-            UIManager.Instance.ChangeScreenState(ScreenState.WaitingLobby);
+            UIManager.Instance.UpdateUIState(ScreenState.WaitingLobby);
         }
     }
 
