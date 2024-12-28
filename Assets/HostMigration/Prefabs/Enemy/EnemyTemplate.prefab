@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 9175424006174668333}
   - component: {fileID: 1998980107477520333}
   - component: {fileID: 4755497397323726115}
+  - component: {fileID: 2567183051658383670}
   m_Layer: 0
   m_Name: EnemyTemplate
   m_TagString: Untagged
@@ -70,3 +71,20 @@ MonoBehaviour:
   VisualCubePrefab: {fileID: 2524927520451351093, guid: 2ff0987eee1e2b746bd73b1040541a2b, type: 3}
   VisualCapsulePrefab: {fileID: 1058761242555570175, guid: 4541b458cc89d114190b2514884e7991, type: 3}
   VisualSpherePrefab: {fileID: 2464836688851529319, guid: 3c471b5a56e48254f99435521a068588, type: 3}
+--- !u!114 &2567183051658383670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8725907999014183258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 003d2143a40f3524b93c0a7706900649, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  TotalHealth: 0
+  CurrentHealth: 0

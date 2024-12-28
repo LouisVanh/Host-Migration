@@ -1,5 +1,6 @@
 using UnityEngine;
 using Mirror;
+using System.Collections;
 
 public class WaveManager : NetworkBehaviour
 {
@@ -24,12 +25,13 @@ public class WaveManager : NetworkBehaviour
     public void CreateNewWave()
     {
         CurrentWave = new Wave(5);
-        SpawnEnemy();
+        StartCoroutine(SpawnEnemy());
     }
 
     [Server]
-    public void AdvanceToNextEnemy()
+    public async void AdvanceToNextEnemy()
     {
+        await System.Threading.Tasks.Task.Delay(1000);
         if (CurrentWaveIndex == CurrentWave.TotalEnemiesCount - 1) Debug.Log("BOSS COMING UP NEXT!");// Right before the boss 
         if (CurrentWaveIndex == CurrentWave.TotalEnemiesCount) // If this was the boss
         {
@@ -37,20 +39,34 @@ public class WaveManager : NetworkBehaviour
             return;
         }
 
-        SpawnEnemy();
+        StartCoroutine(
+                SpawnEnemy());
     }
 
     [Server]
-    private void SpawnEnemy()
+    private IEnumerator SpawnEnemy()
     {
         var scriptObj = Instantiate(EnemyScriptPrefab, Vector3.zero, Quaternion.identity);
         CurrentEnemy = scriptObj.GetComponent<Enemy>();
         NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
         CurrentEnemy.CmdSetupEnemy(StandardEnemyHealth, GetRandomEnemyType());
         CurrentWave.CurrentEnemyIndex++;
-        // TODO RPC MOVE ENEMY TO POSITION --------------------------------------------------------------------
+
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        RpcCreateEnemyHealthBar(CurrentEnemy.gameObject.GetComponent<NetworkIdentity>().netId);
+        yield return null;
     }
 
+    [ClientRpc]
+    private void RpcCreateEnemyHealthBar(uint enemyNetId)
+    {
+        if (NetworkServer.spawned.TryGetValue(enemyNetId, out NetworkIdentity enemyObj))
+        {
+            enemyObj.GetComponent<Enemy>().CreateEnemyHealthBar(StandardEnemyHealth);
+        }
+        else Debug.LogWarning("No enemy found with that netid"); // Add frame delay?
+    }
     [Server]
     public void SuccesfullyBeatWave()
     {

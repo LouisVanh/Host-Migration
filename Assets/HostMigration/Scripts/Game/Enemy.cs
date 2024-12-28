@@ -22,12 +22,6 @@ public class Enemy : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public virtual void CmdSetupEnemy(int health, EnemyType enemyType)
     {
-        var scriptObj = Instantiate(EnemyHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
-        HealthBar = scriptObj.GetComponent<HealthBar>();
-        NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-        HealthBar.SetupOwnHealthBar(EnemyHealthBarVisual, health);
-        Debug.Log("Setting up health bar for enemy " + this.gameObject.name + "!");
-
         EnemyType = enemyType;
         ChosenVisual = enemyType switch
         {
@@ -39,7 +33,15 @@ public class Enemy : NetworkBehaviour
         var spawnPos = GameObject.FindWithTag("EnemySpawnLocation").transform.position;
         CurrentEnemyVisual = Instantiate(ChosenVisual, spawnPos, Quaternion.identity);
         NetworkServer.Spawn(CurrentEnemyVisual);
-        CurrentEnemyVisual.gameObject.transform.localScale *= 5; // automatically networked thanks to NT
+        CurrentEnemyVisual.transform.localScale *= 5; // automatically networked thanks to NT
+    }
+
+    public void CreateEnemyHealthBar(int health)
+    {
+        HealthBar = GetComponent<HealthBar>();
+        Debug.Log("START OF setting up health bar for enemy " + this.gameObject.name + "!");
+        HealthBar.SetupOwnHealthBar(EnemyHealthBarVisual, health);
+        Debug.Log("END OF setting up health bar for enemy " + this.gameObject.name + "!");
     }
 
     [Server]
@@ -71,7 +73,6 @@ public class Enemy : NetworkBehaviour
         Debug.LogWarning("Enemy died, but unimplemented");
         WaveManager.Instance.AdvanceToNextEnemy();
         NetworkServer.UnSpawn(CurrentEnemyVisual);
-        NetworkServer.UnSpawn(HealthBar.gameObject);
         NetworkServer.UnSpawn(this.gameObject);
     }
 }

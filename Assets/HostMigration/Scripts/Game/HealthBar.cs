@@ -53,7 +53,7 @@ public class HealthBar : NetworkBehaviour
         }
     }
 
-    public void CreateBar()
+    private void CreateBar()
     {
         _actualVisualOfHealthBar = Instantiate(VisualPreset);
         _actualVisualOfHealthBar.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
