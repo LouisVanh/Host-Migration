@@ -4,6 +4,19 @@ using UnityEngine.UI;
 
 public class HealthBar : NetworkBehaviour
 {
+
+    /// <summary>
+    ///  DEBUG
+    /// </summary>
+    private void Update()
+    {
+        if (!isLocalPlayer) return;
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            DebugNetworkObjects.CmdTriggerRpcLog();
+        }
+    }
+
     [SyncVar(hook = nameof(OnTotalHealthChanged))]
     public int TotalHealth;
 
@@ -13,41 +26,53 @@ public class HealthBar : NetworkBehaviour
     private Image _greenHealth;
     public Vector3 Position;
     public GameObject VisualPreset { get; private set; }
-    private GameObject _actualVisualOfHealthBar;
 
+    private PlayerPosition _cachedPlayerPosition;
+    private GameObject _actualVisualOfHealthBar;
     public GameObject ActualVisualOfHealthBar
     {
         get
         {
             if (_actualVisualOfHealthBar != null) return _actualVisualOfHealthBar;
-            if (NetworkServer.spawned.TryGetValue(BarNetId, out NetworkIdentity bar))
+            if (NetworkServer.spawned.TryGetValue(BarVisualNetId, out NetworkIdentity bar))
             {
+                Debug.Log("Found the bar from property ActualVisual" + bar.netId);
                 _actualVisualOfHealthBar = bar.gameObject;
                 return bar.gameObject;
             }
             Debug.LogError("Couldnt find the damn visual for the health bar man");
             return null;
-                }
+        }
         set { _actualVisualOfHealthBar = value; }
     }
-    [SyncVar]
-    public uint BarNetId;
+    [SyncVar(hook = nameof(OnBarVisualNetAssigned))]
+    public uint BarVisualNetId;
 
     public void SetupHealthBar(GameObject playerHealthBarVisual, int startingHealth, PlayerPosition position = PlayerPosition.None)
     {
         this.VisualPreset = playerHealthBarVisual;
         this.TotalHealth = startingHealth; // Initialize SyncVars after spawn
         this.CurrentHealth = startingHealth;
-        this.BarNetId = GetComponent<NetworkIdentity>().netId;
         CmdCreateBar(position);
-        // TODO RPC MOVE HEALTHBAR TO POSITION --------------------------------------------------------------------
     }
     [Command(requiresAuthority = false)]
     public void CmdCreateBar(PlayerPosition playerPosition)
     {
         ActualVisualOfHealthBar = Instantiate(VisualPreset, Position, Quaternion.identity);
         NetworkServer.Spawn(ActualVisualOfHealthBar);
-        RpcCreateBar(BarNetId, playerPosition);
+        _cachedPlayerPosition = playerPosition; // cache it so we can use it for syncvar hook
+
+        DebugNetworkObjects.RpcLogNetworkObjects();
+        // This will automatically call OnBarVisualNetAssigned, which will call RpcCreateBar
+        BarVisualNetId = ActualVisualOfHealthBar.GetComponent<NetworkIdentity>().netId;
+    }
+
+    private void OnBarVisualNetAssigned(uint oldValue, uint newValue)
+    {
+        // We don't have a reference to playerPosition here, which is required by the rpc
+        Debug.LogWarning("JUST CHANGED THE FUCKING VALUE OF THE FUCKING BAR VISUAL: " + newValue + "(was " + oldValue + ")");
+        if(isServer)
+        RpcCreateBar(newValue, _cachedPlayerPosition);
     }
 
     [ClientRpc]
@@ -62,13 +87,14 @@ public class HealthBar : NetworkBehaviour
             _greenHealth = objNetIdentity.transform.GetChild(2).GetComponent<Image>();
             if (playerPosition == PlayerPosition.None) // if not a player
             {
-                RpcSetPositionOfHealthBarEnemy();
+                Debug.Log("Trying to set pos of enemy health bar now!");
+                SetPositionOfHealthBarEnemy(netId);
             }
             else
             {
-                RpcSetPositionOfHealthBarPlayer(playerPosition);
+                Debug.Log("Trying to set pos of player health bar now!");
+                SetPositionOfHealthBarPlayer(netId, playerPosition);
             }
-            UpdateBar();
         }
         else Debug.LogWarning("NO HEALTH BAR FOUND!");
     }
@@ -89,7 +115,9 @@ public class HealthBar : NetworkBehaviour
     {
         if (_greenHealth == null)
         {
+            if(CurrentHealth != 0 && TotalHealth != 0)
             Debug.LogWarning("Green health bar is not assigned!");
+
             return;
         }
 
@@ -104,38 +132,49 @@ public class HealthBar : NetworkBehaviour
         }
     }
 
-    public void RpcSetPositionOfHealthBarPlayer(PlayerPosition screenPos)
+    public void SetPositionOfHealthBarPlayer(uint netId, PlayerPosition screenPos)
     {
-        Debug.Log("Changing healthbar pos player");
-        RectTransform bar = ActualVisualOfHealthBar.GetComponent<RectTransform>();
-        Debug.Log(bar.localScale);
-        bar.localScale = new Vector3(1f, 1f, 1f);
-        switch (screenPos)
+        Debug.Log(BarVisualNetId + "(PLAYER) is the bar id I'm trying to change position of -BUT! This is passed through the syncvar newvalue:" + netId);
+        if (NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity barId))
         {
-            case PlayerPosition.BottomLeft:
-                bar.localPosition = new Vector3(-600, -450);
-                break;
-            case PlayerPosition.BottomRight:
-                bar.localPosition = new Vector3(+600, -450);
-                break;
-            case PlayerPosition.TopLeft:
-                bar.localPosition = new Vector3(-600, 300);
-                break;
-            case PlayerPosition.TopRight:
-                bar.localPosition = new Vector3(+600, 300);
-                break;
-            default:
-                break;
+            Debug.Log("Changing healthbar pos player");
+            RectTransform bar = barId.GetComponent<RectTransform>();
+            Debug.Log(bar.localScale);
+            bar.localScale = new Vector3(1f, 1f, 1f);
+            switch (screenPos)
+            {
+                case PlayerPosition.BottomLeft:
+                    bar.localPosition = new Vector3(-600, -450);
+                    break;
+                case PlayerPosition.BottomRight:
+                    bar.localPosition = new Vector3(+600, -450);
+                    break;
+                case PlayerPosition.TopLeft:
+                    bar.localPosition = new Vector3(-600, 300);
+                    break;
+                case PlayerPosition.TopRight:
+                    bar.localPosition = new Vector3(+600, 300);
+                    break;
+                default:
+                    break;
+            }
+            UpdateBar();
         }
+        else Debug.LogError($"NO BAR VISUAL NET ID {netId} FOUND! HEALTHBAR WONT GET POSITIONED");
     }
 
-    [ClientRpc]
-    public void RpcSetPositionOfHealthBarEnemy()
+    public void SetPositionOfHealthBarEnemy(uint netId)
     {
         // Set rect transform of health bar to X: 0, Y: -350, and local scale to 1.25f
-        Debug.Log("Changing healthbar pos enemy");
-        RectTransform bar = ActualVisualOfHealthBar.GetComponent<RectTransform>();
-        bar.localScale = new Vector3(1.25f, 1.25f, 1.25f);
-        bar.localPosition = new Vector3(0, -350);
+        Debug.Log(BarVisualNetId + "(ENEMY) is the bar id I'm trying to change position of - BUT! This is passed through the syncvar newvalue:" + netId);
+        if (NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity barId))
+        {
+            Debug.Log("Changing healthbar pos enemy");
+            RectTransform bar = barId.GetComponent<RectTransform>();
+            bar.localScale = new Vector3(1.25f, 1.25f, 1.25f);
+            bar.localPosition = new Vector3(0, -350);
+            UpdateBar();
+        }
+        else Debug.LogError($"NO BAR VISUAL NET ID {netId} FOUND! HEALTHBAR WONT GET POSITIONED");
     }
 }

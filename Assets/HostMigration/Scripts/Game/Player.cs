@@ -32,13 +32,13 @@ public class Player : NetworkBehaviour
         }
     }
 
-    [Command]
+    [Command (requiresAuthority =false)]
     private void CmdRegisterPlayer() // Call this on Start, make sure to check for isLocalPlayer
     {
         PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
     }
 
-    [Command]
+    [Command (requiresAuthority =false)]
     public void CmdHandleHealthBarSetup()
     {
             var scriptObj = Instantiate(PlayerHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);

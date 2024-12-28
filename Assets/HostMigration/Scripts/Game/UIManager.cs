@@ -153,6 +153,7 @@ public class UIManager : NetworkBehaviour
     public void DebugStartGame()
     {
         ChangeScreenState(ScreenState.PreDiceReceived);
+        if(isServer) // to avoid warnings, wont run on client anyway
         TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
     }
     public void DebugAnimationPlay()
@@ -167,10 +168,9 @@ public class UIManager : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    private void CmdSetReadyAndPossiblyStartGame()
+    private void CmdSetReadyAndPossiblyStartGame(Player playerCallingIt)
     {
-        var player = connectionToClient.identity.GetComponent<Player>();
-        player.ReadyToPlay = true;
+        playerCallingIt.ReadyToPlay = true;
         bool checkSum = true;
         foreach (uint id in PlayersManager.Instance.Players)
         {
@@ -187,28 +187,28 @@ public class UIManager : NetworkBehaviour
     {
         if (PlayersManager.Instance.Players.Count == 1)
         {
-            CmdSetReadyAndPossiblyStartGame();
+            CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
     public void StartGameWithTwoPlayers()
     {
         if (PlayersManager.Instance.Players.Count == 2)
         {
-            CmdSetReadyAndPossiblyStartGame();
+            CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
     public void StartGameWithThreePlayers()
     {
         if (PlayersManager.Instance.Players.Count == 3)
         {
-            CmdSetReadyAndPossiblyStartGame();
+            CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
     public void StartGameWithFourPlayers()
     {
         if (PlayersManager.Instance.Players.Count == 4)
         {
-            CmdSetReadyAndPossiblyStartGame();
+            CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
 }

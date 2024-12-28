@@ -39,9 +39,14 @@ public class Enemy : NetworkBehaviour
         var spawnPos = GameObject.FindWithTag("EnemySpawnLocation").transform.position;
         CurrentEnemyVisual = Instantiate(ChosenVisual, spawnPos, Quaternion.identity);
         NetworkServer.Spawn(CurrentEnemyVisual);
-        CurrentEnemyVisual.transform.localScale *= 5;
+        RpcSetEnemyScale(CurrentEnemyVisual.GetComponent<NetworkIdentity>().netId);
     }
-
+    [ClientRpc]
+    void RpcSetEnemyScale(uint netId)
+    {
+        if(NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity enemyObjId))
+        enemyObjId.gameObject.transform.localScale *= 5;
+    }
     [Server]
     public void TakeDamage(int damage)
     {
