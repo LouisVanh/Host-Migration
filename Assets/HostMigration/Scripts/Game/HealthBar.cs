@@ -6,7 +6,7 @@ public class HealthBar : NetworkBehaviour
 {
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.L)) CurrentHealth--; // DEBUG
+        if (Input.GetKeyDown(KeyCode.L) && isLocalPlayer) CurrentHealth--; // DEBUG
     }
     [Header("Sync Vars")]
 

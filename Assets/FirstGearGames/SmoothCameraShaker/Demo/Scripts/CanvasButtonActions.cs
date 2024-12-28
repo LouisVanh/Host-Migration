@@ -38,7 +38,9 @@ namespace FirstGearGames.SmoothCameraShaker.Demo
         private void Awake()
         {
             _scaleSlider.onValueChanged.AddListener(ScaleSlider_ValueChanged);
+#pragma warning disable CS0618 // Type or member is obsolete
             _resettables = FindObjectsOfType<Resettable>();
+#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         private void Start()

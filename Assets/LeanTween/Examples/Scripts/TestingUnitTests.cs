@@ -523,7 +523,9 @@ namespace DentedPixel.LTExamples
             Time.timeScale = 1f;
 
             int ltCount = 0;
+#pragma warning disable CS0618 // Type or member is obsolete
             GameObject[] allGos = FindObjectsOfType(typeof(GameObject)) as GameObject[];
+#pragma warning restore CS0618 // Type or member is obsolete
             foreach (GameObject go in allGos)
             {
                 if (go.name == "~LeanTween")

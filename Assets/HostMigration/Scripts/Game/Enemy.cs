@@ -44,8 +44,12 @@ public class Enemy : NetworkBehaviour
     [ClientRpc]
     void RpcSetEnemyScale(uint netId)
     {
-        if(NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity enemyObjId))
-        enemyObjId.gameObject.transform.localScale *= 5;
+        if (NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity enemyObjId))
+        {
+            Debug.Log($"Enemy found with id {netId}, changing scale");
+            enemyObjId.gameObject.transform.localScale *= 5;
+        }
+        else Debug.LogWarning("NO ENEMY FOUND TO CHANGE SCALE OF");
     }
     [Server]
     public void TakeDamage(int damage)
@@ -75,7 +79,9 @@ public class Enemy : NetworkBehaviour
         // Handle enemy death logic (go to next enemy)
         Debug.LogWarning("Enemy died, but unimplemented");
         WaveManager.Instance.AdvanceToNextEnemy();
-        Destroy(this.gameObject);
+        NetworkServer.UnSpawn(CurrentEnemyVisual);
+        NetworkServer.UnSpawn(HealthBar.gameObject);
+        NetworkServer.UnSpawn(this.gameObject);
     }
 }
 
