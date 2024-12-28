@@ -59,7 +59,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     private void GivePlayerDice(Player player)
     {
             var diceCount = player.DiceCount;
-            player.ReceiveDice(diceCount); // Assuming a method to handle dice assignment
+            player.ReceiveDice(diceCount);
     }
 
     public Player GetRandomDeadPlayer()
@@ -101,7 +101,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 // Show the right screen
                 // Explain anything if it's the first time
                 // Healthbar shit
-                GivePlayersHealthBars();
+                RpcGivePlayersHealthBars();
                 WaveManager.Instance.CreateNewWave();
                 //When done waiting for a few seconds, switch to the next
                 break;
@@ -141,12 +141,13 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         return total;
     }
 
-    private void GivePlayersHealthBars()
+    [ClientRpc]
+    private void RpcGivePlayersHealthBars()
     {
         foreach (var player in GetPlayers())
         {
-            Debug.Log(player.name);
-            player.CmdHandleHealthBarSetup();
+            Debug.Log(player.name + " is the player Turn Manager is giving a healthbar to now!");
+            player.CreatePlayerHealthBar();
         }
     }
 }

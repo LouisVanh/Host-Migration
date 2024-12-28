@@ -25,7 +25,7 @@ public class Enemy : NetworkBehaviour
         var scriptObj = Instantiate(EnemyHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
         HealthBar = scriptObj.GetComponent<HealthBar>();
         NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-        HealthBar.SetupHealthBar(EnemyHealthBarVisual, health);
+        HealthBar.SetupOwnHealthBar(EnemyHealthBarVisual, health);
         Debug.Log("Setting up health bar for enemy " + this.gameObject.name + "!");
 
         EnemyType = enemyType;

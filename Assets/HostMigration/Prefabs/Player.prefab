@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: -1939432797055166067}
   - component: {fileID: 4375065353945201916}
   - component: {fileID: 3491607666516907562}
+  - component: {fileID: 6001039994736740589}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -226,3 +227,20 @@ MonoBehaviour:
   _dicePrefab: {fileID: 4378862580125669272, guid: d3dbd98762399bd4b9bb00479bc6c26f, type: 3}
   _cup: {fileID: 7534330084645286803, guid: 2bfa3ed724af8ad4e97bedf6762d75a0, type: 3}
   PlayerScreenPosition: 0
+--- !u!114 &6001039994736740589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4064726528608695600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 003d2143a40f3524b93c0a7706900649, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  TotalHealth: 20
+  CurrentHealth: 20

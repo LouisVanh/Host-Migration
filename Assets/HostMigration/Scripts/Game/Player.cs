@@ -32,20 +32,18 @@ public class Player : NetworkBehaviour
         }
     }
 
-    [Command (requiresAuthority =false)]
+    [Command(requiresAuthority = false)]
     private void CmdRegisterPlayer() // Call this on Start, make sure to check for isLocalPlayer
     {
         PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
     }
 
-    [Command (requiresAuthority =false)]
-    public void CmdHandleHealthBarSetup()
+    public void CreatePlayerHealthBar()
     {
-            var scriptObj = Instantiate(PlayerHealthBarScriptPrefab, Vector3.zero, Quaternion.identity);
-            HealthBar = scriptObj.GetComponent<HealthBar>();
-            NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-            HealthBar.SetupHealthBar(PlayerHealthBarVisual, StartingHealth, PlayerScreenPosition);
-            Debug.Log("Setting up health bar for player " + this.gameObject.name + "!");
+        HealthBar = this.GetComponent<HealthBar>();
+        Debug.Log("Start setting up health bar for player " + this.gameObject.name + "!");
+        HealthBar.SetupOwnHealthBar(PlayerHealthBarVisual, StartingHealth, this);
+        Debug.Log("End setup health bar for player " + this.gameObject.name + "!");
     }
 
     private void Start()
