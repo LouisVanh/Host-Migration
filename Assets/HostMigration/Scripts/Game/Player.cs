@@ -70,8 +70,15 @@ public class Player : NetworkBehaviour
             Debug.Log("Rolling dice from player");
             RollDice(this);
         }
+
+        if (Input.GetKeyDown(KeyCode.L)) CmdTestRemovePlayerHealth();
     }
 
+    [Command(requiresAuthority = false)]
+    private void CmdTestRemovePlayerHealth()
+    {
+        HealthBar.CurrentHealth--; // DEBUG
+    }
     [Command(requiresAuthority = false)]
     public void RollDice(Player player)
     {

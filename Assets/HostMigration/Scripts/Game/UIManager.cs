@@ -18,7 +18,7 @@ public class UIManager : NetworkBehaviour
     public static UIManager Instance { get; private set; }
 
     // For simple on / offs
-    [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen;
+    [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsCanvas;
     public Canvas HealthBarsCanvas;
     // For animations, things that move or change in size (leave canvas on here, change transforms)
     RectTransform _layoutOwnedBoosterRect, _layoutPotentialBoosterRect;
@@ -54,6 +54,7 @@ public class UIManager : NetworkBehaviour
         _diceRollingScreen.gameObject.SetActive(false);
         _allDiceRolledScreen.gameObject.SetActive(false);
         HealthBarsCanvas.gameObject.SetActive(false);
+        _ownedBoosterCardsCanvas.gameObject.SetActive(false);
         _fadePanel.FadeOut(0);
     }
     public async void UpdateUIState(ScreenState newScreenState)
@@ -80,6 +81,7 @@ public class UIManager : NetworkBehaviour
 
                 _preDiceScreen.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);
+                _ownedBoosterCardsCanvas.gameObject.SetActive(true);
                 // ... animations under here
                 if (TurnManager.Instance.TurnCount > 1) // is this not the first time playing?
                 {

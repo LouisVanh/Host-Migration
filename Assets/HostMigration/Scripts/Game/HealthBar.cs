@@ -4,10 +4,6 @@ using UnityEngine.UI;
 
 public class HealthBar : NetworkBehaviour
 {
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.L) && isLocalPlayer) CurrentHealth--; // DEBUG
-    }
     [Header("Sync Vars")]
 
     [SyncVar(hook = nameof(OnTotalHealthChanged))]

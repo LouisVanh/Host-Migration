@@ -4724,6 +4724,7 @@ MonoBehaviour:
   _rollingTimePopupScreen: {fileID: 626803699}
   _diceRollingScreen: {fileID: 1503411534}
   _allDiceRolledScreen: {fileID: 181750092}
+  _ownedBoosterCardsCanvas: {fileID: 320375701}
   HealthBarsCanvas: {fileID: 1655100176}
   _fadePanel: {fileID: 505172419}
 --- !u!114 &1821736270
