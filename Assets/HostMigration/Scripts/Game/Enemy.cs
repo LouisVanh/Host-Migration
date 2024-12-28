@@ -69,13 +69,13 @@ public class Enemy : NetworkBehaviour
         Debug.LogWarning("Play hit animation, but unimplemented");
     }
 
-    [ClientRpc]
     public virtual void Die()
     {
         // Handle enemy death logic (go to next enemy)
         Debug.LogWarning("Enemy died, but unimplemented");
         WaveManager.Instance.AdvanceToNextEnemy();
         NetworkServer.UnSpawn(CurrentEnemyVisual);
+        NetworkServer.UnSpawn(HealthBar.HealthBarVisualInScene);
         NetworkServer.UnSpawn(this.gameObject);
     }
 }
@@ -89,7 +89,6 @@ public class Boss : Enemy
         // optional: other health bar visual here
     }
 
-    [ClientRpc]
     public override void Die() // FUN FACT THIS MIGHT NEVER RUN, GOT NO CLUE LOL
     {
         base.Die();

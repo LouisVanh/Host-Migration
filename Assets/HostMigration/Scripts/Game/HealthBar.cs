@@ -18,13 +18,13 @@ public class HealthBar : NetworkBehaviour
 
     private void OnTotalHealthChanged(int oldValue, int newValue)
     {
-        Debug.Log($"TotalHealth changed from {oldValue} to {newValue}");
+        //Debug.Log($"TotalHealth changed from {oldValue} to {newValue}");
         UpdateBar();
     }
 
     private void OnCurrentHealthChanged(int oldValue, int newValue)
     {
-        Debug.Log($"CurrentHealth changed from {oldValue} to {newValue}");
+        //Debug.Log($"CurrentHealth changed from {oldValue} to {newValue}");
         UpdateBar();
     }
 
@@ -32,8 +32,7 @@ public class HealthBar : NetworkBehaviour
     public GameObject VisualPreset { get; private set; }
     public readonly uint VisualPresetGUID = 1420681367;
     private Image _greenHealth;
-    private GameObject _actualVisualOfHealthBar;
-    private uint _ownerNetId; // dont think i'll need this tbh
+    public GameObject HealthBarVisualInScene;
 
     public void SetupOwnHealthBar(GameObject HealthBarVisual, int startingHealth, Player player = null)
     {
@@ -43,15 +42,12 @@ public class HealthBar : NetworkBehaviour
         {
             // everything happens locally
             CreateBar();
-            //_ownerNetId = player.GetComponent<NetworkIdentity>().netId;
-            SetPositionOfHealthBarPlayer(_actualVisualOfHealthBar.GetComponent<RectTransform>(), player.PlayerScreenPosition);
+            SetPositionOfHealthBarPlayer(HealthBarVisualInScene.GetComponent<RectTransform>(), player.PlayerScreenPosition);
         }
         else // if enemy
         {
             // everything happens synced
             CmdRpcCreateBar();
-            Debug.Log("_actualVisual AFTER THE COMMAND= " + _actualVisualOfHealthBar);
-            Debug.Log("Done: position of enemy health bar");
         }
 
         this.TotalHealth = startingHealth;
@@ -60,9 +56,9 @@ public class HealthBar : NetworkBehaviour
 
     private void CreateBar()
     {
-        _actualVisualOfHealthBar = Instantiate(VisualPreset);
-        _actualVisualOfHealthBar.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
-        _greenHealth = _actualVisualOfHealthBar.transform.GetChild(2).GetComponent<Image>();
+        HealthBarVisualInScene = Instantiate(VisualPreset);
+        HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
+        _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
     }
     [Command(requiresAuthority = false)]
     private void CmdRpcCreateBar()
@@ -72,16 +68,12 @@ public class HealthBar : NetworkBehaviour
     [ClientRpc]
     private void RpcCreateBar()
     {
-        Debug.Log("something going wrong past this point");
-        Debug.Log("VISUALPRESET = " + VisualPreset);
         if(NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab))
-        _actualVisualOfHealthBar = Instantiate(healthBarPrefab);
+        HealthBarVisualInScene = Instantiate(healthBarPrefab);
+        HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
+        _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
 
-        Debug.Log("_actualVisual = " + _actualVisualOfHealthBar);
-        _actualVisualOfHealthBar.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
-        _greenHealth = _actualVisualOfHealthBar.transform.GetChild(2).GetComponent<Image>();
-
-        SetPositionOfHealthBarEnemy(_actualVisualOfHealthBar.GetComponent<RectTransform>());
+        SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
     }
 
 
@@ -89,6 +81,7 @@ public class HealthBar : NetworkBehaviour
     {
         if (_greenHealth == null)
         {
+            Debug.Log("_greenHealth is currently null....");
             if (CurrentHealth != 0 && TotalHealth != 0)
                 Debug.LogWarning("Something is wrong, green health bar is not assigned when it should be!");
 

@@ -9,6 +9,7 @@ TagManager:
   - NewCardCanvas
   - NewCardLayout
   - EnemySpawnLocation
+  - TimeToRoll
   layers:
   - Default
   - TransparentFX

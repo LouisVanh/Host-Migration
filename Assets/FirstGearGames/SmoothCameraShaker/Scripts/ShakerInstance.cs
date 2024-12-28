@@ -229,12 +229,7 @@ namespace FirstGearGames.SmoothCameraShaker
                 );
         }
 
-#pragma warning disable IDE0044 // Add readonly modifier
-#pragma warning disable IDE0051 // Remove unused private members
-        private bool _first = true;
-#pragma warning restore IDE0051 // Remove unused private members
-#pragma warning restore IDE0044 // Add readonly modifier
-        /// <summary>
+
         /// Returns a new offset for this instnace.
         /// </summary>
         /// <returns></returns>
