@@ -8,7 +8,8 @@ public enum EnemyType
 public class Enemy : NetworkBehaviour
 {
     public int Health => HealthBar.CurrentHealth;
-    public int DefaultHealth;
+    [SyncVar]
+    public int DefaultHealth = 69; // Should be overridden
     public EnemyType EnemyType { get; private set; }
     [SerializeField] GameObject EnemyHealthBarVisual;
     [SerializeField] GameObject EnemyHealthBarScriptPrefab;
@@ -40,10 +41,15 @@ public class Enemy : NetworkBehaviour
         CurrentEnemyVisual = Instantiate(ChosenVisual, spawnPos, Quaternion.identity);
         NetworkServer.Spawn(CurrentEnemyVisual);
         CurrentEnemyVisual.transform.localScale *= 5; // automatically networked thanks to NT
-
-        CreateEnemyHealthBar(health);
+        DefaultHealth = health;
+        //CreateEnemyHealthBar(health);
     }
-
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        Debug.Log("ON START CLIENT OF ENEMY. TRYING TO MAKE HEALTH BAR HERE");
+        CreateEnemyHealthBar(DefaultHealth);
+    }
     public void CreateEnemyHealthBar(int health)
     {
         HealthBar = GetComponent<HealthBar>();

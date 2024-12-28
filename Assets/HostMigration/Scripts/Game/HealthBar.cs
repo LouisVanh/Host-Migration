@@ -14,13 +14,13 @@ public class HealthBar : NetworkBehaviour
 
     private void OnTotalHealthChanged(int oldValue, int newValue)
     {
-        //Debug.Log($"TotalHealth changed from {oldValue} to {newValue}");
+        Debug.Log($"TotalHealth changed from {oldValue} to {newValue}");
         UpdateBar();
     }
 
     private void OnCurrentHealthChanged(int oldValue, int newValue)
     {
-        //Debug.Log($"CurrentHealth changed from {oldValue} to {newValue}");
+        Debug.Log($"CurrentHealth changed from {oldValue} to {newValue}");
         UpdateBar();
     }
 
@@ -39,15 +39,31 @@ public class HealthBar : NetworkBehaviour
             // everything happens locally
             CreateBar();
             SetPositionOfHealthBarPlayer(HealthBarVisualInScene.GetComponent<RectTransform>(), player.PlayerScreenPosition);
+            SetHealth(startingHealth);
         }
         else // if enemy
         {
             // everything happens synced
-            CmdRpcCreateBar();
-        }
+            //CmdRpcCreateBar();
+            if (NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab))
+            {
+                HealthBarVisualInScene = Instantiate(healthBarPrefab);
+                HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
+                _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
 
+                SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
+                if(isServer)
+                SetHealth(startingHealth);
+            }
+        }
+    }
+    [Command(requiresAuthority = false)]
+    private void SetHealth(int startingHealth)
+    {
+        Debug.Log("Setting health values, for once and for all. SetHealth command putting in work, hopefully");
         this.TotalHealth = startingHealth;
         this.CurrentHealth = startingHealth;
+        Debug.Log("SO DONE: Setting health values, for once and for all. SetHealth command putting in work, hopefully");
     }
 
     private void CreateBar()
@@ -56,23 +72,23 @@ public class HealthBar : NetworkBehaviour
         HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
         _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
     }
-    [Command(requiresAuthority = false)]
-    private void CmdRpcCreateBar()
-    { // for enemy: we want this to be spawned on all clients
-        RpcCreateBar();
-    }
-    [ClientRpc]
-    private void RpcCreateBar()
-    {
-        if (NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab))
-        {
-            HealthBarVisualInScene = Instantiate(healthBarPrefab);
-            HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
-            _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
+    //[Command(requiresAuthority = false)]
+    //private void CmdRpcCreateBar()
+    //{ // for enemy: we want this to be spawned on all clients
+    //    RpcCreateBar();
+    //}
+    //[ClientRpc]
+    //private void RpcCreateBar()
+    //{
+    //    if (NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab))
+    //    {
+    //        HealthBarVisualInScene = Instantiate(healthBarPrefab);
+    //        HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
+    //        _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
 
-            SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
-        }
-    }
+    //        SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
+    //    }
+    //}
 
 
     private void UpdateBar()
@@ -88,7 +104,7 @@ public class HealthBar : NetworkBehaviour
 
         if (TotalHealth > 0)
         {
-            Debug.Log("Changing health!");
+            Debug.Log("Changing health fill! Current: " + CurrentHealth + " / " + TotalHealth);
             _greenHealth.fillAmount = (float)CurrentHealth / TotalHealth; // Fixed division
         }
         else
