@@ -22,6 +22,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameObject _dicePrefab;
     [SerializeField] private Transform _cup;
 
+    [SyncVar]
     public PlayerPosition PlayerScreenPosition;
 
     private void OnDestroy()
