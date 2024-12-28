@@ -64,12 +64,14 @@ public class HealthBar : NetworkBehaviour
     [ClientRpc]
     private void RpcCreateBar()
     {
-        if(NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab))
-        HealthBarVisualInScene = Instantiate(healthBarPrefab);
-        HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
-        _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
+        if (NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab))
+        {
+            HealthBarVisualInScene = Instantiate(healthBarPrefab);
+            HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
+            _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
 
-        SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
+            SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
+        }
     }
 
 

@@ -6,6 +6,9 @@ public class BoostersManager : NetworkBehaviour
     private const int MAX_SLOTS = 7;
     public BoosterSlot[] Slots = new BoosterSlot[MAX_SLOTS];
 
+    [Header("Player stats")]
+    public float LifestealPercentage;
+    public int AmountOfAceBoosters;
     public bool AddBooster(IBooster booster)
     {
         foreach (var slot in Slots)

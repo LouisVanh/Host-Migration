@@ -1716,7 +1716,7 @@ namespace Mirror
 
         static void DestroyObject(uint netId)
         {
-            // Debug.Log($"NetworkClient.OnObjDestroy netId: {netId}");
+             Debug.Log($"NetworkClient.OnObjDestroy netId: {netId}");
             if (spawned.TryGetValue(netId, out NetworkIdentity identity) && identity != null)
             {
                 if (identity.isLocalPlayer)
@@ -1749,7 +1749,7 @@ namespace Mirror
                 connection.owned.Remove(identity); // if any
                 spawned.Remove(netId);
             }
-            //else Debug.LogWarning($"Did not find target for destroy message for {netId}");
+            else Debug.LogWarning($"Did not find target for destroy message for {netId}");
         }
 
         // shutdown ////////////////////////////////////////////////////////////

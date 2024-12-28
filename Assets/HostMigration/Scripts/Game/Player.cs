@@ -10,7 +10,7 @@ public class Player : NetworkBehaviour
     public int DiceCount = 1;
     private bool _hasAlreadyRolled;
     private bool _canRoll;
-    private BoostersManager _boostersManager;
+    public BoostersManager BoosterManager;
     public HealthBar HealthBar { get; private set; }
     [SerializeField] GameObject PlayerHealthBarVisual;
     [SerializeField] GameObject PlayerHealthBarScriptPrefab;
@@ -53,7 +53,7 @@ public class Player : NetworkBehaviour
         {
             CmdRegisterPlayer();
 
-            _boostersManager = GetComponent<BoostersManager>();
+            BoosterManager = GetComponent<BoostersManager>();
 
             //HandleHealthBarSetup();
 

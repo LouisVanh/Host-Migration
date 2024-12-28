@@ -8,6 +8,7 @@ public enum EnemyType
 public class Enemy : NetworkBehaviour
 {
     public int Health => HealthBar.CurrentHealth;
+    public int DefaultHealth;
     public EnemyType EnemyType { get; private set; }
     [SerializeField] GameObject EnemyHealthBarVisual;
     [SerializeField] GameObject EnemyHealthBarScriptPrefab;
@@ -99,24 +100,39 @@ public class Enemy : NetworkBehaviour
         Debug.LogWarning("Enemy died, but unimplemented");
         WaveManager.Instance.AdvanceToNextEnemy();
         NetworkServer.UnSpawn(CurrentEnemyVisual);
-        NetworkServer.UnSpawn(HealthBar.HealthBarVisualInScene);
+        //RpcDestroyHealthBar();
+        Debug.Log("Right before unspawning enemy");
         NetworkServer.UnSpawn(this.gameObject);
+        Debug.Log("Right after unspawning enemy");
+    }
+    [ClientRpc]
+    private void RpcDestroyHealthBar()
+    {
+        Debug.Log("Destroying the health bar of enemy");
+    }
+
+    public override void OnStopClient()
+    {
+        base.OnStopClient();
+        Destroy(this.HealthBar.HealthBarVisualInScene);
+        Debug.Log("Right after OnStopClient");
     }
 }
 
-public class Boss : Enemy
-{
-    [Command(requiresAuthority = false)]
-    public override void CmdSetupEnemy(int health, EnemyType bossType)
-    {
-        base.CmdSetupEnemy(health, bossType);
-        // optional: other health bar visual here
-    }
 
-    public override void Die() // FUN FACT THIS MIGHT NEVER RUN, GOT NO CLUE LOL
-    {
-        base.Die();
-        Debug.LogError("Boss died, but unimplemented");
-        // ADD EFFECTS HERE
-    }
-}
+//public class Boss : Enemy
+//{
+//    [Command(requiresAuthority = false)]
+//    public override void CmdSetupEnemy(int health, EnemyType bossType)
+//    {
+//        base.CmdSetupEnemy(health, bossType);
+//        // optional: other health bar visual here
+//    }
+
+//    public override void Die() // FUN FACT THIS MIGHT NEVER RUN, GOT NO CLUE LOL
+//    {
+//        base.Die();
+//        Debug.LogError("Boss died, but unimplemented");
+//        // ADD EFFECTS HERE
+//    }
+//}
