@@ -34,6 +34,8 @@ public class Enemy : NetworkBehaviour
         CurrentEnemyVisual = Instantiate(ChosenVisual, spawnPos, Quaternion.identity);
         NetworkServer.Spawn(CurrentEnemyVisual);
         CurrentEnemyVisual.transform.localScale *= 5; // automatically networked thanks to NT
+
+        CreateEnemyHealthBar(health);
     }
 
     public void CreateEnemyHealthBar(int health)
@@ -42,6 +44,7 @@ public class Enemy : NetworkBehaviour
         Debug.Log("START OF setting up health bar for enemy " + this.gameObject.name + "!");
         HealthBar.SetupOwnHealthBar(EnemyHealthBarVisual, health);
         Debug.Log("END OF setting up health bar for enemy " + this.gameObject.name + "!");
+        // if this doesn't work, consider looping through all players, and 
     }
 
     [Server]

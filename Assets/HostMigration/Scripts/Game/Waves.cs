@@ -52,21 +52,21 @@ public class WaveManager : NetworkBehaviour
         CurrentEnemy.CmdSetupEnemy(StandardEnemyHealth, GetRandomEnemyType());
         CurrentWave.CurrentEnemyIndex++;
 
-        yield return new WaitForEndOfFrame();
-        yield return new WaitForEndOfFrame();
-        RpcCreateEnemyHealthBar(CurrentEnemy.gameObject.GetComponent<NetworkIdentity>().netId);
+        //yield return new WaitForEndOfFrame();
+        //yield return new WaitForEndOfFrame();
+        //RpcCreateEnemyHealthBar(CurrentEnemy.gameObject.GetComponent<NetworkIdentity>().netId);
         yield return null;
     }
 
-    [ClientRpc]
-    private void RpcCreateEnemyHealthBar(uint enemyNetId)
-    {
-        if (NetworkServer.spawned.TryGetValue(enemyNetId, out NetworkIdentity enemyObj))
-        {
-            enemyObj.GetComponent<Enemy>().CreateEnemyHealthBar(StandardEnemyHealth);
-        }
-        else Debug.LogWarning("No enemy found with that netid"); // Add frame delay?
-    }
+    //[ClientRpc]
+    //private void RpcCreateEnemyHealthBar(uint enemyNetId)
+    //{
+    //    if (NetworkServer.spawned.TryGetValue(enemyNetId, out NetworkIdentity enemyObj))
+    //    {
+    //        enemyObj.GetComponent<Enemy>().CreateEnemyHealthBar(StandardEnemyHealth);
+    //    }
+    //    else Debug.LogWarning("No enemy found with that netid"); // Add frame delay?
+    //}
     [Server]
     public void SuccesfullyBeatWave()
     {
