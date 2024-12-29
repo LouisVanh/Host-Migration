@@ -20,7 +20,8 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     private int _currentDiceRoll;
     private Enemy _currentEnemy;
 
-    public int TurnCount;
+    public int _turnCount;
+    public bool FirstRoundPlaying => _turnCount < 1;
     public static TurnManager Instance { get; private set; }
     private void Awake()
     {
@@ -32,27 +33,16 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         DontDestroyOnLoad(this.gameObject);
     }
 
-    private List<Player> GetPlayers()
-    {
-        List<Player> playerList = new();
-        foreach (uint playerId in PlayersManager.Instance.Players)
-        {
-            if (NetworkClient.spawned.TryGetValue(playerId, out NetworkIdentity playerObj))
-                playerList.Add(playerObj.GetComponent<Player>());
-        }
-        return playerList;
-    }
-
     [Server]
     public void GiveAllPlayersDice()
     {
         if (CurrentGameState != GameState.PreDiceReceived) return;
 
-        foreach (var player in GetPlayers())
+        foreach (var player in PlayersManager.Instance.GetPlayers())
         {
             GivePlayerDice(player);
         }
-        TurnCount++;
+        _turnCount++;
     }
 
     [TargetRpc]
@@ -67,7 +57,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         // return a random dead player (through player.IsDead prop)
         List<Player> deadPlayers = new List<Player>();
 
-        foreach (var player in GetPlayers())
+        foreach (var player in PlayersManager.Instance.GetPlayers())
         {
             if (player.IsDead)
             {
@@ -101,8 +91,11 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 // Show the right screen
                 // Explain anything if it's the first time
                 // Healthbar shit
-                RpcGivePlayersHealthBars();
-                WaveManager.Instance.CreateNewWave();
+                if (FirstRoundPlaying)
+                {
+                    RpcGivePlayersHealthBars();
+                    WaveManager.Instance.CreateNewWave();
+                }
                 //When done waiting for a few seconds, switch to the next
                 break;
 
@@ -116,9 +109,11 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
             case GameState.EveryoneJustRolled:
                 // Count up the dice
                 _currentDiceRoll = CountTotalRollAmount();
-                _currentEnemy.TakeDamage(_currentDiceRoll);
+                UIManager.Instance.UpdateUIState(ScreenState.EveryoneJustRolled);
+                // UI ANIMATION will call to next
                 break;
             case GameState.AfterRollDamageEnemy:
+                _currentEnemy.TakeDamage(_currentDiceRoll);
                 _currentDiceRoll = 0;
 
                 break;
@@ -134,7 +129,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     private int CountTotalRollAmount()
     {
         var total = 0;
-        foreach (var player in GetPlayers())
+        foreach (var player in PlayersManager.Instance.GetPlayers())
         {
             total += player.DiceCount;
         }
@@ -144,7 +139,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     [ClientRpc]
     private void RpcGivePlayersHealthBars()
     {
-        foreach (var player in GetPlayers())
+        foreach (var player in PlayersManager.Instance.GetPlayers())
         {
             Debug.Log(player.name + " is the player Turn Manager is giving a healthbar to now!");
             player.CreatePlayerHealthBar();

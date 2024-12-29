@@ -7,6 +7,7 @@ public enum ScreenState
     PreDiceReceived,
     EveryoneRollingTime,
     EveryoneJustRolled,
+    InDiceCountingAnimation,
     AfterRollDamageEnemy,
     AfterRollEnemyAttack,
     EveryonePickBooster
@@ -18,7 +19,8 @@ public class UIManager : NetworkBehaviour
     public static UIManager Instance { get; private set; }
 
     // For simple on / offs
-    [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsCanvas;
+    [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsCanvas, 
+        _coolAnimationCoutingDiceCanvas;
     public Canvas HealthBarsCanvas;
     // For animations, things that move or change in size (leave canvas on here, change transforms)
     RectTransform _layoutOwnedBoosterRect, _layoutPotentialBoosterRect;
@@ -55,6 +57,7 @@ public class UIManager : NetworkBehaviour
         _allDiceRolledScreen.gameObject.SetActive(false);
         HealthBarsCanvas.gameObject.SetActive(false);
         _ownedBoosterCardsCanvas.gameObject.SetActive(false);
+        _allDiceRolledScreen.gameObject.SetActive(false);
         _fadePanel.FadeOut(0);
     }
     public async void UpdateUIState(ScreenState newScreenState)
@@ -83,20 +86,32 @@ public class UIManager : NetworkBehaviour
                 HealthBarsCanvas.gameObject.SetActive(true);
                 _ownedBoosterCardsCanvas.gameObject.SetActive(true);
                 // ... animations under here
-                if (TurnManager.Instance.TurnCount > 1) // is this not the first time playing?
+                if (! TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
                 {
                     ShowOwnedBoosterLayout();
                 }
                 break;
             case ScreenState.EveryoneRollingTime:
-                if (TurnManager.Instance.TurnCount > 1) // is this not the first time playing?
+                if (! TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
                 {
                 ShrinkOwnedBoosterLayout();
                 }
                 break;
             case ScreenState.EveryoneJustRolled:
+                // GET READY TO START ANIMATION
+
+                // ...
+
+                UpdateUIState(ScreenState.InDiceCountingAnimation);
+                break;
+            case ScreenState.InDiceCountingAnimation:
+                // Do animation
+                await System.Threading.Tasks.Task.Delay(1000);
+                UpdateUIState(ScreenState.AfterRollDamageEnemy);
                 break;
             case ScreenState.AfterRollDamageEnemy:
+                // space for any animation
+                TurnManager.Instance.UpdateGameState(GameState.AfterRollDamageEnemy);
                 break;
             case ScreenState.AfterRollEnemyAttack:
                 break;

@@ -83,10 +83,19 @@ public class Enemy : NetworkBehaviour
         {
             Die();
         }
-        else
+        else // SURVIVED!
         {
             RpcPlayHitAnimationFlash();
             PlayHitAnimation();
+        }
+    }
+
+    [Server]
+    public void EnemyAttackDealDamage(int damage)
+    {
+        foreach (var player in PlayersManager.Instance.GetPlayers())
+        {
+            player.CmdTakeDamage(damage);
         }
     }
 

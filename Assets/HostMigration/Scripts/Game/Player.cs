@@ -7,8 +7,9 @@ public class Player : NetworkBehaviour
 {
     [SyncVar]
     public bool ReadyToPlay;
+    [SyncVar]
+    public bool HasAlreadyRolled;
     public int DiceCount = 1;
-    private bool _hasAlreadyRolled;
     private bool _canRoll;
     public BoostersManager BoosterManager;
     public HealthBar HealthBar { get; private set; }
@@ -83,10 +84,10 @@ public class Player : NetworkBehaviour
     public void RollDice(Player player)
     {
         WaveManager.Instance.CurrentEnemy.TakeDamage(3); // obviously for testing only
-        if (_canRoll && !_hasAlreadyRolled)
+        if (_canRoll && !HasAlreadyRolled)
         {
             // Perform dice roll logic
-            _hasAlreadyRolled = true;
+            HasAlreadyRolled = true;
             int totalRoll = 0;
             for (int i = 0; i < DiceCount; i++)
             {
@@ -95,6 +96,12 @@ public class Player : NetworkBehaviour
                 SpawnDiceWithEyes(eyes);
             }
         }
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdTakeDamage(int health)
+    {
+        HealthBar.CurrentHealth -= health;
     }
 
     public void SpawnDiceWithEyes(int eyesRolled)
@@ -112,7 +119,7 @@ public class Player : NetworkBehaviour
     {
         Debug.Log(this.ToString() + " received " + diceCount + "dice");
         _canRoll = true;
-        _hasAlreadyRolled = false;
+        HasAlreadyRolled = false;
         throw new NotImplementedException();
         // enable cup, allow for rolling
     }

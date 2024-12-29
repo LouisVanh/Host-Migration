@@ -1,5 +1,6 @@
 using UnityEngine;
 using Mirror;
+using System.Collections.Generic;
 
 public class PlayersManager : NetworkBehaviour
 {
@@ -31,6 +32,17 @@ public class PlayersManager : NetworkBehaviour
             Instance = this;
 
         DontDestroyOnLoad(this.gameObject);
+    }
+
+    public List<Player> GetPlayers()
+    {
+        List<Player> playerList = new();
+        foreach (uint playerId in Players)
+        {
+            if (NetworkClient.spawned.TryGetValue(playerId, out NetworkIdentity playerObj))
+                playerList.Add(playerObj.GetComponent<Player>());
+        }
+        return playerList;
     }
 
     public readonly SyncList<uint> Players = new SyncList<uint>();

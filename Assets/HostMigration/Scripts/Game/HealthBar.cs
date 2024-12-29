@@ -85,7 +85,7 @@ public class HealthBar : NetworkBehaviour
         }
         else
         {
-            if (TurnManager.Instance.TurnCount > 1)
+            if (! TurnManager.Instance.FirstRoundPlaying)
                 Debug.LogError("TotalHealth is zero or less, cannot update health bar!");
         }
     }
