@@ -11,7 +11,7 @@ public class Enemy : NetworkBehaviour
     private int _defaultHealth = 99999999; // Should be overridden
     private void OnDefaultHealthChanged(int oldValue, int newValue)
     {
-        Debug.LogWarning("ENEMY/ ONDEFAULTHEALTHCHANGED / " + oldValue + " ---) " + newValue);
+        //Debug.Log("ENEMY/ ONDEFAULTHEALTHCHANGED / " + oldValue + " ---) " + newValue);
         InitHealthBar(oldValue, newValue);
     }
     public int Health => HealthBar.CurrentHealth;
@@ -54,30 +54,25 @@ public class Enemy : NetworkBehaviour
         _defaultHealth = health; // Synced server to client
     }
 
-    private void InitHealthBar(int oldValue, int newValue)
-    {
-        // DO not make this cmd/rpc.
-        if (oldValue == newValue) return; // If defaulthealth doesn't change, something is really wrong.
-        Debug.Log("Hey! the health changed to start off, I can make the healthbar now!");
-        HealthBar = GetComponent<HealthBar>();
-        HealthBar.SetupOwnHealthBar(EnemyHealthBarVisual, newValue);
-    }
-
-    [ClientRpc]
-    private void RpcCleanupHealthBar()
-    {
-        Debug.Log("Destroying health bar visual in scene!");
-        Destroy(this.HealthBar.HealthBarVisualInScene);
-    }
     public override void OnStopClient()
     {
-        Debug.LogWarning("ENEMY / ONSTOPCLIENT / Destroying health bar visual in scene!");
+        //Debug.LogWarning("ENEMY / ONSTOPCLIENT / Destroying health bar visual in scene!");
         if (this.HealthBar.HealthBarVisualInScene)
         {
             Destroy(this.HealthBar.HealthBarVisualInScene);
         }
         base.OnStopClient();
     }
+
+    private void InitHealthBar(int oldValue, int newValue)
+    {
+        // DO NOT make this cmd/rpc.
+        if (oldValue == newValue) return; // If defaulthealth doesn't change, something is really wrong.
+        Debug.Log("Hey! the health changed to start off, I can make the healthbar now!");
+        HealthBar = GetComponent<HealthBar>();
+        HealthBar.SetupOwnHealthBar(EnemyHealthBarVisual, newValue);
+    }
+
     [Server]
     public void TakeDamage(int damage)
     {
@@ -95,7 +90,8 @@ public class Enemy : NetworkBehaviour
         }
     }
 
-    private void PlayHitAnimation()
+    [Server]
+    private void PlayHitAnimation() // synced through NT
     {
         // Scale and rotate like a small punch
         var randomX = Random.Range(-15, 15);
@@ -127,10 +123,8 @@ public class Enemy : NetworkBehaviour
     {
         WaveManager.Instance.AdvanceToNextEnemy();
         NetworkServer.UnSpawn(CurrentEnemyVisual);
-        //RpcCleanupHealthBar();
-        Debug.Log("Right before unspawning enemy");
         NetworkServer.UnSpawn(this.gameObject);
-        Debug.Log("Right after unspawning enemy");
+        // Health bar is despawned OnStopClient
     }
 }
 

@@ -58,11 +58,11 @@ public class PlayersManager : NetworkBehaviour
     public override void OnStartClient()
     {
         // Add handlers for SyncList Actions
-        Players.OnAdd += OnItemAdded;
-        Players.OnInsert += OnItemInserted;
-        Players.OnSet += OnItemChanged;
-        Players.OnRemove += OnItemRemoved;
-        Players.OnClear += OnListCleared;
+        Players.OnAdd += OnPlayerAdded;
+        Players.OnInsert += OnPlayerInserted;
+        Players.OnSet += OnPlayerChanged;
+        Players.OnRemove += OnPlayerRemoved;
+        Players.OnClear += OnPlayerListCleared;
 
         // List is populated before handlers are wired up so we
         // need to manually invoke OnAdd for each element.
@@ -73,14 +73,14 @@ public class PlayersManager : NetworkBehaviour
     public override void OnStopClient()
     {
         // Remove handlers when client stops
-        Players.OnAdd -= OnItemAdded;
-        Players.OnInsert -= OnItemInserted;
-        Players.OnSet -= OnItemChanged;
-        Players.OnRemove -= OnItemRemoved;
-        Players.OnClear -= OnListCleared;
+        Players.OnAdd -= OnPlayerAdded;
+        Players.OnInsert -= OnPlayerInserted;
+        Players.OnSet -= OnPlayerChanged;
+        Players.OnRemove -= OnPlayerRemoved;
+        Players.OnClear -= OnPlayerListCleared;
     }
 
-    void OnItemAdded(int index)
+    void OnPlayerAdded(int index)
     {
         Debug.Log($"Element added at index {index} {Players[index]}");
         if (NetworkServer.spawned.TryGetValue(Players[index], out NetworkIdentity playerId))
@@ -89,29 +89,29 @@ public class PlayersManager : NetworkBehaviour
         }
     }
 
-    void OnItemInserted(int index)
+    void OnPlayerInserted(int index)
     {
-        Debug.Log($"Element inserted at index {index} {Players[index]}");
+        Debug.Log($"Player inserted at index {index} {Players[index]}");
     }
 
-    void OnItemChanged(int index, uint oldValue)
+    void OnPlayerChanged(int index, uint oldValue)
     {
-        Debug.Log($"Element changed at index {index} from {oldValue} to {Players[index]}");
+        Debug.Log($"Player changed at index {index} from {oldValue} to {Players[index]}");
     }
 
-    void OnItemRemoved(int index, uint oldValue)
+    void OnPlayerRemoved(int index, uint oldValue)
     {
-        Debug.Log($"Element removed at index {index} {oldValue}");
+        Debug.Log($"Player removed at index {index} {oldValue}");
     }
 
-    void OnListCleared()
+    void OnPlayerListCleared()
     {
         // OnListCleared is called before the list is actually cleared
         // so we can iterate the list to get the elements if needed.
         foreach (uint id in Players)
         {
             if (NetworkClient.spawned.TryGetValue(id, out NetworkIdentity objNetIdentity))
-                Debug.Log($"Element cleared {objNetIdentity.transform.name}");
+                Debug.Log($"Player cleared {objNetIdentity.transform.name}");
         }
     }
 }

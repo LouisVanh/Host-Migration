@@ -14,13 +14,13 @@ public class HealthBar : NetworkBehaviour
 
     private void OnTotalHealthChanged(int oldValue, int newValue)
     {
-        Debug.Log($"TotalHealth changed from {oldValue} to {newValue}");
+        //Debug.Log($"TotalHealth changed from {oldValue} to {newValue}");
         UpdateBar();
     }
 
     private void OnCurrentHealthChanged(int oldValue, int newValue)
     {
-        Debug.Log($"CurrentHealth changed from {oldValue} to {newValue}");
+        //Debug.Log($"CurrentHealth changed from {oldValue} to {newValue}");
         UpdateBar();
     }
 
@@ -37,7 +37,7 @@ public class HealthBar : NetworkBehaviour
         if (player)
         {
             // everything happens locally, just the syncvar is synced
-            Debug.Log("SetupOwnHealthBar: Spawning player health bar now");
+            //Debug.Log("SetupOwnHealthBar: Spawning player health bar now");
             CreateBar(VisualPreset);
             SetPositionOfHealthBarPlayer(HealthBarVisualInScene.GetComponent<RectTransform>(), player.PlayerScreenPosition);
             SetHealth(startingHealth, "Player health: ");
@@ -45,13 +45,10 @@ public class HealthBar : NetworkBehaviour
         else // if enemy
         {
             // everything happens locally, just the syncvar is synced
-            //if (NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab)) // for some reason VisualPreset isn't synced, cry about it
-            //{
-                Debug.Log("SetupOwnHealthBar: Spawning enemy health bar now");
-                CreateBar(VisualPreset);
-                SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
-                SetHealth(startingHealth, "Enemy health: ");
-            //}
+            //Debug.Log("SetupOwnHealthBar: Spawning enemy health bar now");
+            CreateBar(VisualPreset);
+            SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
+            SetHealth(startingHealth, "Enemy health: ");
         }
     }
     [Command(requiresAuthority = false)]
@@ -71,7 +68,7 @@ public class HealthBar : NetworkBehaviour
 
     private void UpdateBar()
     {
-        Debug.Log("UpdatingBar start");
+        //Debug.Log("UpdatingBar start");
         if (_greenHealth == null)
         {
             Debug.Log("_greenHealth is currently null....");
@@ -114,7 +111,6 @@ public class HealthBar : NetworkBehaviour
                 break;
         }
         UpdateBar();
-
     }
 
     public void SetPositionOfHealthBarEnemy(RectTransform bar)
