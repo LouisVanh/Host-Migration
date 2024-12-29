@@ -63,15 +63,25 @@ public class Enemy : NetworkBehaviour
         HealthBar.SetupOwnHealthBar(EnemyHealthBarVisual, newValue);
     }
 
-    public void CleanupHealthBar()
+    [ClientRpc]
+    private void RpcCleanupHealthBar()
     {
         Debug.Log("Destroying health bar visual in scene!");
         Destroy(this.HealthBar.HealthBarVisualInScene);
     }
-
+    public override void OnStopClient()
+    {
+        Debug.LogWarning("ENEMY / ONSTOPCLIENT / Destroying health bar visual in scene!");
+        if (this.HealthBar.HealthBarVisualInScene)
+        {
+            Destroy(this.HealthBar.HealthBarVisualInScene);
+        }
+        base.OnStopClient();
+    }
     [Server]
     public void TakeDamage(int damage)
     {
+        if (Health <= 0) return; // IF ALREADY DEAD, STOP KICKIN EM
         HealthBar.CurrentHealth -= damage;
 
         if (Health <= 0)
@@ -80,13 +90,14 @@ public class Enemy : NetworkBehaviour
         }
         else
         {
+            RpcPlayHitAnimationFlash();
             PlayHitAnimation();
         }
     }
 
     private void PlayHitAnimation()
     {
-        // Trigger hit animation
+        // Scale and rotate like a small punch
         var randomX = Random.Range(-15, 15);
         var randomY = Random.Range(-15, 15);
         var randomZ = Random.Range(-15, 15);
@@ -105,17 +116,18 @@ public class Enemy : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void PlayHitAnimationFlash()
+    private void RpcPlayHitAnimationFlash()
     {
         // Trigger hit animation (flash)
         Debug.LogWarning("Play hit animation flash, but unimplemented");
     }
 
+    [Server]
     public virtual void Die()
     {
         WaveManager.Instance.AdvanceToNextEnemy();
         NetworkServer.UnSpawn(CurrentEnemyVisual);
-        CleanupHealthBar();
+        //RpcCleanupHealthBar();
         Debug.Log("Right before unspawning enemy");
         NetworkServer.UnSpawn(this.gameObject);
         Debug.Log("Right after unspawning enemy");
