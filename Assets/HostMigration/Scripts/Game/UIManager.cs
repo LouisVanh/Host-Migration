@@ -90,6 +90,8 @@ public class UIManager : NetworkBehaviour
                 _preDiceScreen.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);
                 _ownedBoosterCardsCanvas.gameObject.SetActive(true);
+
+                TurnManager.Instance.UpdateGameState(GameState.EveryoneRollingTime);
                 // ... animations under here
                 if (! TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
                 {
@@ -225,7 +227,8 @@ public class UIManager : NetworkBehaviour
     public void RollDiceBtn()
     {
         // do animation with cup
-
+        CupAnimation();
+        RollDiceInPlayer();
     }
     public void StartGameWithOnePlayer()
     {

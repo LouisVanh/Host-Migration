@@ -70,7 +70,7 @@ public class Player : NetworkBehaviour
     {
         if (!isLocalPlayer) return;
 
-        if (Input.GetKeyDown(KeyCode.T))
+        //if (Input.GetKeyDown(KeyCode.T))
             if (Input.GetKeyDown(KeyCode.R))
             {
                 Debug.Log("Rolling dice from player");
@@ -91,6 +91,7 @@ public class Player : NetworkBehaviour
         //WaveManager.Instance.CurrentEnemy.TakeDamage(3); // obviously for testing only
         if (_canRoll && !HasAlreadyRolled)
         {
+            Debug.Log("ROLLING DICE!");
             // Perform dice roll logic
             HasAlreadyRolled = true;
             int totalRoll = 0;
@@ -101,6 +102,7 @@ public class Player : NetworkBehaviour
                 CmdSpawnDiceWithEyes(eyes);
             }
         }
+        else Debug.LogWarning($"CANT ROLL DICE! canRoll = {_canRoll}, hasAlreadyRolled = {HasAlreadyRolled}");
     }
 
     [Command(requiresAuthority = false)]
@@ -139,10 +141,9 @@ public class Player : NetworkBehaviour
 
     public void ReceiveDice(int diceCount)
     {
-        Debug.LogError(this.ToString() + " received " + diceCount + "dice - I DONT THINK THIS SCRIPT IS EVER BEING RUN...");
+        Debug.Log(this.ToString() + " received " + diceCount + "dice");
         _canRoll = true;
         HasAlreadyRolled = false;
-        throw new NotImplementedException();
         // enable cup, allow for rolling
     }
 }

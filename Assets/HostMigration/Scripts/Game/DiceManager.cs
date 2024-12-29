@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 
-public enum OrientationWhatSideUp : byte { head, body, feet, hands }
-
 public class Dice
 {
     public uint PlayerNetId;
@@ -16,6 +14,7 @@ public class Dice
         EyesRolled = eyesRolled;
         //DiceNetId = diceNetId; // assigned when instantiated
     }
+    public Dice() { }
 
     // Anything else could be added in the future, too.
 

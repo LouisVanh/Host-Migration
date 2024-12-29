@@ -36,7 +36,9 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     [Server]
     public void GiveAllPlayersDice()
     {
-        if (CurrentGameState != GameState.PreDiceReceived) return;
+        Debug.Log("GiveAAllPlayerDice called but not yet inside");
+        //if (CurrentGameState != GameState.PreDiceReceived) return;
+        Debug.Log("GiveAAllPlayerDice called inside");
 
         foreach (var player in PlayersManager.Instance.GetPlayers())
         {
@@ -45,9 +47,10 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         _turnCount++;
     }
 
-    [TargetRpc]
+    [ClientRpc]
     private void GivePlayerDice(Player player)
     {
+        Debug.Log("GivePlayerDice called");
         var diceCount = player.DiceCount;
         player.ReceiveDice(diceCount);
     }
@@ -102,7 +105,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
             case GameState.EveryoneRollingTime:
                 // Give people their dice
                 GiveAllPlayersDice();
-
+                UIManager.Instance.UpdateUIState(ScreenState.EveryoneRollingTime);
                 // When all players are done rolling, switch to the next
                 break;
 

@@ -215,7 +215,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   VoiceAudioSource: {fileID: 0}
   CupAudioSource: {fileID: 0}
-  DiceRollingClip1: {fileID: 0}
+  DiceInCupSound: {fileID: 0}
+  DiceOnTableSound: {fileID: 0}
+  EnemyHitSound1: {fileID: 0}
+  EnemyHitSound2: {fileID: 0}
+  EnemyHitSound3: {fileID: 0}
+  EnemyHitSound4: {fileID: 0}
+  EnemyHitSound5: {fileID: 0}
   TimeSinceVoiceLine: 0
 --- !u!4 &34404021
 Transform:
