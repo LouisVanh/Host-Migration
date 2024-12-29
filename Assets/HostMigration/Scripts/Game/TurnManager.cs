@@ -48,8 +48,8 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     [TargetRpc]
     private void GivePlayerDice(Player player)
     {
-            var diceCount = player.DiceCount;
-            player.ReceiveDice(diceCount);
+        var diceCount = player.DiceCount;
+        player.ReceiveDice(diceCount);
     }
 
     public Player GetRandomDeadPlayer()

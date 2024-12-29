@@ -14,14 +14,20 @@ public class Player : NetworkBehaviour
     public BoostersManager BoosterManager;
     public HealthBar HealthBar { get; private set; }
     [SerializeField] GameObject PlayerHealthBarVisual;
-    [SerializeField] GameObject PlayerHealthBarScriptPrefab;
 
     public bool IsDead => HealthBar.CurrentHealth == 0;
     public int StartingHealth = 20;
     public int CurrentDiceRollAmount;
 
+    // NETWORK TRANSFORMS
     [SerializeField] private GameObject _dicePrefab;
-    [SerializeField] private Transform _cup;
+    [SerializeField] private GameObject _cupPrefab;
+    [SerializeField] private Transform _cupPosition1;
+    [SerializeField] private Transform _cupPosition2;
+    [SerializeField] private Transform _cupPosition3;
+    [SerializeField] private Transform _cupPosition4;
+
+    public readonly SyncList<uint> DiceOwned = new SyncList<uint>();
 
     [SyncVar]
     public PlayerPosition PlayerScreenPosition;
@@ -56,8 +62,6 @@ public class Player : NetworkBehaviour
 
             BoosterManager = GetComponent<BoostersManager>();
 
-            //HandleHealthBarSetup();
-
             UIManager.Instance.UpdateUIState(ScreenState.WaitingLobby);
         }
     }
@@ -66,11 +70,12 @@ public class Player : NetworkBehaviour
     {
         if (!isLocalPlayer) return;
 
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Debug.Log("Rolling dice from player");
-            RollDice(this);
-        }
+        if (Input.GetKeyDown(KeyCode.T))
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Debug.Log("Rolling dice from player");
+                CmdRollDice();
+            }
 
         if (Input.GetKeyDown(KeyCode.L)) CmdTestRemovePlayerHealth();
     }
@@ -81,9 +86,9 @@ public class Player : NetworkBehaviour
         HealthBar.CurrentHealth--; // DEBUG
     }
     [Command(requiresAuthority = false)]
-    public void RollDice(Player player)
+    public void CmdRollDice()
     {
-        WaveManager.Instance.CurrentEnemy.TakeDamage(3); // obviously for testing only
+        //WaveManager.Instance.CurrentEnemy.TakeDamage(3); // obviously for testing only
         if (_canRoll && !HasAlreadyRolled)
         {
             // Perform dice roll logic
@@ -93,7 +98,7 @@ public class Player : NetworkBehaviour
             {
                 int eyes = UnityEngine.Random.Range(1, 7);
                 totalRoll += eyes;
-                SpawnDiceWithEyes(eyes);
+                CmdSpawnDiceWithEyes(eyes);
             }
         }
     }
@@ -104,20 +109,37 @@ public class Player : NetworkBehaviour
         HealthBar.CurrentHealth -= health;
     }
 
-    public void SpawnDiceWithEyes(int eyesRolled)
+    [Command(requiresAuthority = false)]
+    public void CmdSpawnDiceWithEyes(int eyesRolled)
     {
-        // Spawn the dice object with the amount of eyes rolled showing upwards. I'd make like 6 prefab variations tbh, too lazy.
-        Debug.Log("spawning dice (unimplemented)");
+        DiceManager.Instance.AddDice(new Dice(this.gameObject.GetComponent<NetworkIdentity>().netId, eyesRolled));
     }
 
-    public void ShakeDiceJar()
+    public void SpawnAndShakeDiceJar()
     {
+        Vector3 pos = GetPlayerCupPosition();
+        var upsideDownRotation = new Vector3(0, 180, 0);
+        var quaternion = Quaternion.Euler(upsideDownRotation);
+        var cup = Instantiate(_cupPrefab, pos, quaternion);
         // Play dice shake animation
     }
 
-    internal void ReceiveDice(int diceCount)
+    public Vector3 GetPlayerCupPosition()
     {
-        Debug.Log(this.ToString() + " received " + diceCount + "dice");
+        return (PlayerScreenPosition) switch
+        {
+            PlayerPosition.BottomLeft => _cupPosition1.position,
+            PlayerPosition.BottomRight => _cupPosition2.position,
+            PlayerPosition.TopLeft => _cupPosition3.position,
+            PlayerPosition.TopRight => _cupPosition4.position,
+            PlayerPosition.None => Vector3.zero,
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    public void ReceiveDice(int diceCount)
+    {
+        Debug.LogError(this.ToString() + " received " + diceCount + "dice - I DONT THINK THIS SCRIPT IS EVER BEING RUN...");
         _canRoll = true;
         HasAlreadyRolled = false;
         throw new NotImplementedException();

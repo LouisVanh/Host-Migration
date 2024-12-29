@@ -20,7 +20,13 @@ public class SoundManager : MonoBehaviour
     public AudioSource CupAudioSource;
 
     [Header("Clips")]
-    public AudioClip DiceRollingClip1;
+    public AudioClip DiceInCupSound;
+    public AudioClip DiceOnTableSound;
+    public AudioClip EnemyHitSound1;
+    public AudioClip EnemyHitSound2;
+    public AudioClip EnemyHitSound3;
+    public AudioClip EnemyHitSound4;
+    public AudioClip EnemyHitSound5;
 
 
     public float TimeSinceVoiceLine;
@@ -30,7 +36,7 @@ public class SoundManager : MonoBehaviour
         TimeSinceVoiceLine += Time.deltaTime;
     }
 
-    public void PlayRandomDiceSound()
+    public void PlayRandomEnemyHitSound() //TODO CHANGE SOUNDS LOL
     {
         var chance = Random.Range(0, 300);
         if (chance < 6)
@@ -39,22 +45,29 @@ public class SoundManager : MonoBehaviour
             switch (chance)
             {
                 case 1:
-                    CupAudioSource.PlayOneShot(DiceRollingClip1);
+                    CupAudioSource.pitch = Random.Range(0.5f, 0.8f);
+                    CupAudioSource.PlayOneShot(EnemyHitSound1);
                     break;
                 case 2:
-                    CupAudioSource.PlayOneShot(DiceRollingClip1);
+                    CupAudioSource.PlayOneShot(EnemyHitSound2);
                     break;
                 case 3:
-                    CupAudioSource.PlayOneShot(DiceRollingClip1);
+                    CupAudioSource.PlayOneShot(EnemyHitSound3);
                     break;
                 case 4:
-                    CupAudioSource.PlayOneShot(DiceRollingClip1);
+                    CupAudioSource.PlayOneShot(EnemyHitSound4);
                     break;
                 case 5:
-                    CupAudioSource.PlayOneShot(DiceRollingClip1);
+                    CupAudioSource.PlayOneShot(EnemyHitSound5);
                     break;
             }
         }
+    }
+    public void PlayDiceInCupSound()
+    {
+        var pitch = Random.Range(0.8f, 1.2f);
+        CupAudioSource.pitch = pitch;
+        CupAudioSource.PlayOneShot(DiceInCupSound);
     }
 }
 

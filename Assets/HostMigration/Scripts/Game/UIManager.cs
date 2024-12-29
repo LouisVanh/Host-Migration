@@ -19,12 +19,17 @@ public class UIManager : NetworkBehaviour
     public static UIManager Instance { get; private set; }
 
     // For simple on / offs
+    [Header("Canvases")]
     [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsCanvas, 
         _coolAnimationCoutingDiceCanvas;
+
     public Canvas HealthBarsCanvas;
+
+    [Header("Animated")]
+
     // For animations, things that move or change in size (leave canvas on here, change transforms)
-    RectTransform _layoutOwnedBoosterRect, _layoutPotentialBoosterRect;
     [SerializeField] private FadePanel _fadePanel;
+    RectTransform _layoutOwnedBoosterRect, _layoutPotentialBoosterRect;
     private float _largeScaleMultiplier = 1;
     private float _smallScaleMultiplier = 0.5f;
 
@@ -209,6 +214,19 @@ public class UIManager : NetworkBehaviour
             RpcPlayGameWhenEverybodyReady();
     }
 
+    private void RollDiceInPlayer() => NetworkClient.localPlayer.GetComponent<Player>().CmdRollDice();
+    private async void CupAnimation()
+    {
+        NetworkClient.localPlayer.GetComponent<Player>().SpawnAndShakeDiceJar();
+        SoundManager.Instance.PlayDiceInCupSound();
+        await System.Threading.Tasks.Task.Delay(1000);
+    }
+    #region Buttons
+    public void RollDiceBtn()
+    {
+        // do animation with cup
+
+    }
     public void StartGameWithOnePlayer()
     {
         if (PlayersManager.Instance.Players.Count == 1)
@@ -237,4 +255,5 @@ public class UIManager : NetworkBehaviour
             CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
+    #endregion Buttons
 }
