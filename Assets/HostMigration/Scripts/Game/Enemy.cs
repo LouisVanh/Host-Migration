@@ -7,9 +7,14 @@ public enum EnemyType
 }
 public class Enemy : NetworkBehaviour
 {
+    [SyncVar(hook = nameof(OnDefaultHealthChanged))]
+    private int _defaultHealth = 99999999; // Should be overridden
+    private void OnDefaultHealthChanged(int oldValue, int newValue)
+    {
+        Debug.LogWarning("ENEMY/ ONDEFAULTHEALTHCHANGED / " + oldValue + " ---) " + newValue);
+        InitHealthBar(oldValue, newValue);
+    }
     public int Health => HealthBar.CurrentHealth;
-    [SyncVar]
-    public int DefaultHealth = 69; // Should be overridden
     public EnemyType EnemyType { get; private set; }
     [SerializeField] GameObject EnemyHealthBarVisual;
     [SerializeField] GameObject EnemyHealthBarScriptPrefab;
@@ -27,36 +32,41 @@ public class Enemy : NetworkBehaviour
     private float _hitShakeDuration = 0.3f;
 
     [Command(requiresAuthority = false)]
-    public virtual void CmdSetupEnemy(int health, EnemyType enemyType)
+    public virtual void CmdSetupEnemyVisual(EnemyType enemyType)
     {
         EnemyType = enemyType;
         ChosenVisual = enemyType switch
         {
             EnemyType.DefaultEnemyCube => VisualCubePrefab,
-            EnemyType.DefaultEnemyCapsule => VisualCubePrefab,
-            EnemyType.DefaultEnemySphere => VisualCubePrefab,
+            EnemyType.DefaultEnemyCapsule => VisualCapsulePrefab,
+            EnemyType.DefaultEnemySphere => VisualSpherePrefab,
             _ => VisualCapsulePrefab,
         };
         var spawnPos = GameObject.FindWithTag("EnemySpawnLocation").transform.position;
         CurrentEnemyVisual = Instantiate(ChosenVisual, spawnPos, Quaternion.identity);
         NetworkServer.Spawn(CurrentEnemyVisual);
         CurrentEnemyVisual.transform.localScale *= 5; // automatically networked thanks to NT
-        DefaultHealth = health;
-        //CreateEnemyHealthBar(health);
     }
-    public override void OnStartClient()
+
+    [Command(requiresAuthority = false)]
+    public virtual void CmdSyncHealthBarValue(int health)
     {
-        base.OnStartClient();
-        Debug.Log("ON START CLIENT OF ENEMY. TRYING TO MAKE HEALTH BAR HERE");
-        CreateEnemyHealthBar(DefaultHealth);
+        _defaultHealth = health; // Synced server to client
     }
-    public void CreateEnemyHealthBar(int health)
+
+    private void InitHealthBar(int oldValue, int newValue)
     {
+        // DO not make this cmd/rpc.
+        if (oldValue == newValue) return; // If defaulthealth doesn't change, something is really wrong.
+        Debug.Log("Hey! the health changed to start off, I can make the healthbar now!");
         HealthBar = GetComponent<HealthBar>();
-        Debug.Log("START OF setting up health bar for enemy " + this.gameObject.name + "!");
-        HealthBar.SetupOwnHealthBar(EnemyHealthBarVisual, health);
-        Debug.Log("END OF setting up health bar for enemy " + this.gameObject.name + "!");
-        // if this doesn't work, consider looping through all players, and 
+        HealthBar.SetupOwnHealthBar(EnemyHealthBarVisual, newValue);
+    }
+
+    public void CleanupHealthBar()
+    {
+        Debug.Log("Destroying health bar visual in scene!");
+        Destroy(this.HealthBar.HealthBarVisualInScene);
     }
 
     [Server]
@@ -103,42 +113,37 @@ public class Enemy : NetworkBehaviour
 
     public virtual void Die()
     {
-        Debug.LogWarning("Enemy died, but unimplemented");
         WaveManager.Instance.AdvanceToNextEnemy();
         NetworkServer.UnSpawn(CurrentEnemyVisual);
-        //RpcDestroyHealthBar();
+        CleanupHealthBar();
         Debug.Log("Right before unspawning enemy");
         NetworkServer.UnSpawn(this.gameObject);
         Debug.Log("Right after unspawning enemy");
     }
-    [ClientRpc]
-    private void RpcDestroyHealthBar()
-    {
-        Debug.Log("Destroying the health bar of enemy");
-    }
-
-    public override void OnStopClient()
-    {
-        base.OnStopClient();
-        Destroy(this.HealthBar.HealthBarVisualInScene);
-        Debug.Log("Right after OnStopClient");
-    }
 }
 
 
-//public class Boss : Enemy
-//{
-//    [Command(requiresAuthority = false)]
-//    public override void CmdSetupEnemy(int health, EnemyType bossType)
-//    {
-//        base.CmdSetupEnemy(health, bossType);
-//        // optional: other health bar visual here
-//    }
+public class Boss : Enemy
+{
+    [Command(requiresAuthority = false)]
+    public override void CmdSetupEnemyVisual(EnemyType bossType)
+    {
+        base.CmdSetupEnemyVisual(bossType);
+        // optional: special fx, sounds, ...
+    }
 
-//    public override void Die() // FUN FACT THIS MIGHT NEVER RUN, GOT NO CLUE LOL
-//    {
-//        base.Die();
-//        Debug.LogError("Boss died, but unimplemented");
-//        // ADD EFFECTS HERE
-//    }
-//}
+    [Command(requiresAuthority = false)]
+    public override void CmdSyncHealthBarValue(int health)
+    {
+        Debug.LogWarning("BOSS HEALTH SYNCED");
+        base.CmdSyncHealthBarValue(health);
+        // optional: special healthbar fx
+    }
+
+    public override void Die()
+    {
+        Debug.LogError("Boss died, but unimplemented");
+        base.Die();
+        // ADD EFFECTS HERE
+    }
+}

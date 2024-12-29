@@ -36,63 +36,42 @@ public class HealthBar : NetworkBehaviour
 
         if (player)
         {
-            // everything happens locally
-            CreateBar();
+            // everything happens locally, just the syncvar is synced
+            Debug.Log("SetupOwnHealthBar: Spawning player health bar now");
+            CreateBar(VisualPreset);
             SetPositionOfHealthBarPlayer(HealthBarVisualInScene.GetComponent<RectTransform>(), player.PlayerScreenPosition);
-            SetHealth(startingHealth);
+            SetHealth(startingHealth, "Player health: ");
         }
         else // if enemy
         {
-            // everything happens synced
-            //CmdRpcCreateBar();
-            if (NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab))
-            {
-                HealthBarVisualInScene = Instantiate(healthBarPrefab);
-                HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
-                _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
-
+            // everything happens locally, just the syncvar is synced
+            //if (NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab)) // for some reason VisualPreset isn't synced, cry about it
+            //{
+                Debug.Log("SetupOwnHealthBar: Spawning enemy health bar now");
+                CreateBar(VisualPreset);
                 SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
-                if(isServer)
-                SetHealth(startingHealth);
-            }
+                SetHealth(startingHealth, "Enemy health: ");
+            //}
         }
     }
     [Command(requiresAuthority = false)]
-    private void SetHealth(int startingHealth)
+    private void SetHealth(int startingHealth, string debugMsg)
     {
-        Debug.Log("Setting health values, for once and for all. SetHealth command putting in work, hopefully");
+        Debug.Log(debugMsg + "previously: " + this.TotalHealth + " - now: " + startingHealth);
         this.TotalHealth = startingHealth;
         this.CurrentHealth = startingHealth;
-        Debug.Log("SO DONE: Setting health values, for once and for all. SetHealth command putting in work, hopefully");
     }
 
-    private void CreateBar()
+    private void CreateBar(GameObject healthBarPrefab)
     {
-        HealthBarVisualInScene = Instantiate(VisualPreset);
+        HealthBarVisualInScene = Instantiate(healthBarPrefab);
         HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
         _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
     }
-    //[Command(requiresAuthority = false)]
-    //private void CmdRpcCreateBar()
-    //{ // for enemy: we want this to be spawned on all clients
-    //    RpcCreateBar();
-    //}
-    //[ClientRpc]
-    //private void RpcCreateBar()
-    //{
-    //    if (NetworkClient.GetPrefab(VisualPresetGUID, out GameObject healthBarPrefab))
-    //    {
-    //        HealthBarVisualInScene = Instantiate(healthBarPrefab);
-    //        HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
-    //        _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
-
-    //        SetPositionOfHealthBarEnemy(HealthBarVisualInScene.GetComponent<RectTransform>());
-    //    }
-    //}
-
 
     private void UpdateBar()
     {
+        Debug.Log("UpdatingBar start");
         if (_greenHealth == null)
         {
             Debug.Log("_greenHealth is currently null....");
@@ -104,7 +83,7 @@ public class HealthBar : NetworkBehaviour
 
         if (TotalHealth > 0)
         {
-            Debug.Log("Changing health fill! Current: " + CurrentHealth + " / " + TotalHealth);
+            Debug.Log("Updating Bar: Changing health fill! Currently: " + CurrentHealth + " / " + TotalHealth);
             _greenHealth.fillAmount = (float)CurrentHealth / TotalHealth; // Fixed division
         }
         else
@@ -141,7 +120,7 @@ public class HealthBar : NetworkBehaviour
     public void SetPositionOfHealthBarEnemy(RectTransform bar)
     {
         // Set rect transform of health bar to X: 0, Y: -350, and local scale to 1.25f
-        Debug.Log("Setting position of enemy health bar");
+        //Debug.Log("Setting position of enemy health bar");
         bar.localScale = new Vector3(1.25f, 1.25f, 1.25f);
         bar.localPosition = new Vector3(0, -350);
         UpdateBar();
