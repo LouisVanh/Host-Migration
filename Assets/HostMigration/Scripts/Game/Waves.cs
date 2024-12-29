@@ -24,53 +24,42 @@ public class WaveManager : NetworkBehaviour
     [Server]
     public void CreateNewWave()
     {
+        Debug.Log("CREATING NEW WAVE! Enemy will spawn after this");
         CurrentWave = new Wave(5);
-        StartCoroutine(SpawnEnemy());
+        SpawnEnemy();
     }
 
     [Server]
     public async void AdvanceToNextEnemy()
     {
         await System.Threading.Tasks.Task.Delay(1000);
-        if (CurrentWaveIndex == CurrentWave.TotalEnemiesCount - 1) Debug.Log("BOSS COMING UP NEXT!");// Right before the boss 
-        if (CurrentWaveIndex == CurrentWave.TotalEnemiesCount) // If this was the boss
+        if (CurrentWave.CurrentEnemyIndex == CurrentWave.TotalEnemiesCount - 1) Debug.Log("BOSS COMING UP NEXT!");// Right before the boss 
+        if (CurrentWave.CurrentEnemyIndex == CurrentWave.TotalEnemiesCount) // If this was the boss
         {
             SuccesfullyBeatWave();
             return;
         }
 
-        StartCoroutine(
-                SpawnEnemy());
+        Debug.Log("Enemy defeated! Enemy will spawn after this");
+        SpawnEnemy();
     }
 
     [Server]
-    private IEnumerator SpawnEnemy()
+    private void SpawnEnemy()
     {
         var scriptObj = Instantiate(EnemyScriptPrefab, Vector3.zero, Quaternion.identity);
         CurrentEnemy = scriptObj.GetComponent<Enemy>();
         NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-        CurrentEnemy.CmdSetupEnemy(StandardEnemyHealth, GetRandomEnemyType());
+        CurrentEnemy.CmdSetupEnemyVisual(GetRandomEnemyType());
+        CurrentEnemy.CmdSyncHealthBarValue(StandardEnemyHealth);
         CurrentWave.CurrentEnemyIndex++;
-
-        //yield return new WaitForEndOfFrame();
-        //yield return new WaitForEndOfFrame();
-        //RpcCreateEnemyHealthBar(CurrentEnemy.gameObject.GetComponent<NetworkIdentity>().netId);
-        yield return null;
     }
 
-    //[ClientRpc]
-    //private void RpcCreateEnemyHealthBar(uint enemyNetId)
-    //{
-    //    if (NetworkServer.spawned.TryGetValue(enemyNetId, out NetworkIdentity enemyObj))
-    //    {
-    //        enemyObj.GetComponent<Enemy>().CreateEnemyHealthBar(StandardEnemyHealth);
-    //    }
-    //    else Debug.LogWarning("No enemy found with that netid"); // Add frame delay?
-    //}
     [Server]
     public void SuccesfullyBeatWave()
     {
-        Debug.LogWarning("Insert reward here (unimplemented)");
+        Debug.LogWarning("Succesfully beat wave: Insert reward here (unimplemented)");
+        CurrentWaveIndex++;
         TurnManager.Instance.UpdateGameState(GameState.EveryonePickBooster);
     }
 
@@ -81,10 +70,13 @@ public class WaveManager : NetworkBehaviour
         switch (random)
         {
             case 1:
+                Debug.Log("Setting random enemy type: Capsule");
                 return EnemyType.DefaultEnemyCapsule;
             case 2:
+                Debug.Log("Setting random enemy type: Cube");
                 return EnemyType.DefaultEnemyCube;
             case 3:
+                Debug.Log("Setting random enemy type: Sphere");
                 return EnemyType.DefaultEnemySphere;
             default:
                 return EnemyType.DefaultEnemyCapsule;
