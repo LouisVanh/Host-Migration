@@ -7,6 +7,8 @@ public enum EnemyType
 }
 public class Enemy : NetworkBehaviour
 {
+    [SyncVar]
+    public bool IsBoss;
     [SyncVar(hook = nameof(OnDefaultHealthChanged))]
     private int _defaultHealth = 99999999; // Should be overridden
     private void OnDefaultHealthChanged(int oldValue, int newValue)
@@ -74,17 +76,27 @@ public class Enemy : NetworkBehaviour
     }
 
     [Server]
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, out int leftOverEyes, out bool enemyDied)
     {
-        if (Health <= 0) return; // IF ALREADY DEAD, STOP KICKIN EM
+        if (Health <= 0)// IF ALREADY DEAD, STOP KICKIN EM
+        {
+            Debug.LogWarning("Take Damage called when enemy was already dead");
+            leftOverEyes = -1;
+            enemyDied = false;
+            return;
+        }
         HealthBar.CurrentHealth -= damage;
 
         if (Health <= 0)
         {
+            leftOverEyes = Mathf.Abs(Health);
+            enemyDied = true;
             Die();
         }
         else // SURVIVED!
         {
+            leftOverEyes = 0;
+            enemyDied = false;
             RpcPlayHitAnimationFlash();
             PlayHitAnimation();
         }

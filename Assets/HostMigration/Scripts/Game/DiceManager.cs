@@ -31,6 +31,7 @@ public class DiceManager : NetworkBehaviour
     public List<uint> CupIdList = new();
     [SerializeField] private GameObject _dicePrefab;
 
+    public int LeftOverEyesFromLastRoll;
     public static DiceManager Instance { get; private set; }
     private void Awake()
     {
@@ -131,7 +132,7 @@ public class DiceManager : NetworkBehaviour
             case 4:
                 return Quaternion.Euler(0, 0, randomZ); // 4 up (default orientation) (Different axis then the 1, 2, 5, 6)
             case 5:
-                return Quaternion.Euler(randomZ, 90, 180); // 5 up 
+                return Quaternion.Euler(randomZ, 90, 0); // 5 up 
             case 6:
                 return Quaternion.Euler(randomZ, 90, 90); // 6 up 
             default:
@@ -201,17 +202,6 @@ public class DiceManager : NetworkBehaviour
     }
 
     [Server]
-    public void AddDice(Dice dice)
-    {
-        //Debug.Log("WE GOT INTO THE ADDDICE METHOD!");
-        if (!DiceList.Contains(dice))
-        {
-            DiceList.Add(dice);
-            Debug.Log($"Server: Added dice - {dice}");
-        }
-    }
-
-    [Server]
     void CheckIfEverybodyRolledDice()
     {
         bool checkSum = true;
@@ -230,6 +220,17 @@ public class DiceManager : NetworkBehaviour
     }
 
     [Server]
+    public void AddDice(Dice dice)
+    {
+        //Debug.Log("WE GOT INTO THE ADDDICE METHOD!");
+        if (!DiceList.Contains(dice))
+        {
+            DiceList.Add(dice);
+            Debug.Log($"Server: Added dice - {dice}");
+        }
+    }
+
+    [Server]
     public void RemoveDice(Dice dice)
     {
         if (DiceList.Contains(dice))
@@ -237,6 +238,19 @@ public class DiceManager : NetworkBehaviour
             DiceList.Remove(dice);
             Debug.Log($"Server: Removed dice - {dice}");
         }
+    }
+
+    [Server]
+    public void ResetAfterWaveComplete()
+    {
+        RemoveAllDice();
+        LeftOverEyesFromLastRoll = 0;
+    }
+    [Server]
+    public void RemoveAllDice()
+    {
+        DiceList.Clear();
+        TurnManager.Instance.CurrentDiceRoll = 0;
     }
 
     public List<Dice> GetAllDice()

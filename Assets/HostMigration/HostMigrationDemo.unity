@@ -665,6 +665,7 @@ MonoBehaviour:
   syncInterval: 0
   CupIdList: 
   _dicePrefab: {fileID: 4378862580125669272, guid: d3dbd98762399bd4b9bb00479bc6c26f, type: 3}
+  LeftOverEyesFromLastRoll: 0
 --- !u!4 &247959215
 Transform:
   m_ObjectHideFlags: 0
@@ -5698,6 +5699,7 @@ MonoBehaviour:
   _allDiceRolledScreen: {fileID: 181750092}
   _ownedBoosterCardsCanvas: {fileID: 320375701}
   _coolAnimationCountingDiceCanvas: {fileID: 557661663}
+  _newBoostersShopCanvas: {fileID: 606047424}
   _fadePanel: {fileID: 505172419}
   ScreenState: 0
 --- !u!114 &1821736270

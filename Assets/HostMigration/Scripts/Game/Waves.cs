@@ -32,15 +32,15 @@ public class WaveManager : NetworkBehaviour
     [Server]
     public async void AdvanceToNextEnemy()
     {
-        await System.Threading.Tasks.Task.Delay(1000);
+        Debug.Log($"Current wave: {CurrentWaveIndex}, Current Enemy: {CurrentWave.CurrentEnemyIndex}, Total Enemies: {CurrentWave.TotalEnemiesCount}");
         if (CurrentWave.CurrentEnemyIndex == CurrentWave.TotalEnemiesCount - 1) Debug.Log("BOSS COMING UP NEXT!");// Right before the boss 
+        await System.Threading.Tasks.Task.Delay(1000);
         if (CurrentWave.CurrentEnemyIndex == CurrentWave.TotalEnemiesCount) // If this was the boss
         {
-            SuccesfullyBeatWave();
+            SuccesfullyBeatWave(); // Go to pick booster
             return;
         }
 
-        Debug.Log("Enemy defeated! Enemy will spawn after this");
         SpawnEnemy();
     }
 
@@ -60,6 +60,7 @@ public class WaveManager : NetworkBehaviour
     {
         Debug.LogWarning("Succesfully beat wave: Insert reward here (unimplemented)");
         CurrentWaveIndex++;
+        DiceManager.Instance.ResetAfterWaveComplete();
         TurnManager.Instance.UpdateGameState(GameState.EveryonePickBooster);
     }
 

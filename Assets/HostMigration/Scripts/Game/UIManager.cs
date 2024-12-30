@@ -24,7 +24,7 @@ public class UIManager : NetworkBehaviour
     public Canvas HealthBarsCanvas;
 
     [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsCanvas, 
-        _coolAnimationCountingDiceCanvas;
+        _coolAnimationCountingDiceCanvas, _newBoostersShopCanvas;
 
 
     [Header("Animated")]
@@ -66,6 +66,7 @@ public class UIManager : NetworkBehaviour
         _ownedBoosterCardsCanvas.gameObject.SetActive(false);
         _allDiceRolledScreen.gameObject.SetActive(false);
         _coolAnimationCountingDiceCanvas.gameObject.SetActive(false);
+        _newBoostersShopCanvas.gameObject.SetActive(false);
         _fadePanel.FadeOut(0);
     }
     public async void UpdateUIState(ScreenState newScreenState)
@@ -133,6 +134,7 @@ public class UIManager : NetworkBehaviour
 
             case ScreenState.AfterRollDamageEnemy:
                 // space for any animation
+                if(isServer)
                 TurnManager.Instance.UpdateGameState(GameState.AfterRollDamageEnemy);
                 break;
 
@@ -142,7 +144,7 @@ public class UIManager : NetworkBehaviour
             case ScreenState.EveryonePickBooster:
                 SetEverythingFalse();
                 HealthBarsCanvas.gameObject.SetActive(true);
-
+                _newBoostersShopCanvas.gameObject.SetActive(true);
                 // ... animations under here
                 HideOwnedBoosterLayout();
                 ShowPotentialBoosterLayout();
@@ -200,7 +202,6 @@ public class UIManager : NetworkBehaviour
 
     public void DebugStartGame()
     {
-        UpdateUIState(ScreenState.PreDiceReceived);
         if(isServer) // to avoid warnings, wont run on client anyway
         TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
     }
