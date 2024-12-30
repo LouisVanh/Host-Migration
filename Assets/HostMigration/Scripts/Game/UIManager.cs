@@ -23,8 +23,9 @@ public class UIManager : NetworkBehaviour
 
     public Canvas HealthBarsCanvas;
 
-    [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsCanvas, 
-        _coolAnimationCountingDiceCanvas, _newBoostersShopCanvas;
+    [SerializeField]
+    private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsPopUpIconCanvas,
+        _coolAnimationCountingDiceCanvas, _newBoostersShopCanvas, _boosterCardsCanvas;
 
 
     [Header("Animated")]
@@ -63,10 +64,11 @@ public class UIManager : NetworkBehaviour
         _diceRollingScreen.gameObject.SetActive(false);
         _allDiceRolledScreen.gameObject.SetActive(false);
         HealthBarsCanvas.gameObject.SetActive(false);
-        _ownedBoosterCardsCanvas.gameObject.SetActive(false);
+        _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(false);
         _allDiceRolledScreen.gameObject.SetActive(false);
         _coolAnimationCountingDiceCanvas.gameObject.SetActive(false);
         _newBoostersShopCanvas.gameObject.SetActive(false);
+        _boosterCardsCanvas.gameObject.SetActive(false);
         _fadePanel.FadeOut(0);
     }
     public async void UpdateUIState(ScreenState newScreenState)
@@ -95,20 +97,21 @@ public class UIManager : NetworkBehaviour
 
                 _preDiceScreen.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);
-                _ownedBoosterCardsCanvas.gameObject.SetActive(true);
 
-                if(isServer) // just preventing warnings, this will only work on server, but it syncs for everything.
-                TurnManager.Instance.UpdateGameState(GameState.EveryoneRollingTime);
-                // ... animations under here
-                if (! TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
+                if (!TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
                 {
-                    ShowOwnedBoosterLayout();
+                    _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true); // Clicking this will bring up the thing under here (TODO)
+                    //ShowOwnedBoosterLayout();
                 }
+
+                if (isServer) // just preventing warnings, this will only work on server, but it syncs for everything.
+                    TurnManager.Instance.UpdateGameState(GameState.EveryoneRollingTime);
+                // ... animations under here
                 break;
             case ScreenState.EveryoneRollingTime:
-                if (! TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
+                if (!TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
                 {
-                ShrinkOwnedBoosterLayout();
+                    ShrinkOwnedBoosterLayout();
                 }
                 break;
 
@@ -134,8 +137,8 @@ public class UIManager : NetworkBehaviour
 
             case ScreenState.AfterRollDamageEnemy:
                 // space for any animation
-                if(isServer)
-                TurnManager.Instance.UpdateGameState(GameState.AfterRollDamageEnemy);
+                if (isServer)
+                    TurnManager.Instance.UpdateGameState(GameState.AfterRollDamageEnemy);
                 break;
 
             case ScreenState.AfterRollEnemyAttack:
@@ -202,8 +205,8 @@ public class UIManager : NetworkBehaviour
 
     public void DebugStartGame()
     {
-        if(isServer) // to avoid warnings, wont run on client anyway
-        TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
+        if (isServer) // to avoid warnings, wont run on client anyway
+            TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
     }
     public void DebugAnimationPlay()
     {

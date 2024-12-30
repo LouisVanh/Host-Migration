@@ -123,12 +123,12 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 break;
 
             case GameState.AfterRollDamageEnemy:                 // UI ANIMATION will call to this
-                await HandleEnemyDamage(CurrentDiceRoll);
+                await HandleEnemyDamage(CurrentDiceRoll, false);
                 break;
 
             case GameState.LeftOverDamageToEnemy:
                 await System.Threading.Tasks.Task.Delay(1500); // Waiting for enemy to spawn again
-                await HandleEnemyDamage(DiceManager.Instance.LeftOverEyesFromLastRoll);
+                await HandleEnemyDamage(DiceManager.Instance.LeftOverEyesFromLastRoll, true);
                 break;
 
             case GameState.AfterRollEnemyAttack:
@@ -136,7 +136,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
 
                 // This could be randomised later...
                 WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(2);
-                await System.Threading.Tasks.Task.Delay(500);
+                await System.Threading.Tasks.Task.Delay(1500);
                 DiceManager.Instance.RemoveAllDice();
 
                 UpdateGameState(GameState.PreDiceReceived);
@@ -150,7 +150,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 break;
         }
     }
-    private async System.Threading.Tasks.Task HandleEnemyDamage(int damage)
+    private async System.Threading.Tasks.Task HandleEnemyDamage(int damage, bool isLeftOvers)
     {
         Debug.Log($"TURNMANAGER / Current Damage: {damage}");
         var enemyToDamage = WaveManager.Instance.CurrentEnemy;
@@ -158,7 +158,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         // This could kill the enemy, giving leftovers. This could also kill the boss, which would send you to the booster picking state.
         enemyToDamage.TakeDamage(damage, out int leftOverEyes, out bool enemyDied);
         DiceManager.Instance.LeftOverEyesFromLastRoll = leftOverEyes;
-        await System.Threading.Tasks.Task.Delay(500); // Don't instantly switch after damage gets removed, let players look at it.
+        await System.Threading.Tasks.Task.Delay(1500); // Don't instantly switch after damage gets removed, let players look at it.
         if (enemyDied && wasEnemyBoss)
         {
             return; // WavesManager handles this.
@@ -176,6 +176,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         }
         else // enemy survived, he will attack now.
         {
+            if (isLeftOvers) return; // if it's leftovers, don't attack twice for no reason.
             UpdateGameState(GameState.AfterRollEnemyAttack);
         }
     }
