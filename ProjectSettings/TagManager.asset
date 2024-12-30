@@ -10,6 +10,10 @@ TagManager:
   - NewCardLayout
   - EnemySpawnLocation
   - TimeToRoll
+  - CupPosition1
+  - CupPosition2
+  - CupPosition3
+  - CupPosition4
   layers:
   - Default
   - TransparentFX

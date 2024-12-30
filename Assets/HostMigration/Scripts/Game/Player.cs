@@ -20,13 +20,14 @@ public class Player : NetworkBehaviour
     public int CurrentDiceRollAmount;
 
     // NETWORK TRANSFORMS
-    [SerializeField] private GameObject _dicePrefab;
     [SerializeField] private GameObject _cupPrefab;
-    [SerializeField] private Transform _cupPosition1;
-    [SerializeField] private Transform _cupPosition2;
-    [SerializeField] private Transform _cupPosition3;
-    [SerializeField] private Transform _cupPosition4;
+    private Vector3 _cupPosition1;
+    [SyncVar]
+    public Vector3 _cupPosition2;
+    private Vector3 _cupPosition3;
+    private Vector3 _cupPosition4;
 
+    public uint PlayerNetId => this.gameObject.GetComponent<NetworkIdentity>().netId;
     public readonly SyncList<uint> DiceOwned = new SyncList<uint>();
 
     [SyncVar]
@@ -36,7 +37,7 @@ public class Player : NetworkBehaviour
     {
         if (isServer)
         {
-            PlayersManager.Instance.RemovePlayer(gameObject.GetComponent<NetworkIdentity>().netId);
+            PlayersManager.Instance.RemovePlayer(PlayerNetId);
         }
     }
 
@@ -58,11 +59,17 @@ public class Player : NetworkBehaviour
     {
         if (isLocalPlayer) // never use localplayer in awake
         {
+            Debug.Log("IsLocalPlayer is true! starting player");
             CmdRegisterPlayer();
 
             BoosterManager = GetComponent<BoostersManager>();
 
             UIManager.Instance.UpdateUIState(ScreenState.WaitingLobby);
+
+            _cupPosition1 = GameObject.FindWithTag("CupPosition1").transform.position;
+            _cupPosition2 = GameObject.FindWithTag("CupPosition2").transform.position;
+            _cupPosition3 = GameObject.FindWithTag("CupPosition3").transform.position;
+            _cupPosition4 = GameObject.FindWithTag("CupPosition4").transform.position;
         }
     }
 
@@ -71,11 +78,11 @@ public class Player : NetworkBehaviour
         if (!isLocalPlayer) return;
 
         //if (Input.GetKeyDown(KeyCode.T))
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                Debug.Log("Rolling dice from player");
-                CmdRollDice();
-            }
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Debug.Log("Rolling dice from player");
+            CmdRollDice();
+        }
 
         if (Input.GetKeyDown(KeyCode.L)) CmdTestRemovePlayerHealth();
     }
@@ -99,7 +106,7 @@ public class Player : NetworkBehaviour
             {
                 int eyes = UnityEngine.Random.Range(1, 7);
                 totalRoll += eyes;
-                CmdSpawnDiceWithEyes(eyes);
+                CmdSpawnDiceWithEyes(PlayerNetId, eyes);
             }
         }
         else Debug.LogWarning($"CANT ROLL DICE! canRoll = {_canRoll}, hasAlreadyRolled = {HasAlreadyRolled}");
@@ -112,9 +119,11 @@ public class Player : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdSpawnDiceWithEyes(int eyesRolled)
+    public void CmdSpawnDiceWithEyes(uint playerId, int eyesRolled)
     {
-        DiceManager.Instance.AddDice(new Dice(this.gameObject.GetComponent<NetworkIdentity>().netId, eyesRolled));
+        var newDice = new Dice(playerId, eyesRolled);
+        Debug.Log("New dice made: " + newDice);
+        DiceManager.Instance.AddDice(newDice);
     }
 
     public void SpawnAndShakeDiceJar()
@@ -122,19 +131,43 @@ public class Player : NetworkBehaviour
         Vector3 pos = GetPlayerCupPosition();
         var upsideDownRotation = new Vector3(0, 180, 0);
         var quaternion = Quaternion.Euler(upsideDownRotation);
-        var cup = Instantiate(_cupPrefab, pos, quaternion);
+        CmdSpawnCup(quaternion, pos);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdSpawnCup(Quaternion rotation, Vector3 position)
+    {
+        Debug.Log($"PLAYER / CMDSPAWNCUP / Spawning cup at pos: {position}, rot: {rotation.eulerAngles}");
+
+        // Spawning the cup
+        var cup = Instantiate(_cupPrefab);
+        NetworkServer.Spawn(cup);
+        DiceManager.Instance.CupIdList.Add(cup.GetComponent<NetworkIdentity>().netId);
+
+        // Synced by Network Transform
+        cup.transform.SetPositionAndRotation(position, rotation);
+        ShakeThatCup();
+    }
+
+    public void ShakeThatCup()
+    {
         // Play dice shake animation
+        Debug.LogWarning("No cup animation implemented yet");
     }
 
     public Vector3 GetPlayerCupPosition()
     {
+        Debug.Log($"Player {this.name} is getting it's position: {PlayerScreenPosition} to spawn dice at");
+        Debug.Log($"Possible values are {_cupPosition1}, {_cupPosition2}, {_cupPosition3}, {_cupPosition4}");
         return (PlayerScreenPosition) switch
         {
-            PlayerPosition.BottomLeft => _cupPosition1.position,
-            PlayerPosition.BottomRight => _cupPosition2.position,
-            PlayerPosition.TopLeft => _cupPosition3.position,
-            PlayerPosition.TopRight => _cupPosition4.position,
-            PlayerPosition.None => Vector3.zero,
+            PlayerPosition.BottomLeft => _cupPosition1,
+            PlayerPosition.BottomRight => _cupPosition2,
+            PlayerPosition.TopLeft => _cupPosition3,
+            PlayerPosition.TopRight => _cupPosition4,
+
+            // Will never happen
+            PlayerPosition.None => throw new NotImplementedException(),
             _ => throw new NotImplementedException()
         };
     }
@@ -142,8 +175,9 @@ public class Player : NetworkBehaviour
     public void ReceiveDice(int diceCount)
     {
         Debug.Log(this.ToString() + " received " + diceCount + "dice");
+        // Enable cup, allow for rolling
+
         _canRoll = true;
         HasAlreadyRolled = false;
-        // enable cup, allow for rolling
     }
 }

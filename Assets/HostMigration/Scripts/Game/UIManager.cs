@@ -91,6 +91,7 @@ public class UIManager : NetworkBehaviour
                 HealthBarsCanvas.gameObject.SetActive(true);
                 _ownedBoosterCardsCanvas.gameObject.SetActive(true);
 
+                if(isServer) // just preventing warnings, this will only work on server, but it syncs for everything.
                 TurnManager.Instance.UpdateGameState(GameState.EveryoneRollingTime);
                 // ... animations under here
                 if (! TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
