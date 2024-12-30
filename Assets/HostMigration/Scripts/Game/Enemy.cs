@@ -142,6 +142,7 @@ public class Enemy : NetworkBehaviour
     [Server]
     public virtual void Die()
     {
+        Debug.LogWarning("I'm dead as hell bruh");
         WaveManager.Instance.AdvanceToNextEnemy();
         NetworkServer.UnSpawn(CurrentEnemyVisual);
         NetworkServer.UnSpawn(this.gameObject);

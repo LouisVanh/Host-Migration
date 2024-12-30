@@ -5,7 +5,7 @@ using System.Collections;
 public class WaveManager : NetworkBehaviour
 {
     public Wave CurrentWave;
-    public int CurrentWaveIndex;
+    public int CurrentWaveIndex = 1;
     public int StandardEnemyHealth;
     public Enemy CurrentEnemy;
     public GameObject EnemyScriptPrefab;
@@ -32,7 +32,7 @@ public class WaveManager : NetworkBehaviour
     [Server]
     public async void AdvanceToNextEnemy()
     {
-        Debug.Log($"Current wave: {CurrentWaveIndex}, Current Enemy: {CurrentWave.CurrentEnemyIndex}, Total Enemies: {CurrentWave.TotalEnemiesCount}");
+        Debug.LogWarning($"Current wave: {CurrentWaveIndex}, Current Enemy: {CurrentWave.CurrentEnemyIndex}, Total Enemies: {CurrentWave.TotalEnemiesCount}");
         if (CurrentWave.CurrentEnemyIndex == CurrentWave.TotalEnemiesCount - 1) Debug.Log("BOSS COMING UP NEXT!");// Right before the boss 
         await System.Threading.Tasks.Task.Delay(1000);
         if (CurrentWave.CurrentEnemyIndex == CurrentWave.TotalEnemiesCount) // If this was the boss

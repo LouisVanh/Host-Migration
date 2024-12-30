@@ -98,7 +98,7 @@ public class UIManager : NetworkBehaviour
                 _preDiceScreen.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);
 
-                if (!TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
+                if (!TurnManager.Instance.FirstWavePlaying) // is this not the first time playing?
                 {
                     _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true); // Clicking this will bring up the thing under here (TODO)
                     //ShowOwnedBoosterLayout();
@@ -109,10 +109,10 @@ public class UIManager : NetworkBehaviour
                 // ... animations under here
                 break;
             case ScreenState.EveryoneRollingTime:
-                if (!TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
-                {
-                    ShrinkOwnedBoosterLayout();
-                }
+                //if (!TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
+                //{
+                //    ShrinkOwnedBoosterLayout();
+                //}
                 break;
 
             case ScreenState.EveryoneJustRolled:

@@ -21,7 +21,8 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     public int CurrentDiceRoll;
 
     public int _turnCount;
-    public bool FirstRoundPlaying => _turnCount < 1;
+    public bool FirstTurnPlaying => _turnCount < 1;
+    public bool FirstWavePlaying => WaveManager.Instance.CurrentWaveIndex == 1;
     public static TurnManager Instance { get; private set; }
     private void Awake()
     {
@@ -87,6 +88,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     public async void UpdateGameState(GameState newState)
     {
         CurrentGameState = newState;
+        Debug.LogWarning($"TURN / NEW GAME STATE / " + newState);
         // Handle state transitions
         switch (newState)
         {
@@ -98,8 +100,11 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 // Show the right screen
                 SetSyncedUIState(ScreenState.PreDiceReceived);
 
+                //Remove any leftover dice from last turns
+                DiceManager.Instance.RemoveAllDice();
+
                 // Explain anything if it's the first time
-                if (FirstRoundPlaying)
+                if (FirstTurnPlaying)
                 {
                     RpcGivePlayersHealthBars();
                     WaveManager.Instance.CreateNewWave();
@@ -137,7 +142,6 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 // This could be randomised later...
                 WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(2);
                 await System.Threading.Tasks.Task.Delay(1500);
-                DiceManager.Instance.RemoveAllDice();
 
                 UpdateGameState(GameState.PreDiceReceived);
                 break;
@@ -152,9 +156,10 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     }
     private async System.Threading.Tasks.Task HandleEnemyDamage(int damage, bool isLeftOvers)
     {
-        Debug.Log($"TURNMANAGER / Current Damage: {damage}");
+        Debug.Log($"TURNMANAGER / Current Damage: {damage} - Is this a leftover? {isLeftOvers}");
         var enemyToDamage = WaveManager.Instance.CurrentEnemy;
         bool wasEnemyBoss = WaveManager.Instance.CurrentWave.CurrentEnemyIndex == WaveManager.Instance.CurrentWave.TotalEnemiesCount;
+
         // This could kill the enemy, giving leftovers. This could also kill the boss, which would send you to the booster picking state.
         enemyToDamage.TakeDamage(damage, out int leftOverEyes, out bool enemyDied);
         DiceManager.Instance.LeftOverEyesFromLastRoll = leftOverEyes;
@@ -163,7 +168,8 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         {
             return; // WavesManager handles this.
         }
-        if (enemyDied && !wasEnemyBoss)
+
+        if (enemyDied)
         {
             if (leftOverEyes != 0)
             {
@@ -176,17 +182,23 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         }
         else // enemy survived, he will attack now.
         {
-            if (isLeftOvers) return; // if it's leftovers, don't attack twice for no reason.
+            if (isLeftOvers)
+            {
+                Debug.Log("Leftover damage done, not attacking player and going back to preDice");
+                UpdateGameState(GameState.PreDiceReceived);
+                return; // if it's leftovers, don't attack twice for no reason.}
+            }
+
             UpdateGameState(GameState.AfterRollEnemyAttack);
         }
     }
-    [ClientRpc]
-    private void RpcGivePlayersHealthBars()
-    {
-        foreach (var player in PlayersManager.Instance.GetPlayers())
+        [ClientRpc]
+        private void RpcGivePlayersHealthBars()
         {
-            Debug.Log(player.name + " is the player Turn Manager is giving a healthbar to now!");
-            player.CreatePlayerHealthBar();
+            foreach (var player in PlayersManager.Instance.GetPlayers())
+            {
+                Debug.Log(player.name + " is the player Turn Manager is giving a healthbar to now!");
+                player.CreatePlayerHealthBar();
+            }
         }
     }
-}
