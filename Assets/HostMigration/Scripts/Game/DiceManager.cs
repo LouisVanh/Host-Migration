@@ -205,12 +205,11 @@ public class DiceManager : NetworkBehaviour
     void CheckIfEverybodyRolledDice()
     {
         bool checkSum = true;
-        foreach (uint id in PlayersManager.Instance.Players)
+        var list = PlayersManager.Instance.GetAlivePlayers();
+
+        foreach (Player player in list)
         {
-            if (NetworkClient.spawned.TryGetValue(id, out NetworkIdentity objNetIdentity))
-            {
-                if (objNetIdentity.GetComponent<Player>().HasAlreadyRolled == false) checkSum = false;
-            }
+            if (player.HasAlreadyRolled == false) checkSum = false;
         }
         if (checkSum)
         {

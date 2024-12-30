@@ -45,6 +45,20 @@ public class PlayersManager : NetworkBehaviour
         return playerList;
     }
 
+    public List<Player> GetAlivePlayers()
+    {
+        List<Player> playerList = new();
+        foreach (uint playerId in Players)
+        {
+            if (NetworkClient.spawned.TryGetValue(playerId, out NetworkIdentity playerObj))
+            {
+                if (playerObj.GetComponent<Player>().IsAlive)
+                    playerList.Add(playerObj.GetComponent<Player>());
+            }
+        }
+        return playerList;
+    }
+
     public readonly SyncList<uint> Players = new SyncList<uint>();
 
     [Server]

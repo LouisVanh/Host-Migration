@@ -11,7 +11,8 @@ public enum GameState
     AfterRollDamageEnemy,
     AfterRollEnemyAttack,
     LeftOverDamageToEnemy,
-    EveryonePickBooster
+    EveryonePickBooster,
+    EndGame
 }
 
 // **TurnManager.cs**
@@ -37,11 +38,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     [Server]
     public void GiveAllPlayersDice()
     {
-        Debug.Log("GiveAAllPlayerDice called but not yet inside");
-        //if (CurrentGameState != GameState.PreDiceReceived) return;
-        Debug.Log("GiveAAllPlayerDice called inside");
-
-        foreach (var player in PlayersManager.Instance.GetPlayers())
+        foreach (var player in PlayersManager.Instance.GetAlivePlayers())
         {
             GivePlayerDice(player);
         }
@@ -51,7 +48,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
     [ClientRpc]
     private void GivePlayerDice(Player player)
     {
-        Debug.Log("GivePlayerDice called");
+        //Debug.Log("GivePlayerDice called");
         var diceCount = player.DiceCount;
         player.ReceiveDice(diceCount);
     }
@@ -140,14 +137,26 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 SetSyncedUIState(ScreenState.AfterRollEnemyAttack);
 
                 // This could be randomised later...
-                WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(2);
+                WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(10);
                 await System.Threading.Tasks.Task.Delay(1500);
+
+                if (PlayersManager.Instance.GetAlivePlayers().Count == 0)
+                {
+                    // All players are dead.
+                    UpdateGameState(GameState.EndGame);
+                    return;
+                }
 
                 UpdateGameState(GameState.PreDiceReceived);
                 break;
 
             case GameState.EveryonePickBooster:
                 SetSyncedUIState(ScreenState.EveryonePickBooster);
+                break;
+
+            case GameState.EndGame:
+                // END THE GAME
+                SetSyncedUIState(ScreenState.EndOfGame);
                 break;
 
             default:

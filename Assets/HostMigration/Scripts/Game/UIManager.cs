@@ -10,7 +10,8 @@ public enum ScreenState
     InDiceCountingAnimation,
     AfterRollDamageEnemy,
     AfterRollEnemyAttack,
-    EveryonePickBooster
+    EveryonePickBooster,
+    EndOfGame
 }
 public class UIManager : NetworkBehaviour
 // IMPORTANT: DO NOT SYNC UI, NO MATTER HOW TEMPTING. BAD IDEA.
@@ -25,7 +26,7 @@ public class UIManager : NetworkBehaviour
 
     [SerializeField]
     private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsPopUpIconCanvas,
-        _coolAnimationCountingDiceCanvas, _newBoostersShopCanvas, _boosterCardsCanvas;
+        _coolAnimationCountingDiceCanvas, _newBoostersShopCanvas, _boosterCardsCanvas, _endGameCanvas;
 
 
     [Header("Animated")]
@@ -58,17 +59,18 @@ public class UIManager : NetworkBehaviour
     }
     private void SetEverythingFalse()
     {
+        HealthBarsCanvas.gameObject.SetActive(false);
         _startScreen.gameObject.SetActive(false);
         _preDiceScreen.gameObject.SetActive(false);
         _rollingTimePopupScreen.gameObject.SetActive(false);
         _diceRollingScreen.gameObject.SetActive(false);
         _allDiceRolledScreen.gameObject.SetActive(false);
-        HealthBarsCanvas.gameObject.SetActive(false);
         _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(false);
         _allDiceRolledScreen.gameObject.SetActive(false);
         _coolAnimationCountingDiceCanvas.gameObject.SetActive(false);
         _newBoostersShopCanvas.gameObject.SetActive(false);
         _boosterCardsCanvas.gameObject.SetActive(false);
+        _endGameCanvas.gameObject.SetActive(false);
         _fadePanel.FadeOut(0);
     }
     public async void UpdateUIState(ScreenState newScreenState)
@@ -151,6 +153,11 @@ public class UIManager : NetworkBehaviour
                 // ... animations under here
                 HideOwnedBoosterLayout();
                 ShowPotentialBoosterLayout();
+                break;
+
+            case ScreenState.EndOfGame:
+                SetEverythingFalse();
+                _endGameCanvas.gameObject.SetActive(true);
                 break;
 
             default:
@@ -248,6 +255,16 @@ public class UIManager : NetworkBehaviour
         // do animation with cup
         CupAnimation();
         RollDiceInPlayer();
+    }
+
+    public void RestartGameBtn()
+    {
+        CmdRestartGame();
+    }
+    [Command(requiresAuthority =false)]
+    private void CmdRestartGame()
+    {
+        NetworkManager.singleton.ServerChangeScene("GameScene"); // Replace with your scene name
     }
     public void StartGameWithOnePlayer()
     {

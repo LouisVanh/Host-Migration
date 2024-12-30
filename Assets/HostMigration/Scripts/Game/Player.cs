@@ -6,6 +6,8 @@ public enum PlayerPosition { BottomLeft, BottomRight, TopLeft, TopRight, None }
 public class Player : NetworkBehaviour
 {
     [SyncVar]
+    public bool IsAlive = true;
+    [SyncVar]
     public bool ReadyToPlay;
     [SyncVar]
     public bool HasAlreadyRolled;
@@ -87,18 +89,28 @@ public class Player : NetworkBehaviour
             CmdRollDice();
         }
 
-        if (Input.GetKeyDown(KeyCode.L)) CmdTestRemovePlayerHealth();
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            Debug.Log("Restoring health from player");
+            CmdRestoreHealth(5);
+        }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            Debug.Log("Reviving");
+            CmdRevivePlayer();
+        }
     }
 
     [Command(requiresAuthority = false)]
-    private void CmdTestRemovePlayerHealth()
-    {
-        HealthBar.CurrentHealth--; // DEBUG
-    }
-    [Command(requiresAuthority = false)]
     public void CmdRollDice()
     {
-        //WaveManager.Instance.CurrentEnemy.TakeDamage(3); // obviously for testing only
+        if (!IsAlive)
+        {
+            Debug.LogWarning("Player is dead, can't roll");
+            return;
+        }
+
         if (_canRoll && !HasAlreadyRolled)
         {
             Debug.Log("ROLLING DICE!");
@@ -118,7 +130,47 @@ public class Player : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdTakeDamage(int health)
     {
+        if (!IsAlive)
+        {
+            Debug.LogWarning("Player is dead, can't take damage");
+            return;
+        }
+
         HealthBar.CurrentHealth -= health;
+        if(HealthBar.CurrentHealth <= 0)
+        {
+            Debug.Log("Player died.");
+            HealthBar.CurrentHealth = 0;
+            IsAlive = false;
+        }
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdRestoreHealth(int health)
+    {
+        if (!IsAlive)
+        {
+            Debug.LogWarning("Player is dead, can't restore health. Revive first!");
+            return;
+        }
+
+        HealthBar.CurrentHealth += health;
+        if (HealthBar.CurrentHealth >= HealthBar.TotalHealth)
+        {
+            Debug.Log("Player health clamped.");
+            HealthBar.CurrentHealth = HealthBar.TotalHealth;
+        }
+    }
+
+    [Command(requiresAuthority =false)]
+    public void CmdRevivePlayer()
+    {
+        if (!IsAlive)
+        {
+            Debug.Log("Player reviving!.");
+            HealthBar.CurrentHealth = 10;
+            IsAlive = true;
+        }
     }
 
     [Command(requiresAuthority = false)]
@@ -177,6 +229,11 @@ public class Player : NetworkBehaviour
 
     public void ReceiveDice(int diceCount)
     {
+        if (!IsAlive)
+        {
+            Debug.LogWarning("Player is dead, can't receive dice");
+            return;
+        }
         Debug.Log(this.ToString() + " received " + diceCount + "dice");
         // Enable cup, allow for rolling
 
