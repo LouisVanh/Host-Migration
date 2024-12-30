@@ -68,13 +68,41 @@ public class DiceManager : NetworkBehaviour
     }
 
     [Server]
+    public int CountTotalRollAmount()
+    {
+        var total = 0;
+        foreach (Dice dice in GetAllDice())
+        {
+            total += dice.EyesRolled;
+        }
+        return total;
+    }
+
+
+    [Server]
     private Vector3 GetDicePosition(int index)
     {
+        // Ensure the player identity exists
         if (NetworkClient.spawned.TryGetValue(DiceList[index].PlayerNetId, out NetworkIdentity playerNetIdentity))
         {
-            Vector3 posOnScreen = playerNetIdentity.GetComponent<Player>().GetPlayerCupPosition();
-            //Debug.Log($"Dice position found to spawn at:" +posOnScreen); 
-            return posOnScreen;
+            // Get the center position for this player's dice
+            Vector3 centerPosition = playerNetIdentity.GetComponent<Player>().GetPlayerCupPosition();
+
+            // Define the radius for spacing between dice
+            float diceRadius = 0.5f; // Adjust based on dice size
+            float spacing = 1.2f;    // Multiplier for distance between dice to avoid intersections
+
+            // Use a circular pattern for up to 7 dice
+            const int maxDice = 7; // Max dice to spawn
+            float angleStep = 360f / maxDice; // Angle between dice
+
+            // Calculate position in the circle
+            float angle = index * angleStep * Mathf.Deg2Rad; // Convert to radians
+            float xOffset = Mathf.Cos(angle) * diceRadius * spacing;
+            float yOffset = Mathf.Sin(angle) * diceRadius * spacing;
+
+            // Return the calculated position
+            return centerPosition + new Vector3(xOffset, yOffset, 0);
         }
         else
         {
@@ -126,6 +154,7 @@ public class DiceManager : NetworkBehaviour
             NetworkServer.Spawn(dice);
 
             DiceList[index].DiceNetId = dice.GetComponent<NetworkIdentity>().netId;
+            CheckIfEverybodyRolledDice();
             // Set position and rotation after spawning so it gets synced. Make sure dice has a NT for this to get synced!
             dice.transform.SetPositionAndRotation(GetDicePosition(index), GetDiceRotation(index));
         }
@@ -183,7 +212,7 @@ public class DiceManager : NetworkBehaviour
     }
 
     [Server]
-    void CheckIfEverybodyRolledDice(Player playerWhoLastRolled)
+    void CheckIfEverybodyRolledDice()
     {
         bool checkSum = true;
         foreach (uint id in PlayersManager.Instance.Players)

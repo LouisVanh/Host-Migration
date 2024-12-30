@@ -17,7 +17,7 @@ public enum GameState
 public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERYTHING ONCE)
 {
     public GameState CurrentGameState;
-    private int _currentDiceRoll;
+    public int CurrentDiceRoll;
     private Enemy _currentEnemy;
 
     public int _turnCount;
@@ -111,13 +111,14 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
 
             case GameState.EveryoneJustRolled:
                 // Count up the dice
-                _currentDiceRoll = CountTotalRollAmount();
+                CurrentDiceRoll = DiceManager.Instance.CountTotalRollAmount();
                 UIManager.Instance.UpdateUIState(ScreenState.EveryoneJustRolled);
                 // UI ANIMATION will call to next
                 break;
             case GameState.AfterRollDamageEnemy:
-                _currentEnemy.TakeDamage(_currentDiceRoll);
-                _currentDiceRoll = 0;
+                Debug.Log($"TURNMANAGER / CURRENTDICEROLL: {CurrentDiceRoll}");
+                WaveManager.Instance.CurrentEnemy.TakeDamage(CurrentDiceRoll);
+                CurrentDiceRoll = 0;
 
                 break;
             case GameState.AfterRollEnemyAttack:
@@ -127,16 +128,6 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
             default:
                 break;
         }
-    }
-    [Server]
-    private int CountTotalRollAmount()
-    {
-        var total = 0;
-        foreach (var player in PlayersManager.Instance.GetPlayers())
-        {
-            total += player.DiceCount;
-        }
-        return total;
     }
 
     [ClientRpc]

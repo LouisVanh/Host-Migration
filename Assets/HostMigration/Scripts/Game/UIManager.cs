@@ -20,10 +20,12 @@ public class UIManager : NetworkBehaviour
 
     // For simple on / offs
     [Header("Canvases")]
-    [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsCanvas, 
-        _coolAnimationCoutingDiceCanvas;
 
     public Canvas HealthBarsCanvas;
+
+    [SerializeField] private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsCanvas, 
+        _coolAnimationCountingDiceCanvas;
+
 
     [Header("Animated")]
 
@@ -33,7 +35,7 @@ public class UIManager : NetworkBehaviour
     private float _largeScaleMultiplier = 1;
     private float _smallScaleMultiplier = 0.5f;
 
-    //public ScreenState ScreenState;
+    public ScreenState ScreenState;
 
     private void Awake()
     {
@@ -63,10 +65,12 @@ public class UIManager : NetworkBehaviour
         HealthBarsCanvas.gameObject.SetActive(false);
         _ownedBoosterCardsCanvas.gameObject.SetActive(false);
         _allDiceRolledScreen.gameObject.SetActive(false);
+        _coolAnimationCountingDiceCanvas.gameObject.SetActive(false);
         _fadePanel.FadeOut(0);
     }
     public async void UpdateUIState(ScreenState newScreenState)
     {
+        ScreenState = newScreenState; // Currently not in use yet, but a nice API element to have
         switch (newScreenState)
         {
             case ScreenState.WaitingLobby:
@@ -74,6 +78,7 @@ public class UIManager : NetworkBehaviour
                 _startScreen.gameObject.SetActive(true);
                 // ... animations under here
                 break;
+
             case ScreenState.PreDiceReceived:
                 SetEverythingFalse();
                 _fadePanel.FadeIn(1.5f);
@@ -105,34 +110,44 @@ public class UIManager : NetworkBehaviour
                 ShrinkOwnedBoosterLayout();
                 }
                 break;
+
             case ScreenState.EveryoneJustRolled:
                 // GET READY TO START ANIMATION
-
+                SetEverythingFalse();
+                HealthBarsCanvas.gameObject.SetActive(true);
                 // ...
 
                 UpdateUIState(ScreenState.InDiceCountingAnimation);
                 break;
+
             case ScreenState.InDiceCountingAnimation:
                 // Do animation
-                await System.Threading.Tasks.Task.Delay(1000);
+                _fadePanel.FadeIn(0.5f);
+                await System.Threading.Tasks.Task.Delay(500);
+                _coolAnimationCountingDiceCanvas.gameObject.SetActive(true);
+                _fadePanel.FadeOut(0.5f);
+                await System.Threading.Tasks.Task.Delay(500);
+
                 UpdateUIState(ScreenState.AfterRollDamageEnemy);
                 break;
+
             case ScreenState.AfterRollDamageEnemy:
                 // space for any animation
                 TurnManager.Instance.UpdateGameState(GameState.AfterRollDamageEnemy);
                 break;
+
             case ScreenState.AfterRollEnemyAttack:
                 break;
+
             case ScreenState.EveryonePickBooster:
+                SetEverythingFalse();
                 HealthBarsCanvas.gameObject.SetActive(true);
-                _startScreen.gameObject.SetActive(false);
-                _preDiceScreen.gameObject.SetActive(false);
-                _diceRollingScreen.gameObject.SetActive(false);
-                _allDiceRolledScreen.gameObject.SetActive(false);
+
                 // ... animations under here
                 HideOwnedBoosterLayout();
                 ShowPotentialBoosterLayout();
                 break;
+
             default:
                 break;
         }
@@ -181,7 +196,6 @@ public class UIManager : NetworkBehaviour
             LeanTweenUtility.ScaleOut(_layoutPotentialBoosterRect, 0.25f, true);
     }
     #endregion
-
 
 
     public void DebugStartGame()
