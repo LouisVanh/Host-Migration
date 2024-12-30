@@ -67,14 +67,13 @@ public class DiceManager : NetworkBehaviour
         DiceList.OnClear -= OnDiceListCleared;
     }
 
+    [Server]
     private Vector3 GetDicePosition(int index)
     {
-        Debug.LogWarning("Dice position not implemented yet");
         if (NetworkClient.spawned.TryGetValue(DiceList[index].PlayerNetId, out NetworkIdentity playerNetIdentity))
         {
             Vector3 posOnScreen = playerNetIdentity.GetComponent<Player>().GetPlayerCupPosition();
-            // calculate exact dice position too: put down lot of dice in convincing manner, then remove the components and drag in as a transform into this
-            Debug.Log($"Dice position found to spawn at:" +posOnScreen);
+            //Debug.Log($"Dice position found to spawn at:" +posOnScreen); 
             return posOnScreen;
         }
         else
@@ -84,6 +83,7 @@ public class DiceManager : NetworkBehaviour
         }
     }
 
+    [Server]
     private Quaternion GetDiceRotation(int index)
     {
         int eyesRolled = DiceList[index].EyesRolled;
@@ -117,7 +117,7 @@ public class DiceManager : NetworkBehaviour
     [ServerCallback]
     void OnDiceAdded(int index)
     {
-        Debug.Log($"Dice added at index {index} {DiceList[index]}");
+        //Debug.Log($"Dice added at index {index} {DiceList[index]}");
         // Only spawn dice for this player if he's still connected
         if (NetworkClient.spawned.TryGetValue(DiceList[index].PlayerNetId, out NetworkIdentity _))
         {
@@ -146,7 +146,7 @@ public class DiceManager : NetworkBehaviour
     [ServerCallback]
     void OnDiceRemoved(int index, Dice oldDice)
     {
-        Debug.Log($"Dice removed at index {index} {oldDice}");
+        //Debug.Log($"Dice removed at index {index} {oldDice}");
         var id = oldDice.DiceNetId;
         if (NetworkClient.spawned.TryGetValue(id, out NetworkIdentity objNetIdentity))
         {
@@ -174,11 +174,29 @@ public class DiceManager : NetworkBehaviour
     [Server]
     public void AddDice(Dice dice)
     {
-        Debug.Log("WE GOT INTO THE ADDDICE METHOD!");
+        //Debug.Log("WE GOT INTO THE ADDDICE METHOD!");
         if (!DiceList.Contains(dice))
         {
             DiceList.Add(dice);
             Debug.Log($"Server: Added dice - {dice}");
+        }
+    }
+
+    [Server]
+    void CheckIfEverybodyRolledDice(Player playerWhoLastRolled)
+    {
+        bool checkSum = true;
+        foreach (uint id in PlayersManager.Instance.Players)
+        {
+            if (NetworkClient.spawned.TryGetValue(id, out NetworkIdentity objNetIdentity))
+            {
+                if (objNetIdentity.GetComponent<Player>().HasAlreadyRolled == false) checkSum = false;
+            }
+        }
+        if (checkSum)
+        {
+            Debug.Log("DICEMANAGER/ Everyone has rolled! Moving to EveryoneJustRolled state");
+            TurnManager.Instance.UpdateGameState(GameState.EveryoneJustRolled);
         }
     }
 

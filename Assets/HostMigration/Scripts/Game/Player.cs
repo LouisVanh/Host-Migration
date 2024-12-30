@@ -21,8 +21,9 @@ public class Player : NetworkBehaviour
 
     // NETWORK TRANSFORMS
     [SerializeField] private GameObject _cupPrefab;
+
     private Vector3 _cupPosition1;
-    [SyncVar]
+    [SyncVar] // In desperation, I made this one public and a syncvar, to see if it would make a difference, but nothing changes...
     public Vector3 _cupPosition2;
     private Vector3 _cupPosition3;
     private Vector3 _cupPosition4;
@@ -57,6 +58,12 @@ public class Player : NetworkBehaviour
 
     private void Start()
     {
+        // This should probably be refactored, but I don't have time for it 
+        _cupPosition1 = GameObject.FindWithTag("CupPosition1").transform.position;
+        _cupPosition2 = GameObject.FindWithTag("CupPosition2").transform.position;
+        _cupPosition3 = GameObject.FindWithTag("CupPosition3").transform.position;
+        _cupPosition4 = GameObject.FindWithTag("CupPosition4").transform.position;
+
         if (isLocalPlayer) // never use localplayer in awake
         {
             Debug.Log("IsLocalPlayer is true! starting player");
@@ -66,10 +73,6 @@ public class Player : NetworkBehaviour
 
             UIManager.Instance.UpdateUIState(ScreenState.WaitingLobby);
 
-            _cupPosition1 = GameObject.FindWithTag("CupPosition1").transform.position;
-            _cupPosition2 = GameObject.FindWithTag("CupPosition2").transform.position;
-            _cupPosition3 = GameObject.FindWithTag("CupPosition3").transform.position;
-            _cupPosition4 = GameObject.FindWithTag("CupPosition4").transform.position;
         }
     }
 
