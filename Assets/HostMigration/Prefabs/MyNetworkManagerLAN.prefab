@@ -51,8 +51,8 @@ MonoBehaviour:
   headlessStartMode: 0
   editorAutoStart: 0
   sendRate: 60
-  offlineScene: 
-  onlineScene: 
+  offlineScene: Assets/HostMigration/Offline.unity
+  onlineScene: Assets/HostMigration/GameScene.unity
   offlineSceneLoadDelay: 0
   transport: {fileID: 1765795262833748559}
   networkAddress: localhost
@@ -64,12 +64,12 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs:
-  - {fileID: 3715556358907279028, guid: 2740c1a6d27528f4d8b28dfa9c4194a1, type: 3}
-  - {fileID: 3280933692971394408, guid: d601731c47a7120458166667f2c8e1df, type: 3}
   - {fileID: 8725907999014183258, guid: f6db3da3f942e2d49b61f0e521ca2ff9, type: 3}
   - {fileID: 1058761242555570175, guid: 4541b458cc89d114190b2514884e7991, type: 3}
   - {fileID: 2524927520451351093, guid: 2ff0987eee1e2b746bd73b1040541a2b, type: 3}
   - {fileID: 2464836688851529319, guid: 3c471b5a56e48254f99435521a068588, type: 3}
+  - {fileID: 4378862580125669272, guid: d3dbd98762399bd4b9bb00479bc6c26f, type: 3}
+  - {fileID: 2961245344417556686, guid: 2bfa3ed724af8ad4e97bedf6762d75a0, type: 3}
   exceptionsDisconnect: 1
   snapshotSettings:
     bufferTimeMultiplier: 2
