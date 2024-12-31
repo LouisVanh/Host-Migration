@@ -122,6 +122,5 @@ public class HealthBar : NetworkBehaviour
         //Debug.Log("Setting position of enemy health bar");
         bar.localScale = new Vector3(1.25f, 1.25f, 1.25f);
         bar.localPosition = new Vector3(0, -350);
-        UpdateBar();
     }
 }

@@ -104,7 +104,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 if (FirstTurnPlaying)
                 {
                     RpcGivePlayersHealthBars();
-                    WaveManager.Instance.CreateNewWave();
+                    WaveManager.Instance.CreateNewWave(3);
                 }
                 //When done waiting for a few seconds, switch to the next
                 break;
@@ -137,7 +137,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 SetSyncedUIState(ScreenState.AfterRollEnemyAttack);
 
                 // This could be randomised later...
-                WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(10);
+                WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(1);
                 await System.Threading.Tasks.Task.Delay(1500);
 
                 if (PlayersManager.Instance.GetAlivePlayers().Count == 0)

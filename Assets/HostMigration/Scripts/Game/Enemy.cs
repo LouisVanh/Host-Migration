@@ -30,12 +30,16 @@ public class Enemy : NetworkBehaviour
 
     [Header("Animation")]
     private float _normalScale = 5;
-    private float _hitScale = 5.5f;
+    private float _hitScale => _normalScale * 1.1f;
     private float _hitShakeDuration = 0.3f;
+    private float _attackRotateBackDuration = 0.3f;
+    private float _attackRotateHitDuration = 0.2f;
+    private float _attackRotateCorrectionDuration = 0.1f;
 
     [Command(requiresAuthority = false)]
-    public virtual void CmdSetupEnemyVisual(EnemyType enemyType)
+    public void CmdSetupEnemyVisual(EnemyType enemyType, bool isBoss)
     {
+        IsBoss = isBoss;
         EnemyType = enemyType;
         ChosenVisual = enemyType switch
         {
@@ -47,11 +51,12 @@ public class Enemy : NetworkBehaviour
         var spawnPos = GameObject.FindWithTag("EnemySpawnLocation").transform.position;
         CurrentEnemyVisual = Instantiate(ChosenVisual, spawnPos, Quaternion.identity);
         NetworkServer.Spawn(CurrentEnemyVisual);
-        CurrentEnemyVisual.transform.localScale *= 5; // automatically networked thanks to NT
+        _normalScale = (isBoss ? 7.5f : 5.1f);
+        CurrentEnemyVisual.transform.localScale *= (_normalScale); // automatically networked thanks to NT
+        Debug.Log(CurrentEnemyVisual.transform.localScale);
     }
 
     [Command(requiresAuthority = false)]
-    public virtual void CmdSyncHealthBarValue(int health)
     {
         _defaultHealth = health; // Synced server to client
     }
@@ -132,6 +137,17 @@ public class Enemy : NetworkBehaviour
         });
     }
 
+        Vector3 frontRotation = new(-45, 0, 0);
+
+        LeanTween.rotate(CurrentEnemyVisual, backRotation, _attackRotateBackDuration).setOnComplete(() =>
+        {
+            LeanTween.rotate(CurrentEnemyVisual, frontRotation, _attackRotateHitDuration).setOnComplete(() =>
+            {
+                LeanTween.rotate(CurrentEnemyVisual, beginRotation, _attackRotateCorrectionDuration);
+            });
+        });
+    }
+
     [ClientRpc]
     private void RpcPlayHitAnimationFlash()
     {
@@ -147,31 +163,5 @@ public class Enemy : NetworkBehaviour
         NetworkServer.UnSpawn(CurrentEnemyVisual);
         NetworkServer.UnSpawn(this.gameObject);
         // Health bar is despawned OnStopClient
-    }
-}
-
-
-public class Boss : Enemy
-{
-    [Command(requiresAuthority = false)]
-    public override void CmdSetupEnemyVisual(EnemyType bossType)
-    {
-        base.CmdSetupEnemyVisual(bossType);
-        // optional: special fx, sounds, ...
-    }
-
-    [Command(requiresAuthority = false)]
-    public override void CmdSyncHealthBarValue(int health)
-    {
-        Debug.LogWarning("BOSS HEALTH SYNCED");
-        base.CmdSyncHealthBarValue(health);
-        // optional: special healthbar fx
-    }
-
-    public override void Die()
-    {
-        Debug.LogError("Boss died, but unimplemented");
-        base.Die();
-        // ADD EFFECTS HERE
     }
 }

@@ -29,10 +29,10 @@ public class WaveManager : NetworkBehaviour
     }
 
     [Server]
-    public void CreateNewWave()
+    public void CreateNewWave(int amountOfEnemies)
     {
         Debug.Log("CREATING NEW WAVE! Enemy will spawn after this");
-        CurrentWave = new Wave(5);
+        CurrentWave = new Wave(amountOfEnemies);
         CurrentWaveIndex++;
         SpawnEnemy();
     }
@@ -64,18 +64,12 @@ public class WaveManager : NetworkBehaviour
         var scriptObj = Instantiate(EnemyScriptPrefab, Vector3.zero, Quaternion.identity);
         CurrentEnemy = scriptObj.GetComponent<Enemy>();
         NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
-        CurrentEnemy.CmdSetupEnemyVisual(GetRandomEnemyType());
+        CurrentEnemy.CmdSetupEnemyVisual(GetRandomEnemyType(), isBoss);
 
         var enemyHealth = CalculateNextEnemyHealth(isBoss);
         Debug.Log($"Enemy spawning with {enemyHealth} hp");
         CurrentEnemy.CmdSyncHealthBarValue(enemyHealth);
         CurrentWave.CurrentEnemyIndex++;
-
-        if (isBoss)
-        {
-            CurrentEnemy.IsBoss = true;
-            CurrentEnemy.CurrentEnemyVisual.transform.localScale *= 1.5f; // Make boss bigger version
-        }
     }
 
     [Server]
@@ -83,11 +77,11 @@ public class WaveManager : NetworkBehaviour
     {
         if (!isBoss)
         {
-            return BaseEnemyHealth + (CurrentWaveIndex * ScalingFactor);
+            return (BaseEnemyHealth + (CurrentWaveIndex * ScalingFactor)) * PlayersManager.Instance.GetPlayers().Count;
         }
         else
         {
-            return (int) (BaseBossHealth * (1 + (CurrentWaveIndex * Exponent)));
+            return (int) (BaseBossHealth * (1 + (CurrentWaveIndex * Exponent)) * PlayersManager.Instance.GetPlayers().Count);
         }
     }
     [Server]

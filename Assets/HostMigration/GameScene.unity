@@ -1642,7 +1642,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &386710013
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3260,7 +3260,7 @@ MonoBehaviour:
   CurrentWaveIndex: 0
   CurrentEnemy: {fileID: 0}
   EnemyScriptPrefab: {fileID: 8725907999014183258, guid: f6db3da3f942e2d49b61f0e521ca2ff9, type: 3}
-  BaseEnemyHealth: 5
+  BaseEnemyHealth: 3
   ScalingFactor: 5
   BaseBossHealth: 10
   Exponent: 0.2
@@ -5870,7 +5870,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2969689244710107636, guid: 4541b458cc89d114190b2514884e7991, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.00000004560219
       objectReference: {fileID: 0}
     - target: {fileID: 2969689244710107636, guid: 4541b458cc89d114190b2514884e7991, type: 3}
       propertyPath: m_LocalPosition.z
@@ -5878,23 +5878,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2969689244710107636, guid: 4541b458cc89d114190b2514884e7991, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.99031526
       objectReference: {fileID: 0}
     - target: {fileID: 2969689244710107636, guid: 4541b458cc89d114190b2514884e7991, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.1388373
       objectReference: {fileID: 0}
     - target: {fileID: 2969689244710107636, guid: 4541b458cc89d114190b2514884e7991, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 2969689244710107636, guid: 4541b458cc89d114190b2514884e7991, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 2969689244710107636, guid: 4541b458cc89d114190b2514884e7991, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 15.961
       objectReference: {fileID: 0}
     - target: {fileID: 2969689244710107636, guid: 4541b458cc89d114190b2514884e7991, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y

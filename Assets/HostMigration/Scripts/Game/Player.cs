@@ -128,7 +128,7 @@ public class Player : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdTakeDamage(int health)
+    public async void CmdTakeDamage(int health, float waitForSeconds)
     {
         if (!IsAlive)
         {
@@ -136,6 +136,10 @@ public class Player : NetworkBehaviour
             return;
         }
 
+        // Sync damage taken when enemy hits player in animation
+        await System.Threading.Tasks.Task.Delay((int)(waitForSeconds * 1000));
+
+        // Deal damage
         HealthBar.CurrentHealth -= health;
         if(HealthBar.CurrentHealth <= 0)
         {
