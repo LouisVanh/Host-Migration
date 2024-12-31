@@ -86,16 +86,20 @@ public class UIManager : NetworkBehaviour
 
             case ScreenState.PreDiceReceived:
                 SetEverythingFalse();
-                _fadePanel.FadeIn(1.5f);
+                var fadeInDuration = .5f;
+                var fadeOutDuration = 1f;
 
-                await System.Threading.Tasks.Task.Delay(1500);
+                _fadePanel.FadeIn(fadeInDuration);
+
+                await System.Threading.Tasks.Task.Delay((int)(fadeInDuration * 1000));
                 _rollingTimePopupScreen.gameObject.SetActive(true);
-                await System.Threading.Tasks.Task.Delay(1000);
+                await System.Threading.Tasks.Task.Delay((int)(fadeOutDuration*1000));
 
-                _fadePanel.FadeOut(1.5f);
+                _fadePanel.FadeOut(fadeOutDuration);
                 _rollingTimePopupScreen.gameObject.SetActive(false);
 
-                await System.Threading.Tasks.Task.Delay(1500);
+                // short delay let people catch their breath
+                await System.Threading.Tasks.Task.Delay(250);
 
                 _preDiceScreen.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);

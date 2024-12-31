@@ -6,9 +6,16 @@ public class WaveManager : NetworkBehaviour
 {
     public Wave CurrentWave;
     public int CurrentWaveIndex = 1;
-    public int StandardEnemyHealth;
+
     public Enemy CurrentEnemy;
     public GameObject EnemyScriptPrefab;
+
+    [Header("Enemy")]
+    public int BaseEnemyHealth /*= 5*/;
+    public int ScalingFactor/* = 5*/;
+    [Header("Boss")]
+    public int BaseBossHealth /*= 10*/;
+    public float Exponent /*= 0.2f*/;
 
     public static WaveManager Instance { get; private set; }
     private void Awake()
@@ -26,6 +33,7 @@ public class WaveManager : NetworkBehaviour
     {
         Debug.Log("CREATING NEW WAVE! Enemy will spawn after this");
         CurrentWave = new Wave(5);
+        CurrentWaveIndex++;
         SpawnEnemy();
     }
 
@@ -33,8 +41,14 @@ public class WaveManager : NetworkBehaviour
     public async void AdvanceToNextEnemy()
     {
         Debug.LogWarning($"Current wave: {CurrentWaveIndex}, Current Enemy: {CurrentWave.CurrentEnemyIndex}, Total Enemies: {CurrentWave.TotalEnemiesCount}");
-        if (CurrentWave.CurrentEnemyIndex == CurrentWave.TotalEnemiesCount - 1) Debug.Log("BOSS COMING UP NEXT!");// Right before the boss 
         await System.Threading.Tasks.Task.Delay(1000);
+        if (CurrentWave.CurrentEnemyIndex == CurrentWave.TotalEnemiesCount - 1)
+        { 
+            Debug.Log("BOSS COMING UP NEXT!");// Right before the boss 
+            SpawnEnemy(true);
+            return;
+        }
+
         if (CurrentWave.CurrentEnemyIndex == CurrentWave.TotalEnemiesCount) // If this was the boss
         {
             SuccesfullyBeatWave(); // Go to pick booster
@@ -45,21 +59,41 @@ public class WaveManager : NetworkBehaviour
     }
 
     [Server]
-    private void SpawnEnemy()
+    private void SpawnEnemy(bool isBoss = false)
     {
         var scriptObj = Instantiate(EnemyScriptPrefab, Vector3.zero, Quaternion.identity);
         CurrentEnemy = scriptObj.GetComponent<Enemy>();
         NetworkServer.Spawn(scriptObj); // Ensure object is network-spawned
         CurrentEnemy.CmdSetupEnemyVisual(GetRandomEnemyType());
-        CurrentEnemy.CmdSyncHealthBarValue(StandardEnemyHealth);
+
+        var enemyHealth = CalculateNextEnemyHealth(isBoss);
+        Debug.Log($"Enemy spawning with {enemyHealth} hp");
+        CurrentEnemy.CmdSyncHealthBarValue(enemyHealth);
         CurrentWave.CurrentEnemyIndex++;
+
+        if (isBoss)
+        {
+            CurrentEnemy.IsBoss = true;
+            CurrentEnemy.CurrentEnemyVisual.transform.localScale *= 1.5f; // Make boss bigger version
+        }
     }
 
+    [Server]
+    private int CalculateNextEnemyHealth(bool isBoss = false)
+    {
+        if (!isBoss)
+        {
+            return BaseEnemyHealth + (CurrentWaveIndex * ScalingFactor);
+        }
+        else
+        {
+            return (int) (BaseBossHealth * (1 + (CurrentWaveIndex * Exponent)));
+        }
+    }
     [Server]
     public void SuccesfullyBeatWave()
     {
         Debug.LogWarning("Succesfully beat wave: Insert reward here (unimplemented)");
-        CurrentWaveIndex++;
         DiceManager.Instance.ResetAfterWaveComplete();
         TurnManager.Instance.UpdateGameState(GameState.EveryonePickBooster);
     }

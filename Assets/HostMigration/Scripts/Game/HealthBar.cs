@@ -26,9 +26,10 @@ public class HealthBar : NetworkBehaviour
 
     [Header("Fields")]
     public GameObject VisualPreset { get; private set; }
-    public readonly uint VisualPresetGUID = 1420681367;
-    private Image _greenHealth;
+    //public readonly uint VisualPresetGUID = 1420681367;
     public GameObject HealthBarVisualInScene;
+    private Image _greenHealth;
+    private TMPro.TMP_Text _hpText;
 
     public void SetupOwnHealthBar(GameObject HealthBarVisual, int startingHealth, Player player = null)
     {
@@ -64,6 +65,7 @@ public class HealthBar : NetworkBehaviour
         HealthBarVisualInScene = Instantiate(healthBarPrefab);
         HealthBarVisualInScene.transform.SetParent(UIManager.Instance.HealthBarsCanvas.transform);
         _greenHealth = HealthBarVisualInScene.transform.GetChild(2).GetComponent<Image>();
+        _hpText = HealthBarVisualInScene.transform.GetChild(3).GetComponent<TMPro.TMP_Text>();
     }
 
     private void UpdateBar()
@@ -78,6 +80,7 @@ public class HealthBar : NetworkBehaviour
             return;
         }
 
+        _hpText.text = $"HP: {CurrentHealth} / {TotalHealth}";
         if (TotalHealth > 0)
         {
             Debug.Log("Updating Bar: Changing health fill! Currently: " + CurrentHealth + " / " + TotalHealth);
