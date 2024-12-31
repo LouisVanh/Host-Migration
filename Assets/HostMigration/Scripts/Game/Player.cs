@@ -73,7 +73,7 @@ public class Player : NetworkBehaviour
 
             BoosterManager = GetComponent<BoostersManager>();
 
-            UIManager.Instance.UpdateUIState(ScreenState.WaitingLobby);
+            UIManager.Instance.StartOwnPlayerUI();
 
         }
     }

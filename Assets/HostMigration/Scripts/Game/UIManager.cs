@@ -49,7 +49,7 @@ public class UIManager : NetworkBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    public void StartTheUI()
+    public void StartOwnPlayerUI()
     {
         _layoutOwnedBoosterRect = GameObject.FindWithTag("CardLayout").GetComponent<RectTransform>();
         _layoutPotentialBoosterRect = GameObject.FindWithTag("NewCardLayout").GetComponent<RectTransform>();
@@ -268,6 +268,7 @@ public class UIManager : NetworkBehaviour
         Debug.Log("Changing scene to game again");
         NetworkManager.singleton.ServerChangeScene("GameScene");
     }
+
     public void StartGameWithOnePlayer()
     {
         if (PlayersManager.Instance.Players.Count == 1)
