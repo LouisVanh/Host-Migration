@@ -57,6 +57,7 @@ public class Enemy : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
+    public void CmdSyncHealthBarValue(int health)
     {
         _defaultHealth = health; // Synced server to client
     }
@@ -110,9 +111,10 @@ public class Enemy : NetworkBehaviour
     [Server]
     public void EnemyAttackDealDamage(int damage)
     {
+        PlayAttackAnimation();
         foreach (var player in PlayersManager.Instance.GetPlayers())
         {
-            player.CmdTakeDamage(damage);
+            player.CmdTakeDamage(damage, _attackRotateHitDuration + _attackRotateBackDuration);
         }
     }
 
@@ -137,6 +139,12 @@ public class Enemy : NetworkBehaviour
         });
     }
 
+    [Server]
+    private void PlayAttackAnimation() // synced through NT
+    {
+        // Scale and rotate like a small punch
+        Vector3 beginRotation = Vector3.zero;
+        Vector3 backRotation = new(15, 0, 0);
         Vector3 frontRotation = new(-45, 0, 0);
 
         LeanTween.rotate(CurrentEnemyVisual, backRotation, _attackRotateBackDuration).setOnComplete(() =>
