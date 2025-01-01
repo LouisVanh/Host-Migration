@@ -66,7 +66,19 @@ public class Card : NetworkBehaviour
                 }
             }
             if (checkSum)
+            {
+                ResetPlayerReady();
                 TurnManager.Instance.UpdateGameState(GameState.NewWaveEveryonePickedBooster);
+            }
         }
+    }
+
+    [ClientRpc]
+    private void ResetPlayerReady()
+    {
+        var player = NetworkClient.localPlayer.GetComponent<Player>();
+        player.HasAlreadyRolled = false;
+        player.ReadyForNextWave = false;
+        player.CurrentDiceRollAmount = 0;
     }
 }
