@@ -29,11 +29,17 @@ public class WaveManager : NetworkBehaviour
     }
 
     [Server]
-    public void CreateNewWave(int amountOfEnemies)
+    public void InitNewWave(int amountOfEnemies)
     {
         Debug.Log("CREATING NEW WAVE! Enemy will spawn after this");
         CurrentWave = new Wave(amountOfEnemies);
         CurrentWaveIndex++;
+    }
+
+    [Server]
+    public void SpawnFirstEnemy()
+    {
+        if(CurrentWave != null)
         SpawnEnemy();
     }
 

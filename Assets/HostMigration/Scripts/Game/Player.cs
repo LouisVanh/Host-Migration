@@ -88,7 +88,7 @@ public class Player : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             Debug.Log("Rolling dice from player");
-            CmdRollDice();
+            CmdRollDice(BoosterManager.LifestealPercentage);
         }
 
         if (Input.GetKeyDown(KeyCode.L))
@@ -105,7 +105,7 @@ public class Player : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdRollDice()
+    public void CmdRollDice(float lifeStealPercentage)
     {
         if (!IsAlive)
         {
@@ -123,6 +123,9 @@ public class Player : NetworkBehaviour
             {
                 int eyes = UnityEngine.Random.Range(1, 7);
                 totalRoll += eyes;
+
+                // Lifesteal perk
+                CmdRestoreHealth(Mathf.RoundToInt(totalRoll * lifeStealPercentage));
                 CmdSpawnDiceWithEyes(PlayerNetId, eyes);
             }
         }

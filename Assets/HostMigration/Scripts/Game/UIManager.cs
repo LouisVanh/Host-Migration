@@ -151,6 +151,7 @@ public class UIManager : NetworkBehaviour
                 // ... animations under here
                 break;
             case ScreenState.EveryoneRollingTime:
+                _diceRollingScreen.gameObject.SetActive(true);
                 //if (!TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
                 //{
                 //    ShrinkOwnedBoosterLayout();
@@ -270,7 +271,10 @@ public class UIManager : NetworkBehaviour
             TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
     }
 
-    private void RollDiceInPlayer() => NetworkClient.localPlayer.GetComponent<Player>().CmdRollDice();
+    private void RollDiceInPlayer() 
+        => NetworkClient.localPlayer.GetComponent<Player>()
+        .CmdRollDice(NetworkClient.localPlayer.GetComponent<Player>().BoosterManager.LifestealPercentage);
+
     private async void CupAnimation()
     {
         NetworkClient.localPlayer.GetComponent<Player>().SpawnAndShakeDiceJar();
@@ -280,8 +284,9 @@ public class UIManager : NetworkBehaviour
     #region Buttons
     public void RollDiceBtn()
     {
+        if (NetworkClient.localPlayer.GetComponent<Player>().HasAlreadyRolled) return;
         // do animation with cup
-        CupAnimation();
+        //CupAnimation();
         RollDiceInPlayer();
     }
 

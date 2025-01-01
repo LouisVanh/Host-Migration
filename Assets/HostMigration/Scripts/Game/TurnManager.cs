@@ -105,7 +105,10 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 if (FirstTurnPlaying)
                 {
                     RpcGivePlayersHealthBars();
-                    WaveManager.Instance.CreateNewWave(3);
+                    WaveManager.Instance.InitNewWave(3);
+                    // wait a bit to spawn enemy (hack fix)
+                    await System.Threading.Tasks.Task.Delay(1500);
+                    WaveManager.Instance.SpawnFirstEnemy();
                 }
                 //When done waiting for a few seconds, switch to the next
                 break;
@@ -138,7 +141,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 SetSyncedUIState(ScreenState.AfterRollEnemyAttack);
 
                 // This could be randomised later...
-                WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(1);
+                WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(3);
                 await System.Threading.Tasks.Task.Delay(1500);
 
                 if (PlayersManager.Instance.GetAlivePlayers().Count == 0)
@@ -161,7 +164,11 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
 
             case GameState.NewWaveEveryonePickedBooster:
                 // space for UI "new wave!"
+                WaveManager.Instance.InitNewWave(4);
                 UpdateGameState(GameState.PreDiceReceived);
+                // wait a bit to spawn enemy (hack fix)
+                await System.Threading.Tasks.Task.Delay(1500);
+                WaveManager.Instance.SpawnFirstEnemy();
                 break;
 
             case GameState.EndGame:
