@@ -1,4 +1,5 @@
 using Mirror;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum ScreenState
@@ -19,6 +20,7 @@ public class UIManager : NetworkBehaviour
 {
     public static UIManager Instance { get; private set; }
 
+    public ScreenState ScreenState;
     // For simple on / offs
     [Header("Canvases")]
 
@@ -37,7 +39,25 @@ public class UIManager : NetworkBehaviour
     private float _largeScaleMultiplier = 1;
     private float _smallScaleMultiplier = 0.5f;
 
-    public ScreenState ScreenState;
+    [Header("Color")]
+    [SerializeField] private Color _commonCardColor;
+    [SerializeField] private Color _legendaryCardColor;
+    [SerializeField] private Color _chaosCardColor;
+    private Dictionary<BoosterRarity, Color> _rarityColors;
+
+    [Header("Potential")]
+    [SerializeField] private Card _potentialUnlockCard1;
+    [SerializeField] private Card _potentialUnlockCard2;
+    [SerializeField] private Card _potentialUnlockCard3;
+
+    [Header("Owned")]
+    [SerializeField] private Card _inventoryCard1;
+    [SerializeField] private Card _inventoryCard2;
+    [SerializeField] private Card _inventoryCard3;
+    [SerializeField] private Card _inventoryCard4;
+    [SerializeField] private Card _inventoryCard5;
+    [SerializeField] private Card _inventoryCard6;
+    [SerializeField] private Card _inventoryCard7;
 
     private void Awake()
     {
@@ -47,6 +67,14 @@ public class UIManager : NetworkBehaviour
             Instance = this;
 
         DontDestroyOnLoad(this.gameObject);
+
+        //setup colors
+        _rarityColors = new Dictionary<BoosterRarity, Color>
+        {
+            { BoosterRarity.Common, _commonCardColor },
+            { BoosterRarity.Legendary, _legendaryCardColor },
+            { BoosterRarity.Chaos, _chaosCardColor }
+        };
     }
 
     public void StartOwnPlayerUI()
@@ -73,6 +101,14 @@ public class UIManager : NetworkBehaviour
         _endGameCanvas.gameObject.SetActive(false);
         _fadePanel.FadeOut(0);
     }
+
+    internal void UpdatePotentialCardsVisualAndShow(IBooster card1, IBooster card2, IBooster card3)
+    {
+        _potentialUnlockCard1.SetupCardVisual(card1, _rarityColors[card1.Rarity]);
+        _potentialUnlockCard2.SetupCardVisual(card2, _rarityColors[card2.Rarity]);
+        _potentialUnlockCard3.SetupCardVisual(card3, _rarityColors[card3.Rarity]);
+    }
+
     public async void UpdateUIState(ScreenState newScreenState)
     {
         ScreenState = newScreenState; // Currently not in use yet, but a nice API element to have

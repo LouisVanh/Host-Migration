@@ -25,8 +25,7 @@ public class Player : NetworkBehaviour
     [SerializeField] private GameObject _cupPrefab;
 
     private Vector3 _cupPosition1;
-    [SyncVar] // In desperation, I made this one public and a syncvar, to see if it would make a difference, but nothing changes...
-    public Vector3 _cupPosition2;
+    private Vector3 _cupPosition2;
     private Vector3 _cupPosition3;
     private Vector3 _cupPosition4;
 

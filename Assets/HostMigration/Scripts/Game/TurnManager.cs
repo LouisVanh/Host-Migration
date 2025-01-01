@@ -151,6 +151,10 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 break;
 
             case GameState.EveryonePickBooster:
+                foreach(var player in PlayersManager.Instance.GetPlayers())
+                {
+                    player.BoosterManager.ShowPotentialBoosters();
+                }
                 SetSyncedUIState(ScreenState.EveryonePickBooster);
                 break;
 
