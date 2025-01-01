@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class AceBooster : MonoBehaviour, IBoosterPermanent
 {
-    public string Name => "Regenerate";
-    public string Description => "Regenerate your player health (one-time-use)";
-    public BoosterRarity Rarity => BoosterRarity.Common;
+    public string Name => "Ace";
+    public string Description => "Rolling one eye doubles your teammate's roll";
+    public BoosterRarity Rarity => BoosterRarity.Legendary;
     public Player PlayerShownTo { get; }
 
     public void AddPermanentEffect(Player player)

@@ -7,15 +7,12 @@ public class RegenerateHealthBooster : MonoBehaviour, IBoosterConsumable
     public BoosterRarity Rarity => BoosterRarity.Common;
     public Player PlayerShownTo { get; }
 
-
-    public int HealthToRestore;
-
     public void ConsumeEffect(Player player)
     {
-        if (player != null)
-        {
-            var healthBar = player.GetComponent<HealthBar>();
-            healthBar.CurrentHealth += HealthToRestore;
-        }
+        var healthBar = player.GetComponent<HealthBar>();
+        var maxHealthToRestore = healthBar.TotalHealth - healthBar.CurrentHealth;
+        healthBar.CurrentHealth += maxHealthToRestore;
+
+        player.BoosterManager.RemoveSpecificOwnedBooster(this as IBooster);
     }
 }

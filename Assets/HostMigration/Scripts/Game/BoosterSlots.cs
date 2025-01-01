@@ -1,3 +1,4 @@
+using Mirror;
 using System;
 using UnityEngine;
 
@@ -23,11 +24,19 @@ public class BoosterSlot
 
     public void RemoveBooster()
     {
+        if (CurrentBooster is IBoosterPermanent permanentBooster)
+        {
+            permanentBooster.RemovePermanentEffect(NetworkClient.localPlayer.GetComponent<Player>());
+        }
         CurrentBooster = null;
     }
 
     public override string ToString()
     {
+        if (CurrentBooster == null)
+        {
+            return $"This is a slot with no booster, which is on slot {_slotIndex}. Owned = {IsAlreadyOwned}";
+        }
         return $"This is a slot with {CurrentBooster.Name}, which is on slot {_slotIndex}. Owned = {IsAlreadyOwned}";
     }
 }

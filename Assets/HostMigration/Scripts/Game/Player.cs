@@ -11,6 +11,9 @@ public class Player : NetworkBehaviour
     public bool ReadyToPlay;
     [SyncVar]
     public bool HasAlreadyRolled;
+    [SyncVar]
+    public bool ReadyForNextWave;
+
     public int DiceCount = 1;
     private bool _canRoll;
     public BoostersManager BoosterManager;

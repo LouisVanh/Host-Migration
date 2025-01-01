@@ -1332,6 +1332,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1981538785}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 3695597705
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card (1)
@@ -1552,6 +1556,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1981538785}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 454367463
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card (3)
@@ -2268,6 +2276,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1981538785}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 2003204397
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card (2)
@@ -2691,6 +2703,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1981538785}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 1269970765
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card (6)
@@ -3350,7 +3366,7 @@ MonoBehaviour:
   CurrentEnemy: {fileID: 0}
   EnemyScriptPrefab: {fileID: 8725907999014183258, guid: f6db3da3f942e2d49b61f0e521ca2ff9, type: 3}
   BaseEnemyHealth: 0
-  ScalingFactor: 5
+  ScalingFactor: 1
   BaseBossHealth: 10
   Exponent: 0.2
 --- !u!4 &906394708
@@ -3416,6 +3432,65 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1013398608
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1013398609}
+  - component: {fileID: 1013398611}
+  - component: {fileID: 1013398610}
+  m_Layer: 0
+  m_Name: Glass Cannon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1013398609
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013398608}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1601162745}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1013398610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013398608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24fbddbbe31e6c049b21611119940d89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1013398611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013398608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01ab8a8d942bc3048b46b5884523e52c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BoosterScript: {fileID: 1013398610}
+  Chance: 50
 --- !u!1 &1039951227
 GameObject:
   m_ObjectHideFlags: 0
@@ -3597,7 +3672,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48c0f3204125fc14f93a1d4e1677ea15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LifeStealPercentage: 20
+  LifeStealPercentage: 10
 --- !u!114 &1100390476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4169,7 +4244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BoosterScript: {fileID: 1204836517}
-  Chance: 100
+  Chance: 60
 --- !u!114 &1204836517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4190,6 +4265,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1981538785}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 3002196843
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card (5)
@@ -4307,6 +4386,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 13697172}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 2102901435
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card
@@ -4488,7 +4571,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9adfb2d5bf37ee44bd5c0f1581791c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HealthToRestore: 20
 --- !u!4 &1355974168
 Transform:
   m_ObjectHideFlags: 0
@@ -5003,7 +5085,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1509413145
 Transform:
   m_ObjectHideFlags: 0
@@ -5571,10 +5653,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Boosters:
   - {fileID: 1355974166}
-  - {fileID: 1509413146}
+  - {fileID: 1100390476}
   - {fileID: 1204836516}
   - {fileID: 159366426}
-  - {fileID: 1100390476}
+  - {fileID: 1013398611}
 --- !u!4 &1601162745
 Transform:
   m_ObjectHideFlags: 0
@@ -5589,10 +5671,11 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1355974168}
-  - {fileID: 1509413145}
   - {fileID: 1204836515}
   - {fileID: 159366428}
   - {fileID: 1100390474}
+  - {fileID: 1013398609}
+  - {fileID: 1509413145}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1646155274
@@ -5815,6 +5898,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 13697172}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 1767184691
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card (2)
@@ -6251,6 +6338,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1981538785}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 488471608
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card (4)
@@ -6501,8 +6592,8 @@ MonoBehaviour:
   _endGameCanvas: {fileID: 184396580}
   _fadePanel: {fileID: 505172419}
   _commonCardColor: {r: 0.2719384, g: 0.512505, b: 0.5943396, a: 1}
-  _legendaryCardColor: {r: 0, g: 0, b: 0, a: 1}
-  _chaosCardColor: {r: 0.3962264, g: 0.14017443, b: 0.14017443, a: 1}
+  _legendaryCardColor: {r: 0.7264151, g: 0.58286285, b: 0.31181026, a: 1}
+  _chaosCardColor: {r: 0.31132078, g: 0.09838911, b: 0.09838911, a: 1}
   _potentialUnlockCard1: {fileID: 1326093917}
   _potentialUnlockCard2: {fileID: 2015815328}
   _potentialUnlockCard3: {fileID: 1681394273}
@@ -6988,6 +7079,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 13697172}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 897522873
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card (1)
@@ -7380,6 +7475,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1981538785}
     m_Modifications:
+    - target: {fileID: -7595108339187074098, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
+      propertyPath: sceneId
+      value: 3355159646
+      objectReference: {fileID: 0}
     - target: {fileID: 5202937343820260848, guid: 7a666842cb02136458803ba24ef74acb, type: 3}
       propertyPath: m_Name
       value: Card

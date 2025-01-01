@@ -12,6 +12,7 @@ public enum GameState
     AfterRollEnemyAttack,
     LeftOverDamageToEnemy,
     EveryonePickBooster,
+    NewWaveEveryonePickedBooster,
     EndGame
 }
 
@@ -156,6 +157,11 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                     player.BoosterManager.ShowPotentialBoosters();
                 }
                 SetSyncedUIState(ScreenState.EveryonePickBooster);
+                break;
+
+            case GameState.NewWaveEveryonePickedBooster:
+                // space for UI "new wave!"
+                UpdateGameState(GameState.PreDiceReceived);
                 break;
 
             case GameState.EndGame:

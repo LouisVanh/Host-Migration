@@ -129,7 +129,7 @@ public class UIManager : NetworkBehaviour
 
                 await System.Threading.Tasks.Task.Delay((int)(fadeInDuration * 1000));
                 _rollingTimePopupScreen.gameObject.SetActive(true);
-                await System.Threading.Tasks.Task.Delay((int)(fadeOutDuration*1000));
+                await System.Threading.Tasks.Task.Delay((int)(fadeOutDuration * 1000));
 
                 _fadePanel.FadeOut(fadeOutDuration);
                 _rollingTimePopupScreen.gameObject.SetActive(false);
@@ -249,21 +249,9 @@ public class UIManager : NetworkBehaviour
     }
     #endregion
 
-
-    public void DebugStartGame()
-    {
-        if (isServer) // to avoid warnings, wont run on client anyway
-            TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
-    }
     public void DebugAnimationPlay()
     {
         ShowOwnedBoosterLayout();
-    }
-
-    [ClientRpc]
-    private void RpcPlayGameWhenEverybodyReady()
-    {
-        DebugStartGame();
     }
 
     [Command(requiresAuthority = false)]
@@ -279,7 +267,7 @@ public class UIManager : NetworkBehaviour
             }
         }
         if (checkSum)
-            RpcPlayGameWhenEverybodyReady();
+            TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
     }
 
     private void RollDiceInPlayer() => NetworkClient.localPlayer.GetComponent<Player>().CmdRollDice();
@@ -302,7 +290,7 @@ public class UIManager : NetworkBehaviour
         Debug.Log("Trying to restart game");
         CmdRestartGame();
     }
-    [Command(requiresAuthority =false)]
+    [Command(requiresAuthority = false)]
     private void CmdRestartGame()
     {
         Debug.Log("Changing scene to game again");

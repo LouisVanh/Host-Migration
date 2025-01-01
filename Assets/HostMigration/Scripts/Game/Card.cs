@@ -1,14 +1,16 @@
+using Mirror;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 [Serializable]
-public class Card : MonoBehaviour
+public class Card : NetworkBehaviour
 {
     private TMPro.TMP_Text _nameText;
     private TMPro.TMP_Text _descriptionText;
     private Image _cardBackground;
     private Button _button;
+    private IBooster _booster;
 
     private void Start()
     {
@@ -19,17 +21,11 @@ public class Card : MonoBehaviour
         _button = transform.GetComponent<Button>();
     }
 
-    //public void SetupCardVisual(string name, string desc, Color color)
-    //{
-    //    _nameText.text = name;
-    //    _descriptionText.text = desc;
-    //    _cardBackground.color = color;
-    //}
-
-    public void SetupCardVisual(IBooster card, Color color)
+    public void SetupCardVisual(IBooster cardBooster, Color color)
     {
-        _nameText.text = card.Name;
-        _descriptionText.text = card.Description;
+        _booster = cardBooster;
+        _nameText.text = cardBooster.Name;
+        _descriptionText.text = cardBooster.Description;
         _cardBackground.color = color;
         _button.interactable = true;
     }
@@ -43,5 +39,28 @@ public class Card : MonoBehaviour
     {
         // Debug log to show the card was clicked
         Debug.Log($"Card clicked: {_nameText.text}");
+        NetworkClient.localPlayer.GetComponent<Player>().BoosterManager.AddOwnedBooster(_booster);
+
+        //Booster picked, wait for everyone to pick and let's go next wave
+        CmdSetPlayerReadyForNextWaveAndPossiblyStart(NetworkClient.localPlayer.netId);
+    }
+
+    [Command(requiresAuthority = false)]
+    private void CmdSetPlayerReadyForNextWaveAndPossiblyStart(uint playerNetId)
+    {
+        if (NetworkServer.spawned.TryGetValue(playerNetId, out NetworkIdentity playerIdObj))
+        {
+            playerIdObj.GetComponent<Player>().ReadyForNextWave = true;
+            bool checkSum = true;
+            foreach (uint id in PlayersManager.Instance.Players)
+            {
+                if (NetworkClient.spawned.TryGetValue(id, out NetworkIdentity objNetIdentity))
+                {
+                    if (objNetIdentity.GetComponent<Player>().ReadyForNextWave == false) checkSum = false;
+                }
+            }
+            if (checkSum)
+                TurnManager.Instance.UpdateGameState(GameState.NewWaveEveryonePickedBooster);
+        }
     }
 }
