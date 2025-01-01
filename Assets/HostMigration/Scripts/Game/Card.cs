@@ -39,10 +39,16 @@ public class Card : NetworkBehaviour
     {
         // Debug log to show the card was clicked
         Debug.Log($"Card clicked: {_nameText.text}");
-        NetworkClient.localPlayer.GetComponent<Player>().BoosterManager.AddOwnedBooster(_booster);
+        CmdAddBooster(NetworkClient.localPlayer.GetComponent<Player>(), _nameText.text);
 
         //Booster picked, wait for everyone to pick and let's go next wave
         CmdSetPlayerReadyForNextWaveAndPossiblyStart(NetworkClient.localPlayer.netId);
+    }
+
+    [Command(requiresAuthority = false)]
+    private void CmdAddBooster(Player player, string name)
+    {
+        player.BoosterManager.AddOwnedBooster(name);
     }
 
     [Command(requiresAuthority = false)]

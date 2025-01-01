@@ -1,6 +1,7 @@
 using UnityEngine;
+using Mirror;
 
-public class LifeStealBooster : MonoBehaviour, IBoosterPermanent
+public class LifeStealBooster : NetworkBehaviour, IBoosterPermanent
 {
     public string Name => "Lifesteal";
     public string Description => $"Restore {LifeStealPercentage}% health of your attack damage";
@@ -9,13 +10,15 @@ public class LifeStealBooster : MonoBehaviour, IBoosterPermanent
 
     public int LifeStealPercentage = 20;
 
-    public void AddPermanentEffect(Player player)
+    [Command(requiresAuthority = false)]
+    public void CmdAddPermanentEffect(Player player)
     {
-        player.BoosterManager.LifestealPercentage += 20;
+        player.BoosterManager.LifestealPercentage += LifeStealPercentage/100;
     }
 
-    public void RemovePermanentEffect(Player player)
+    [Command(requiresAuthority = false)]
+    public void CmdRemovePermanentEffect(Player player)
     {
-        player.BoosterManager.LifestealPercentage -= 20;
+        player.BoosterManager.LifestealPercentage -= LifeStealPercentage/100;
     }
 }

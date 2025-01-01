@@ -34,6 +34,7 @@ public class WaveManager : NetworkBehaviour
         Debug.Log("CREATING NEW WAVE! Enemy will spawn after this");
         CurrentWave = new Wave(amountOfEnemies);
         CurrentWaveIndex++;
+        UIManager.Instance.RpcUpdateWaveCounter(CurrentWaveIndex);
     }
 
     [Server]

@@ -67,13 +67,13 @@ public class Player : NetworkBehaviour
         _cupPosition2 = GameObject.FindWithTag("CupPosition2").transform.position;
         _cupPosition3 = GameObject.FindWithTag("CupPosition3").transform.position;
         _cupPosition4 = GameObject.FindWithTag("CupPosition4").transform.position;
+        BoosterManager = GetComponent<BoostersManager>();
 
         if (isLocalPlayer) // never use localplayer in awake
         {
             Debug.Log("IsLocalPlayer is true! starting player");
             CmdRegisterPlayer();
 
-            BoosterManager = GetComponent<BoostersManager>();
 
             UIManager.Instance.StartOwnPlayerUI();
 
@@ -146,7 +146,7 @@ public class Player : NetworkBehaviour
 
         // Deal damage
         HealthBar.CurrentHealth -= health;
-        if(HealthBar.CurrentHealth <= 0)
+        if (HealthBar.CurrentHealth <= 0)
         {
             Debug.Log("Player died.");
             HealthBar.CurrentHealth = 0;
@@ -171,7 +171,7 @@ public class Player : NetworkBehaviour
         }
     }
 
-    [Command(requiresAuthority =false)]
+    [Command(requiresAuthority = false)]
     public void CmdRevivePlayer()
     {
         if (!IsAlive)

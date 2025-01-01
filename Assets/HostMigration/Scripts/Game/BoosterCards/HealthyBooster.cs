@@ -1,6 +1,7 @@
+using Mirror;
 using UnityEngine;
 
-public class HealthyBooster : MonoBehaviour, IBoosterPermanent
+public class HealthyBooster : NetworkBehaviour, IBoosterPermanent
 {
     public string Name => "Healthy";
     public string Description => $"Upgrade your total player health by {HealthToAdd}";
@@ -9,13 +10,16 @@ public class HealthyBooster : MonoBehaviour, IBoosterPermanent
 
     public int HealthToAdd = 20;
 
-    public void AddPermanentEffect(Player player)
+
+    [Command(requiresAuthority = false)]
+    public void CmdAddPermanentEffect(Player player)
     {
         var healthBar = player.GetComponent<HealthBar>();
         healthBar.TotalHealth += HealthToAdd;
     }
 
-    public void RemovePermanentEffect(Player player)
+    [Command(requiresAuthority = false)]
+    public void CmdRemovePermanentEffect(Player player)
     {
         var healthBar = player.GetComponent<HealthBar>();
         healthBar.CurrentHealth -= HealthToAdd;

@@ -155,10 +155,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 break;
 
             case GameState.EveryonePickBooster:
-                foreach(var player in PlayersManager.Instance.GetPlayers())
-                {
-                    player.BoosterManager.ShowPotentialBoosters();
-                }
+                RpcShowEveryoneBoosterPickingScreen();
                 SetSyncedUIState(ScreenState.EveryonePickBooster);
                 break;
 
@@ -218,13 +215,21 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
             UpdateGameState(GameState.AfterRollEnemyAttack);
         }
     }
-        [ClientRpc]
-        private void RpcGivePlayersHealthBars()
+    [ClientRpc]
+    private void RpcGivePlayersHealthBars()
+    {
+        foreach (var player in PlayersManager.Instance.GetPlayers())
         {
-            foreach (var player in PlayersManager.Instance.GetPlayers())
-            {
-                Debug.Log(player.name + " is the player Turn Manager is giving a healthbar to now!");
-                player.CreatePlayerHealthBar();
-            }
+            Debug.Log(player.name + " is the player Turn Manager is giving a healthbar to now!");
+            player.CreatePlayerHealthBar();
         }
     }
+
+    [ClientRpc]
+    private void RpcShowEveryoneBoosterPickingScreen()
+    {
+        // Show UI for all players to pick boosters (and generate them)
+        var player = NetworkClient.localPlayer.GetComponent<Player>();
+        player.BoosterManager.ShowPotentialBoosters();
+    }
+}

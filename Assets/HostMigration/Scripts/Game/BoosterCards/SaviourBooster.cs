@@ -1,13 +1,15 @@
 using UnityEngine;
+using Mirror;
 
-public class SaviourBooster : MonoBehaviour, IBoosterConsumable
+public class SaviourBooster : NetworkBehaviour, IBoosterConsumable
 {
     public string Name => "Saviour";
     public string Description => "Revive a random teammate (one-time-use)";
     public BoosterRarity Rarity => BoosterRarity.Legendary;
     public Player PlayerShownTo { get; }
 
-    public void ConsumeEffect(Player player)
+    [Command(requiresAuthority = false)]
+    public void CmdConsumeEffect(Player player)
     {
         //if (player == null) return;
         //if (player.IsDead) return;
@@ -20,6 +22,6 @@ public class SaviourBooster : MonoBehaviour, IBoosterConsumable
         }
         deadGuy.HealthBar.CurrentHealth += (deadGuy.HealthBar.TotalHealth / 2);
 
-        player.BoosterManager.RemoveSpecificOwnedBooster(this as IBooster);
+        player.BoosterManager.RemoveSpecificOwnedBooster(Name);
     }
 }

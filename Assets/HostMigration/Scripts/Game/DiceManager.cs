@@ -74,7 +74,10 @@ public class DiceManager : NetworkBehaviour
         var total = 0;
         foreach (Dice dice in GetAllDice())
         {
-            total += dice.EyesRolled;
+            if (NetworkServer.spawned.TryGetValue(dice.PlayerNetId, out NetworkIdentity playerNetId))
+            {
+                total += Mathf.RoundToInt(dice.EyesRolled * playerNetId.GetComponent<Player>().BoosterManager.DamageMultiplier);
+            }
         }
         return total;
     }

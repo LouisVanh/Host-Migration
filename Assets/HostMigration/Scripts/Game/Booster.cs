@@ -1,9 +1,24 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Mirror;
 
 public class BoosterContainer : MonoBehaviour
 {
     public List<BoosterEntry> Boosters = new(); // List of all boosters
+
+
+    public IBooster GetBoosterByName(string name)
+    {
+        foreach (var boosterMono in Boosters)
+        {
+            if(boosterMono.BoosterScript is IBooster booster)
+            {
+                if (booster.Name == name) return booster;
+            }
+        }
+        Debug.LogError("No such booster found with name {name}");
+        return null;
+    }
 
     public BoosterEntry GetRandomBoosterEntry()
     {
@@ -38,7 +53,6 @@ public class BoosterContainer : MonoBehaviour
     }
 }
 
-
 public interface IBooster
 {
     string Name { get; }
@@ -53,11 +67,13 @@ public enum BoosterRarity
 
 public interface IBoosterPermanent : IBooster
 {
-    void AddPermanentEffect(Player player);
-    void RemovePermanentEffect(Player player);
+    [Command(requiresAuthority =false)]
+    void CmdAddPermanentEffect(Player player);
+    [Command(requiresAuthority = false)]
+    void CmdRemovePermanentEffect(Player player);
 }
 
 public interface IBoosterConsumable : IBooster
 {
-    void ConsumeEffect(Player player);
+    void CmdConsumeEffect(Player player);
 }

@@ -28,7 +28,7 @@ public class UIManager : NetworkBehaviour
 
     [SerializeField]
     private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsPopUpIconCanvas,
-        _coolAnimationCountingDiceCanvas, _newBoostersShopCanvas, _boosterCardsCanvas, _endGameCanvas;
+        _coolAnimationCountingDiceCanvas, _newBoostersShopCanvas, _boosterCardsCanvas, _waveCountCanvas, _endGameCanvas;
 
 
     [Header("Animated")]
@@ -99,7 +99,14 @@ public class UIManager : NetworkBehaviour
         _newBoostersShopCanvas.gameObject.SetActive(false);
         _boosterCardsCanvas.gameObject.SetActive(false);
         _endGameCanvas.gameObject.SetActive(false);
+        _waveCountCanvas.gameObject.SetActive(false);
         _fadePanel.FadeOut(0);
+    }
+
+    [ClientRpc]
+    internal void RpcUpdateWaveCounter(int currentWaveCount)
+    {
+        _waveCountCanvas.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().text = $"Wave: {currentWaveCount}";
     }
 
     internal void UpdatePotentialCardsVisualAndShow(IBooster card1, IBooster card2, IBooster card3)
@@ -139,6 +146,7 @@ public class UIManager : NetworkBehaviour
 
                 _preDiceScreen.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);
+                _waveCountCanvas.gameObject.SetActive(true);
 
                 if (!TurnManager.Instance.FirstWavePlaying) // is this not the first time playing?
                 {
@@ -150,7 +158,9 @@ public class UIManager : NetworkBehaviour
                     TurnManager.Instance.UpdateGameState(GameState.EveryoneRollingTime);
                 // ... animations under here
                 break;
+
             case ScreenState.EveryoneRollingTime:
+                _waveCountCanvas.gameObject.SetActive(true);
                 _diceRollingScreen.gameObject.SetActive(true);
                 //if (!TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
                 //{
@@ -161,6 +171,7 @@ public class UIManager : NetworkBehaviour
             case ScreenState.EveryoneJustRolled:
                 // GET READY TO START ANIMATION
                 SetEverythingFalse();
+                _waveCountCanvas.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);
                 // ...
 
@@ -191,6 +202,8 @@ public class UIManager : NetworkBehaviour
                 SetEverythingFalse();
                 HealthBarsCanvas.gameObject.SetActive(true);
                 _newBoostersShopCanvas.gameObject.SetActive(true);
+                _waveCountCanvas.gameObject.SetActive(true);
+
                 // ... animations under here
                 HideOwnedBoosterLayout();
                 ShowPotentialBoosterLayout();

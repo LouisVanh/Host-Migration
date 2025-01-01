@@ -7,14 +7,13 @@ public class BoosterSlot
     public IBooster CurrentBooster;
     public bool IsEmpty => CurrentBooster == null;
     public bool IsAlreadyOwned;
-    [Range(1, 7)]
-    [SerializeField] private int _slotIndex;
+    public int SlotIndex;
 
     public BoosterSlot(IBooster currentBooster, bool isAlreadyOwned, int slotIndex)
     {
         CurrentBooster = currentBooster;
         IsAlreadyOwned = isAlreadyOwned;
-        _slotIndex = slotIndex;
+        SlotIndex = slotIndex;
     }
 
     public void AssignBooster(IBooster booster)
@@ -26,7 +25,7 @@ public class BoosterSlot
     {
         if (CurrentBooster is IBoosterPermanent permanentBooster)
         {
-            permanentBooster.RemovePermanentEffect(NetworkClient.localPlayer.GetComponent<Player>());
+            permanentBooster.CmdRemovePermanentEffect(NetworkClient.localPlayer.GetComponent<Player>());
         }
         CurrentBooster = null;
     }
@@ -35,8 +34,8 @@ public class BoosterSlot
     {
         if (CurrentBooster == null)
         {
-            return $"This is a slot with no booster, which is on slot {_slotIndex}. Owned = {IsAlreadyOwned}";
+            return $"This is a slot with no booster, which is on slot {SlotIndex}. Owned = {IsAlreadyOwned}";
         }
-        return $"This is a slot with {CurrentBooster.Name}, which is on slot {_slotIndex}. Owned = {IsAlreadyOwned}";
+        return $"This is a slot with {CurrentBooster.Name}, which is on slot {SlotIndex}. Owned = {IsAlreadyOwned}";
     }
 }

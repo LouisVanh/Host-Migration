@@ -12,7 +12,7 @@ public class BoostersManager : NetworkBehaviour
     [Header("Player stats")]
     public float LifestealPercentage;
     public int AmountOfAceBoosters;
-    public float DamageMultiplier;
+    public float DamageMultiplier /*= 1*/;
 
     private void Start()
     {
@@ -31,11 +31,33 @@ public class BoostersManager : NetworkBehaviour
                 slot.AssignBooster(booster);
                 if (booster is IBoosterConsumable consumableBooster)
                 {
-                    consumableBooster.ConsumeEffect(NetworkClient.localPlayer.GetComponent<Player>());
+                    consumableBooster.CmdConsumeEffect(NetworkClient.localPlayer.GetComponent<Player>());
                 }
                 else if (booster is IBoosterPermanent permanentBooster)
                 {
-                    permanentBooster.AddPermanentEffect(NetworkClient.localPlayer.GetComponent<Player>());
+                    permanentBooster.CmdAddPermanentEffect(NetworkClient.localPlayer.GetComponent<Player>());
+                }
+                return true; // everything happened successfully
+            }
+        }
+        return false; // No available slots
+    }
+
+    public bool AddOwnedBooster(string boosterName)
+    {
+        foreach (var slot in OwnedSlots)
+        {
+            if (slot.IsEmpty)
+            {
+                IBooster booster = _boosterContainer.GetBoosterByName(boosterName);
+                slot.AssignBooster(booster);
+                if (booster is IBoosterConsumable consumableBooster)
+                {
+                    consumableBooster.CmdConsumeEffect(NetworkClient.localPlayer.GetComponent<Player>());
+                }
+                else if (booster is IBoosterPermanent permanentBooster)
+                {
+                    permanentBooster.CmdAddPermanentEffect(NetworkClient.localPlayer.GetComponent<Player>());
                 }
                 return true; // everything happened successfully
             }
@@ -55,7 +77,31 @@ public class BoostersManager : NetworkBehaviour
             slot.RemoveBooster();
         }
     }
+    public void RemoveSpecificOwnedBooster(int slotId)
+    {
+        foreach (var slot in OwnedSlots)
+        {
+            if (slot.SlotIndex != slotId)
+            {
+                return;
+            }
 
+            slot.RemoveBooster();
+        }
+    }
+    public void RemoveSpecificOwnedBooster(string name)
+    {
+        foreach (var slot in OwnedSlots)
+        {
+            if(slot.CurrentBooster == null) { Debug.LogWarning($"This slot {slot} is null"); return; }
+            if (slot.CurrentBooster.Name != name)
+            {
+                return;
+            }
+
+            slot.RemoveBooster();
+        }
+    }
     public void RemoveRandomOwnedCommonBooster()
     {
         int amountOfCommonBoosters = GetAmountOfOwnedCommonBoosters();
