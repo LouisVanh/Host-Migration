@@ -2,7 +2,7 @@ using Mirror;
 using System;
 using UnityEngine;
 
-[Serializable]
+//[Serializable] adding or removing this doesn't seem to do anything
 public class BoosterSlot
 {
     public string CurrentBoosterName;

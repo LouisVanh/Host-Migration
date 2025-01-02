@@ -1,6 +1,7 @@
 using UnityEngine;
 using Mirror;
 using System;
+using System.Collections.Generic;
 
 public enum PlayerPosition { BottomLeft, BottomRight, TopLeft, TopRight, None }
 public class Player : NetworkBehaviour
@@ -115,9 +116,8 @@ public class Player : NetworkBehaviour
 
         if (_canRoll && !HasAlreadyRolled)
         {
-            Debug.Log("ROLLING DICE!");
+            //Debug.Log("ROLLING DICE!");
             // Perform dice roll logic
-            HasAlreadyRolled = true;
             int totalRoll = 0;
             for (int i = 0; i < DiceCount; i++)
             {
@@ -128,6 +128,8 @@ public class Player : NetworkBehaviour
                 CmdRestoreHealth(Mathf.RoundToInt(totalRoll * lifeStealPercentage));
                 CmdSpawnDiceWithEyes(PlayerNetId, eyes);
             }
+            // Set at the end, so dice don't get rolled after everyone is ready with MoreDice perk
+            HasAlreadyRolled = true;
         }
         else Debug.LogWarning($"CANT ROLL DICE! canRoll = {_canRoll}, hasAlreadyRolled = {HasAlreadyRolled}");
     }
@@ -164,9 +166,9 @@ public class Player : NetworkBehaviour
         }
 
         HealthBar.CurrentHealth += health;
-        if (HealthBar.CurrentHealth >= HealthBar.TotalHealth)
+        if (HealthBar.CurrentHealth > HealthBar.TotalHealth)
         {
-            Debug.Log("Player health clamped.");
+            Debug.Log("Player health clamped. Health was above max");
             HealthBar.CurrentHealth = HealthBar.TotalHealth;
         }
     }
@@ -185,9 +187,9 @@ public class Player : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdSpawnDiceWithEyes(uint playerId, int eyesRolled)
     {
-        var newDice = new Dice(playerId, eyesRolled);
-        Debug.Log("New dice made: " + newDice);
-        DiceManager.Instance.AddDice(newDice);
+            var newDice = new Dice(playerId, eyesRolled);
+            //Debug.Log("New dice made: " + newDice);
+            DiceManager.Instance.AddDice(newDice);
     }
 
     public void SpawnAndShakeDiceJar()
@@ -201,7 +203,7 @@ public class Player : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdSpawnCup(Quaternion rotation, Vector3 position)
     {
-        Debug.Log($"PLAYER / CMDSPAWNCUP / Spawning cup at pos: {position}, rot: {rotation.eulerAngles}");
+        //Debug.Log($"PLAYER / CMDSPAWNCUP / Spawning cup at pos: {position}, rot: {rotation.eulerAngles}");
 
         // Spawning the cup
         var cup = Instantiate(_cupPrefab);
@@ -221,8 +223,8 @@ public class Player : NetworkBehaviour
 
     public Vector3 GetPlayerCupPosition()
     {
-        Debug.Log($"Player {this.name} is getting it's position: {PlayerScreenPosition} to spawn dice at");
-        Debug.Log($"Possible values are {_cupPosition1}, {_cupPosition2}, {_cupPosition3}, {_cupPosition4}");
+        //Debug.Log($"Player {this.name} is getting it's position: {PlayerScreenPosition} to spawn dice at");
+        //Debug.Log($"Possible values are {_cupPosition1}, {_cupPosition2}, {_cupPosition3}, {_cupPosition4}");
         return (PlayerScreenPosition) switch
         {
             PlayerPosition.BottomLeft => _cupPosition1,

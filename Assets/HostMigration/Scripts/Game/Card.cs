@@ -22,6 +22,7 @@ public class Card : NetworkBehaviour
 
     public void SetupCardVisual(BoosterCardVisualData visualData)
     {
+        Debug.Log($"{NetworkClient.localPlayer.name}'s Visualdata: {visualData}");
         _nameText.text = visualData.Name;
         _descriptionText.text = visualData.Description;
         _cardBackground.color = visualData.Color;

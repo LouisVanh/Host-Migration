@@ -10,10 +10,13 @@ public class BoostersManager : NetworkBehaviour
     private BoosterContainer _boosterContainer;
     public BoosterSlot[] OwnedSlots = new BoosterSlot[MAX_OWNED_SLOTS];
 
+    public uint PlayerThisBelongsToId => GetComponent<NetworkIdentity>().netId;
+
     public readonly SyncList<BoosterSlot> PotentialBoosterSlots = new SyncList<BoosterSlot>();
 
     private void OnPotentialBoostersAdded(int index)
     {
+        if (NetworkClient.localPlayer.netId != PlayerThisBelongsToId) return; // only update UI for the right player
         if(index == 2)
         {
             Debug.Log($"index 2 found, sending visuals");
