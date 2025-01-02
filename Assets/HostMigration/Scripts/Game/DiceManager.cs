@@ -212,6 +212,7 @@ public class DiceManager : NetworkBehaviour
 
         foreach (Player player in list)
         {
+        // HasAlreadyRolled is only set when all dice of a player are rolled
             if (player.HasAlreadyRolled == false) checkSum = false;
         }
         if (checkSum)
