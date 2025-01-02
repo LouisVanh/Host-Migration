@@ -7,7 +7,7 @@ public class BoosterContainer : MonoBehaviour
     public List<BoosterEntry> Boosters = new(); // List of all boosters
 
 
-    public IBooster GetBoosterByName(string name)
+    public IBooster GetFirstBoosterByName(string name)
     {
         foreach (var boosterMono in Boosters)
         {

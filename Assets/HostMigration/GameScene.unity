@@ -3956,7 +3956,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  LifeStealPercentage: 10
+  LifeStealPercentage: 15
 --- !u!114 &1100390476
 MonoBehaviour:
   m_ObjectHideFlags: 0

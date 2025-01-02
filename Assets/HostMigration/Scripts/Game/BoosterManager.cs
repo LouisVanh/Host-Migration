@@ -49,7 +49,7 @@ public class BoostersManager : NetworkBehaviour
         {
             if (slot.IsEmpty)
             {
-                IBooster booster = _boosterContainer.GetBoosterByName(boosterName);
+                IBooster booster = _boosterContainer.GetFirstBoosterByName(boosterName);
                 slot.AssignBooster(booster);
                 if (booster is IBoosterConsumable consumableBooster)
                 {

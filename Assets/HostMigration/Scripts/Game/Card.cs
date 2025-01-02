@@ -39,6 +39,7 @@ public class Card : NetworkBehaviour
     {
         // Debug log to show the card was clicked
         Debug.Log($"Card clicked: {_nameText.text}");
+        DisableCardClick();
         CmdAddBooster(NetworkClient.localPlayer.GetComponent<Player>(), _nameText.text);
 
         //Booster picked, wait for everyone to pick and let's go next wave
