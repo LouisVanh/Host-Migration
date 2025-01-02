@@ -151,9 +151,11 @@ public class UIManager : NetworkBehaviour
                 _preDiceScreen.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);
                 _waveCountCanvas.gameObject.SetActive(true);
+                _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
 
                 if (!TurnManager.Instance.FirstWavePlaying) // is this not the first time playing?
                 {
+                    Debug.Log("It's not the first wave playing, showing the owned booster card popup!");
                     _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true); // Clicking this will bring up the thing under here (TODO)
                     //ShowOwnedBoosterLayout();
                 }
@@ -166,16 +168,15 @@ public class UIManager : NetworkBehaviour
             case ScreenState.EveryoneRollingTime:
                 _waveCountCanvas.gameObject.SetActive(true);
                 _diceRollingScreen.gameObject.SetActive(true);
-                //if (!TurnManager.Instance.FirstRoundPlaying) // is this not the first time playing?
-                //{
-                //    ShrinkOwnedBoosterLayout();
-                //}
+                _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
+
                 break;
 
             case ScreenState.EveryoneJustRolled:
                 // GET READY TO START ANIMATION
                 SetEverythingFalse();
                 _waveCountCanvas.gameObject.SetActive(true);
+                _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);
                 // ...
 
@@ -206,6 +207,7 @@ public class UIManager : NetworkBehaviour
                 SetEverythingFalse();
                 HealthBarsCanvas.gameObject.SetActive(true);
                 _newBoostersShopCanvas.gameObject.SetActive(true);
+                _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
                 _waveCountCanvas.gameObject.SetActive(true);
 
                 // ... animations under here
@@ -305,6 +307,18 @@ public class UIManager : NetworkBehaviour
     #region Buttons
 
     // TODO MAKE BUTTON FOR UI POPUP
+    public void ShowOwnedBoostersPopUpBtn()
+    {
+        _layoutOwnedBoosterRect.gameObject.SetActive(true);
+        _boosterCardsCanvas.gameObject.SetActive(true);
+        _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(false);
+        ShowOwnedBoosterLayout();
+    }
+    public void CloseOwnedBoostersPopUpBtn()
+    {
+        HideOwnedBoosterLayout();
+        _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
+    }
 
     public void RollDiceBtn()
     {

@@ -22,6 +22,8 @@ public class Card : NetworkBehaviour
 
     public void SetupCardVisual(BoosterCardVisualData visualData)
     {
+        if (NetworkClient.localPlayer.name == null) Debug.LogError("player null");
+        if (visualData== null) Debug.LogError("visualdata null");
         Debug.Log($"{NetworkClient.localPlayer.name}'s Visualdata: {visualData}");
         _nameText.text = visualData.Name;
         _descriptionText.text = visualData.Description;
@@ -55,7 +57,7 @@ public class Card : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    private void CmdSetPlayerReadyForNextWaveAndPossiblyStart(uint playerNetId)
+    private async void CmdSetPlayerReadyForNextWaveAndPossiblyStart(uint playerNetId)
     {
         if (NetworkServer.spawned.TryGetValue(playerNetId, out NetworkIdentity playerIdObj))
         {
@@ -70,6 +72,9 @@ public class Card : NetworkBehaviour
             }
             if (checkSum)
             {
+                // short delay let people catch their breath
+                await System.Threading.Tasks.Task.Delay(250);
+
                 ResetPlayerReady();
                 TurnManager.Instance.UpdateGameState(GameState.NewWaveEveryonePickedBooster);
             }

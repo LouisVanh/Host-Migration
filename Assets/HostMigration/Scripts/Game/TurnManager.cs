@@ -24,7 +24,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
 
     public int _turnCount;
     public bool FirstTurnPlaying => _turnCount < 1;
-    public bool FirstWavePlaying => WaveManager.Instance.CurrentWaveIndex == 1;
+    public bool FirstWavePlaying => WaveManager.Instance.CurrentWaveIndex <= 1;
     public static TurnManager Instance { get; private set; }
     private void Awake()
     {
