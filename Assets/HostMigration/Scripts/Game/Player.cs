@@ -22,7 +22,6 @@ public class Player : NetworkBehaviour
 
     public bool IsDead => HealthBar.CurrentHealth == 0;
     public int StartingHealth = 20;
-    public int CurrentDiceRollAmount;
 
     // NETWORK TRANSFORMS
     [SerializeField] private GameObject _cupPrefab;
@@ -38,12 +37,13 @@ public class Player : NetworkBehaviour
     [SyncVar]
     public PlayerPosition PlayerScreenPosition;
 
-    private void OnDestroy()
+    public override void OnStopClient()
     {
         if (isServer)
         {
             PlayersManager.Instance.RemovePlayer(PlayerNetId);
         }
+        base.OnStopClient();
     }
 
     [Command(requiresAuthority = false)]

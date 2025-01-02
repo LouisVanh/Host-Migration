@@ -48,7 +48,7 @@ public class Card : NetworkBehaviour
     private void CmdAddBooster(Player player, string name)
     {
         Debug.LogWarning($"CARD / Adding booster to {player}, by name {name}");
-        player.BoosterManager.AddOwnedBooster(name);
+        player.BoosterManager.AddOwnedBooster(player, name);
     }
 
     [Command(requiresAuthority = false)]
@@ -73,12 +73,14 @@ public class Card : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
+    [Server]
     private void ResetPlayerReady()
     {
-        var player = NetworkClient.localPlayer.GetComponent<Player>();
-        player.HasAlreadyRolled = false;
-        player.ReadyForNextWave = false;
-        player.CurrentDiceRollAmount = 0;
+        foreach (var player in PlayersManager.Instance.GetPlayers())
+        {
+            // Set the values of each player on the server, as this is Server--)Client syncvar
+            player.HasAlreadyRolled = false;
+            player.ReadyForNextWave = false;
+        }
     }
 }

@@ -33,7 +33,6 @@ public class BoostersManager : NetworkBehaviour
         base.OnStopClient();
     }
 
-    //public BoosterSlot[] PotentialBoosterSlots => _potentialBoosterSlots.ToArray();
     public BoosterCardVisualData[] PotentialBoosterSlotsVisuals
     {
         get
@@ -73,29 +72,8 @@ public class BoostersManager : NetworkBehaviour
         //syncMode = SyncMode.Owner;
     }
 
-    //public bool AddOwnedBooster(IBooster booster)
-    //{
-    //    foreach (var slot in OwnedSlots)
-    //    {
-    //        if (slot.IsEmpty)
-    //        {
-    //            slot.AssignBooster(booster);
-    //            if (booster is IBoosterConsumable consumableBooster)
-    //            {
-    //                consumableBooster.CmdConsumeEffect(NetworkClient.localPlayer.GetComponent<Player>());
-    //            }
-    //            else if (booster is IBoosterPermanent permanentBooster)
-    //            {
-    //                permanentBooster.CmdAddPermanentEffect(NetworkClient.localPlayer.GetComponent<Player>());
-    //            }
-    //            return true; // everything happened successfully
-    //        }
-    //    }
-    //    return false; // No available slots
-    //}
-
     [Server]
-    public bool AddOwnedBooster(string boosterName)
+    public bool AddOwnedBooster(Player player, string boosterName)
     {
         foreach (var slot in OwnedSlots)
         {
@@ -105,11 +83,11 @@ public class BoostersManager : NetworkBehaviour
                 slot.AssignBooster(booster);
                 if (booster is IBoosterConsumable consumableBooster)
                 {
-                    consumableBooster.CmdConsumeEffect(NetworkClient.localPlayer.GetComponent<Player>());
+                    consumableBooster.CmdConsumeEffect(player);
                 }
                 else if (booster is IBoosterPermanent permanentBooster)
                 {
-                    permanentBooster.CmdAddPermanentEffect(NetworkClient.localPlayer.GetComponent<Player>());
+                    permanentBooster.CmdAddPermanentEffect(player);
                 }
                 return true; // everything happened successfully
             }
@@ -117,20 +95,6 @@ public class BoostersManager : NetworkBehaviour
         return false; // No available slots
     }
 
-    //[Server]
-    //public void RemoveSpecificOwnedBooster(IBooster booster)
-    //{
-    //    foreach (var slot in OwnedSlots)
-    //    {
-    //        if (slot.CurrentBooster != booster)
-    //        {
-    //            return;
-    //        }
-
-    //        slot.RemoveBooster();
-    //    }
-    //}
-    //[Server]
     //public void RemoveSpecificOwnedBooster(int slotId)
     //{
     //    foreach (var slot in OwnedSlots)
@@ -157,35 +121,6 @@ public class BoostersManager : NetworkBehaviour
             slot.RemoveBooster();
         }
     }
-    //[Server]
-    //public void RemoveRandomOwnedCommonBooster()
-    //{
-    //    int amountOfCommonBoosters = GetAmountOfOwnedCommonBoosters();
-    //    if (amountOfCommonBoosters == 0) { Debug.LogWarning("No common boosters found!"); return; }
-    //    BoosterSlot[] commonBoosters = new BoosterSlot[amountOfCommonBoosters];
-    //    int counter = 0;
-    //    foreach (var slot in OwnedSlots)
-    //    {
-    //        if (slot.CurrentBoosterName.Rarity == BoosterRarity.Common)
-    //        {
-    //            commonBoosters[counter] = slot;
-    //            counter++;
-    //        }
-    //    }
-    //    var random = Random.Range(0, amountOfCommonBoosters);
-    //    commonBoosters[random].RemoveBooster();
-    //}
-
-    //[Server]
-    //private int GetAmountOfOwnedCommonBoosters()
-    //{
-    //    int counter = 0;
-    //    foreach (var slot in OwnedSlots)
-    //    {
-    //        if (slot.CurrentBooster.Rarity == BoosterRarity.Common) counter++;
-    //    }
-    //    return counter;
-    //}
 
     #region Potential boosters to unlock
 
@@ -196,9 +131,8 @@ public class BoostersManager : NetworkBehaviour
         // All client side, as each client will have different boosters.
         PopulatePotentialBoosters();
 
-        // Update visual client-side (RPC)
         // Now called from the OnPotentialBoosters list added (so the values are initialised).
-        //UIManager.Instance.RpcUpdatePotentialCardsVisualAndShow();
+        //UIManager.Instance.UpdatePotentialCardsVisualAndShow();
     }
 
     [Server]
@@ -232,4 +166,35 @@ public class BoostersManager : NetworkBehaviour
         }
     }
     #endregion
+    #region currently unused
+    [Server]
+    public void RemoveRandomOwnedCommonBooster()
+    {
+        int amountOfCommonBoosters = GetAmountOfOwnedCommonBoosters();
+        if (amountOfCommonBoosters == 0) { Debug.LogWarning("No common boosters found!"); return; }
+        BoosterSlot[] commonBoosters = new BoosterSlot[amountOfCommonBoosters];
+        int counter = 0;
+        foreach (var slot in OwnedSlots)
+        {
+            if (BoosterContainer.GetFirstBoosterByName(slot.CurrentBoosterName).Rarity == BoosterRarity.Common)
+            {
+                commonBoosters[counter] = slot;
+                counter++;
+            }
+        }
+        var random = Random.Range(0, amountOfCommonBoosters);
+        commonBoosters[random].RemoveBooster();
+    }
+
+    [Server]
+    private int GetAmountOfOwnedCommonBoosters()
+    {
+        int counter = 0;
+        foreach (var slot in OwnedSlots)
+        {
+            if (BoosterContainer.GetFirstBoosterByName(slot.CurrentBoosterName).Rarity == BoosterRarity.Common) counter++;
+        }
+        return counter;
+    }
+    #endregion currently unused
 }
