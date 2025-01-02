@@ -109,12 +109,17 @@ public class UIManager : NetworkBehaviour
         _waveCountCanvas.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().text = $"Wave: {currentWaveCount}";
     }
 
+    ///////////////
+    ///
     [ClientRpc]
     internal void RpcUpdatePotentialCardsVisualAndShow(
-        string card1Name, string card1Desc, BoosterRarity card1Rarity,
-        string card2Name, string card2Desc, BoosterRarity card2Rarity,
-        string card3Name, string card3Desc, BoosterRarity card3Rarity)
+        //string card1Name, string card1Desc, BoosterRarity card1Rarity,
+        //string card2Name, string card2Desc, BoosterRarity card2Rarity,
+        //string card3Name, string card3Desc, BoosterRarity card3Rarity
+        )
     {
+
+
         UpdatePotentialCardVisualAndShow(_potentialUnlockCard1, card1Name, card1Desc, card1Rarity);
         UpdatePotentialCardVisualAndShow(_potentialUnlockCard2, card2Name, card2Desc, card2Rarity);
         UpdatePotentialCardVisualAndShow(_potentialUnlockCard3, card3Name, card3Desc, card3Rarity);

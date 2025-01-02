@@ -1,5 +1,6 @@
 using UnityEngine;
 using Mirror;
+using System.Linq;
 
 public class BoostersManager : NetworkBehaviour
 {
@@ -7,7 +8,10 @@ public class BoostersManager : NetworkBehaviour
     private const int MAX_POTENTIAL_SLOTS = 3;
     private BoosterContainer _boosterContainer;
     public BoosterSlot[] OwnedSlots = new BoosterSlot[MAX_OWNED_SLOTS];
-    public BoosterSlot[] PotentialBoosterSlots; // Create and assign on runtime
+
+    private readonly SyncList<BoosterSlot> _potentialBoosterSlots = new SyncList<BoosterSlot>();
+
+    public BoosterSlot[] PotentialBoosterSlots => _potentialBoosterSlots.ToArray();
 
     [Header("Player stats")]
     public float LifestealPercentage;
@@ -148,15 +152,16 @@ public class BoostersManager : NetworkBehaviour
 
         // Update visual client-side (RPC)
         UIManager.Instance.RpcUpdatePotentialCardsVisualAndShow(
-            PotentialBoosterSlots[0].CurrentBooster.Name,
-            PotentialBoosterSlots[0].CurrentBooster.Description,
-            PotentialBoosterSlots[0].CurrentBooster.Rarity,
-            PotentialBoosterSlots[1].CurrentBooster.Name,
-            PotentialBoosterSlots[1].CurrentBooster.Description,
-            PotentialBoosterSlots[1].CurrentBooster.Rarity,
-            PotentialBoosterSlots[2].CurrentBooster.Name,
-            PotentialBoosterSlots[2].CurrentBooster.Description,
-            PotentialBoosterSlots[2].CurrentBooster.Rarity);
+            //PotentialBoosterSlots[0].CurrentBooster.Name,
+            //PotentialBoosterSlots[0].CurrentBooster.Description,
+            //PotentialBoosterSlots[0].CurrentBooster.Rarity,
+            //PotentialBoosterSlots[1].CurrentBooster.Name,
+            //PotentialBoosterSlots[1].CurrentBooster.Description,
+            //PotentialBoosterSlots[1].CurrentBooster.Rarity,
+            //PotentialBoosterSlots[2].CurrentBooster.Name,
+            //PotentialBoosterSlots[2].CurrentBooster.Description,
+            //PotentialBoosterSlots[2].CurrentBooster.Rarity
+            );
     }
 
     [Server]
