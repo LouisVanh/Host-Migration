@@ -36,6 +36,7 @@ public class Card : NetworkBehaviour
 
     public void OnCardClicked()
     {
+        if (NetworkClient.localPlayer.GetComponent<Player>().HasAlreadyPickedCard) return;
         // Debug log to show the card was clicked
         Debug.Log($"Card clicked: {_nameText.text}");
         DisableCardClick();
@@ -50,6 +51,7 @@ public class Card : NetworkBehaviour
     {
         Debug.LogWarning($"CARD / Adding booster to {player}, by name {name}");
         player.BoosterManager.AddOwnedBooster(player, name);
+        player.HasAlreadyPickedCard = true;
     }
 
     [Command(requiresAuthority = false)]
@@ -82,6 +84,7 @@ public class Card : NetworkBehaviour
             // Set the values of each player on the server, as this is Server--)Client syncvar
             player.HasAlreadyRolled = false;
             player.ReadyForNextWave = false;
+            player.HasAlreadyPickedCard = false;
         }
     }
 }

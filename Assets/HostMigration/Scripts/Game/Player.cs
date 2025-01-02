@@ -14,7 +14,8 @@ public class Player : NetworkBehaviour
     public bool HasAlreadyRolled;
     [SyncVar]
     public bool ReadyForNextWave;
-
+    [SyncVar]
+    public bool HasAlreadyPickedCard;
     public int DiceCount = 1;
     private bool _canRoll;
     public BoostersManager BoosterManager;

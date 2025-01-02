@@ -303,6 +303,9 @@ public class UIManager : NetworkBehaviour
         await System.Threading.Tasks.Task.Delay(1000);
     }
     #region Buttons
+
+    // TODO MAKE BUTTON FOR UI POPUP
+
     public void RollDiceBtn()
     {
         if (NetworkClient.localPlayer.GetComponent<Player>().HasAlreadyRolled) return;

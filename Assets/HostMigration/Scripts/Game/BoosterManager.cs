@@ -1,7 +1,5 @@
 using UnityEngine;
 using Mirror;
-using System.Linq;
-using System.Collections.Generic;
 
 public class BoostersManager : NetworkBehaviour
 {

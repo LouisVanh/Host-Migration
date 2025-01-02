@@ -82,12 +82,12 @@ public class Enemy : NetworkBehaviour
     }
 
     [Server]
-    public void TakeDamage(int damage, out int leftOverEyes, out bool enemyDied)
+    public void TakeDamage(int damage, out int? leftOverEyes, out bool enemyDied)
     {
         if (Health <= 0)// IF ALREADY DEAD, STOP KICKIN EM
         {
             Debug.LogWarning("Take Damage called when enemy was already dead");
-            leftOverEyes = -1;
+            leftOverEyes = null;
             enemyDied = false;
             return;
         }

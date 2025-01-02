@@ -93,7 +93,7 @@ public class DiceManager : NetworkBehaviour
             Vector3 centerPosition = playerNetIdentity.GetComponent<Player>().GetPlayerCupPosition();
 
             // Define the radius for spacing between dice
-            float diceRadius = 2; // Adjust based on dice size
+            float diceRadius = 2.5f; // Adjust based on dice size
             float spacing = 1.2f;    // Multiplier for distance between dice to avoid intersections
 
             // Use a circular pattern for up to 7 dice
@@ -246,6 +246,7 @@ public class DiceManager : NetworkBehaviour
     [Server]
     public void ResetAfterWaveComplete()
     {
+        Debug.Log("resetting dice after wave complete");
         RemoveAllDice();
         LeftOverEyesFromLastRoll = 0;
     }

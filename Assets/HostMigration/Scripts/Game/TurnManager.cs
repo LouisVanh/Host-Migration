@@ -179,6 +179,8 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 break;
         }
     }
+
+    [Server]
     private async System.Threading.Tasks.Task HandleEnemyDamage(int damage, bool isLeftOvers)
     {
         Debug.Log($"TURNMANAGER / Current Damage: {damage} - Is this a leftover? {isLeftOvers}");
@@ -186,35 +188,41 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         bool wasEnemyBoss = WaveManager.Instance.CurrentWave.CurrentEnemyIndex == WaveManager.Instance.CurrentWave.TotalEnemiesCount;
 
         // This could kill the enemy, giving leftovers. This could also kill the boss, which would send you to the booster picking state.
-        enemyToDamage.TakeDamage(damage, out int leftOverEyes, out bool enemyDied);
-        DiceManager.Instance.LeftOverEyesFromLastRoll = leftOverEyes;
-        await System.Threading.Tasks.Task.Delay(1500); // Don't instantly switch after damage gets removed, let players look at it.
-        if (enemyDied && wasEnemyBoss)
+        enemyToDamage.TakeDamage(damage, out int? leftOverEyes, out bool enemyDied);
+        Debug.Log($"Enemy just took damage, setting leftovers to {leftOverEyes}");
+        if (leftOverEyes != null) // This only happens when take damage is called for no reason
         {
-            return; // WavesManager handles this.
-        }
-
-        if (enemyDied)
-        {
-            if (leftOverEyes != 0)
+            DiceManager.Instance.LeftOverEyesFromLastRoll = (int)leftOverEyes;
+            await System.Threading.Tasks.Task.Delay(1500); // Don't instantly switch after damage gets removed, let players look at it.
+            if (enemyDied && wasEnemyBoss)
             {
-                UpdateGameState(GameState.LeftOverDamageToEnemy);
-            }
-            else
-            {
-                UpdateGameState(GameState.PreDiceReceived);
-            }
-        }
-        else // enemy survived, he will attack now.
-        {
-            if (isLeftOvers)
-            {
-                Debug.Log("Leftover damage done, not attacking player and going back to preDice");
-                UpdateGameState(GameState.PreDiceReceived);
-                return; // if it's leftovers, don't attack twice for no reason.}
+                return; // WavesManager handles this.
             }
 
-            UpdateGameState(GameState.AfterRollEnemyAttack);
+            if (enemyDied)
+            {
+                if (leftOverEyes != 0)
+                {
+                    Debug.Log($"enemy died and LeftoverEyes was not null, going to LeftOverDamage state (l={leftOverEyes}");
+                    UpdateGameState(GameState.LeftOverDamageToEnemy);
+                }
+                else
+                {
+                    Debug.Log($"enemy died and LeftoverEyes was null, nothing to do, going to predice");
+                    UpdateGameState(GameState.PreDiceReceived);
+                }
+            }
+            else // enemy survived, he will attack now.
+            {
+                if (isLeftOvers)
+                {
+                    Debug.Log("Leftover damage done, not attacking player and going back to preDice");
+                    UpdateGameState(GameState.PreDiceReceived);
+                    return; // if it's leftovers, don't attack twice for no reason.}
+                }
+
+                UpdateGameState(GameState.AfterRollEnemyAttack);
+            }
         }
     }
 
