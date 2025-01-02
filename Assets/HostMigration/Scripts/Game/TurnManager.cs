@@ -77,11 +77,13 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         int randomIndex = Random.Range(0, deadPlayers.Count);
         return deadPlayers[randomIndex];
     }
+
     [ClientRpc]
     private void SetSyncedUIState(ScreenState newState)
     {
         UIManager.Instance.UpdateUIState(newState);
     }
+
     [Server]
     public async void UpdateGameState(GameState newState)
     {
@@ -155,7 +157,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 break;
 
             case GameState.EveryonePickBooster:
-                RpcShowEveryoneBoosterPickingScreen();
+                ShowEveryoneBoosterPickingScreen();
                 SetSyncedUIState(ScreenState.EveryonePickBooster);
                 break;
 
@@ -215,6 +217,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
             UpdateGameState(GameState.AfterRollEnemyAttack);
         }
     }
+
     [ClientRpc]
     private void RpcGivePlayersHealthBars()
     {
@@ -225,8 +228,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
         }
     }
 
-    [ClientRpc]
-    private void RpcShowEveryoneBoosterPickingScreen()
+    private void ShowEveryoneBoosterPickingScreen()
     {
         // Show UI for all players to pick boosters (and generate them)
         var player = NetworkClient.localPlayer.GetComponent<Player>();

@@ -43,7 +43,7 @@ public class UIManager : NetworkBehaviour
     [SerializeField] private Color _commonCardColor;
     [SerializeField] private Color _legendaryCardColor;
     [SerializeField] private Color _chaosCardColor;
-    private Dictionary<BoosterRarity, Color> _rarityColors;
+    public Dictionary<BoosterRarity, Color> RarityColors;
 
     [Header("Potential")]
     [SerializeField] private Card _potentialUnlockCard1;
@@ -69,7 +69,7 @@ public class UIManager : NetworkBehaviour
         DontDestroyOnLoad(this.gameObject);
 
         //setup colors
-        _rarityColors = new Dictionary<BoosterRarity, Color>
+        RarityColors = new Dictionary<BoosterRarity, Color>
         {
             { BoosterRarity.Common, _commonCardColor },
             { BoosterRarity.Legendary, _legendaryCardColor },
@@ -109,25 +109,16 @@ public class UIManager : NetworkBehaviour
         _waveCountCanvas.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().text = $"Wave: {currentWaveCount}";
     }
 
-    ///////////////
-    ///
-    [ClientRpc]
-    internal void RpcUpdatePotentialCardsVisualAndShow(
-        //string card1Name, string card1Desc, BoosterRarity card1Rarity,
-        //string card2Name, string card2Desc, BoosterRarity card2Rarity,
-        //string card3Name, string card3Desc, BoosterRarity card3Rarity
-        )
+    // Client side, ran from syncvar hook
+    internal void UpdatePotentialCardsVisualAndShow()
     {
+        BoosterCardVisualData[] slotsVisuals = NetworkClient.localPlayer.GetComponent<BoostersManager>().PotentialBoosterSlotsVisuals;
 
-
-        UpdatePotentialCardVisualAndShow(_potentialUnlockCard1, card1Name, card1Desc, card1Rarity);
-        UpdatePotentialCardVisualAndShow(_potentialUnlockCard2, card2Name, card2Desc, card2Rarity);
-        UpdatePotentialCardVisualAndShow(_potentialUnlockCard3, card3Name, card3Desc, card3Rarity);
+        UpdatePotentialCardVisualAndShow(_potentialUnlockCard1, slotsVisuals[0]);
+        UpdatePotentialCardVisualAndShow(_potentialUnlockCard2, slotsVisuals[1]);
+        UpdatePotentialCardVisualAndShow(_potentialUnlockCard3, slotsVisuals[2]);
     }
-    private void UpdatePotentialCardVisualAndShow(Card card, string name, string desc, BoosterRarity rarity)
-    {
-        card.SetupCardVisual(name, desc, _rarityColors[rarity]);
-    }
+    private void UpdatePotentialCardVisualAndShow(Card card, BoosterCardVisualData visualData) => card.SetupCardVisual(visualData);
 
     public async void UpdateUIState(ScreenState newScreenState)
     {

@@ -2,16 +2,29 @@ using UnityEngine;
 using System.Collections.Generic;
 using Mirror;
 
-public class BoosterContainer : MonoBehaviour
+public class BoosterContainer : NetworkBehaviour
 {
-    public List<BoosterEntry> Boosters = new(); // List of all boosters
+    public static string BoosterContainerTag = "BoosterContainer";
+    public static List<BoosterEntry> Boosters = new();
 
 
-    public IBooster GetFirstBoosterByName(string name)
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        var parent = GameObject.FindWithTag(BoosterContainerTag);
+        for (int i = 0; i < parent.transform.childCount; i++)
+        {
+            var child = parent.transform.GetChild(i);
+            if (child.gameObject.activeSelf)
+                Boosters.Add(child.GetComponent<BoosterEntry>());
+        }
+    }
+
+    public static IBooster GetFirstBoosterByName(string name)
     {
         foreach (var boosterMono in Boosters)
         {
-            if(boosterMono.BoosterScript is IBooster booster)
+            if (boosterMono.BoosterScript is IBooster booster)
             {
                 if (booster.Name == name) return booster;
             }
@@ -20,7 +33,7 @@ public class BoosterContainer : MonoBehaviour
         return null;
     }
 
-    public BoosterEntry GetRandomBoosterEntry()
+    public static BoosterEntry GetRandomBoosterEntry()
     {
         // Calculate the total weight
         float totalWeight = 0f;
@@ -67,7 +80,7 @@ public enum BoosterRarity
 
 public interface IBoosterPermanent : IBooster
 {
-    [Command(requiresAuthority =false)]
+    [Command(requiresAuthority = false)]
     void CmdAddPermanentEffect(Player player);
     [Command(requiresAuthority = false)]
     void CmdRemovePermanentEffect(Player player);

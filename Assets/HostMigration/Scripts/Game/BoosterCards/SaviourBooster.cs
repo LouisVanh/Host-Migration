@@ -17,7 +17,7 @@ public class SaviourBooster : NetworkBehaviour, IBoosterConsumable
         var deadGuy = TurnManager.Instance.GetRandomDeadPlayer();
         if (deadGuy == null)
         {
-            player.BoosterManager.RemoveSpecificOwnedBooster(this);
+            player.BoosterManager.RemoveSpecificOwnedBooster(Name);
             return;
         }
         deadGuy.HealthBar.CurrentHealth += (deadGuy.HealthBar.TotalHealth / 2);

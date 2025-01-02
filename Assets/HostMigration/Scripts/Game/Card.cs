@@ -20,11 +20,11 @@ public class Card : NetworkBehaviour
         _button = transform.GetComponent<Button>();
     }
 
-    public void SetupCardVisual(string name, string desc, Color color)
+    public void SetupCardVisual(BoosterCardVisualData visualData)
     {
-        _nameText.text = name;
-        _descriptionText.text = desc;
-        _cardBackground.color = color;
+        _nameText.text = visualData.Name;
+        _descriptionText.text = visualData.Description;
+        _cardBackground.color = visualData.Color;
         _button.interactable = true;
     }
 
