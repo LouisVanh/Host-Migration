@@ -109,11 +109,19 @@ public class UIManager : NetworkBehaviour
         _waveCountCanvas.transform.GetChild(0).GetComponent<TMPro.TMP_Text>().text = $"Wave: {currentWaveCount}";
     }
 
-    internal void UpdatePotentialCardsVisualAndShow(IBooster card1, IBooster card2, IBooster card3)
+    [ClientRpc]
+    internal void RpcUpdatePotentialCardsVisualAndShow(
+        string card1Name, string card1Desc, BoosterRarity card1Rarity,
+        string card2Name, string card2Desc, BoosterRarity card2Rarity,
+        string card3Name, string card3Desc, BoosterRarity card3Rarity)
     {
-        _potentialUnlockCard1.SetupCardVisual(card1, _rarityColors[card1.Rarity]);
-        _potentialUnlockCard2.SetupCardVisual(card2, _rarityColors[card2.Rarity]);
-        _potentialUnlockCard3.SetupCardVisual(card3, _rarityColors[card3.Rarity]);
+        UpdatePotentialCardVisualAndShow(_potentialUnlockCard1, card1Name, card1Desc, card1Rarity);
+        UpdatePotentialCardVisualAndShow(_potentialUnlockCard2, card2Name, card2Desc, card2Rarity);
+        UpdatePotentialCardVisualAndShow(_potentialUnlockCard3, card3Name, card3Desc, card3Rarity);
+    }
+    private void UpdatePotentialCardVisualAndShow(Card card, string name, string desc, BoosterRarity rarity)
+    {
+        card.SetupCardVisual(name, desc, _rarityColors[rarity]);
     }
 
     public async void UpdateUIState(ScreenState newScreenState)
@@ -281,10 +289,14 @@ public class UIManager : NetworkBehaviour
             }
         }
         if (checkSum)
+        {
+            NetworkClient.localPlayer.GetComponent<Player>().BoosterManager.PopulateOwnedBoosters();
+
             TurnManager.Instance.UpdateGameState(GameState.PreDiceReceived);
+        }
     }
 
-    private void RollDiceInPlayer() 
+    private void RollDiceInPlayer()
         => NetworkClient.localPlayer.GetComponent<Player>()
         .CmdRollDice(NetworkClient.localPlayer.GetComponent<Player>().BoosterManager.LifestealPercentage);
 

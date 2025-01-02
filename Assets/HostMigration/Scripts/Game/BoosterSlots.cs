@@ -18,6 +18,7 @@ public class BoosterSlot
 
     public void AssignBooster(IBooster booster)
     {
+        Debug.Log($"{this}");
         CurrentBooster = booster;
     }
 

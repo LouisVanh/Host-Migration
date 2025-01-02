@@ -10,7 +10,6 @@ public class Card : NetworkBehaviour
     private TMPro.TMP_Text _descriptionText;
     private Image _cardBackground;
     private Button _button;
-    private IBooster _booster;
 
     private void Start()
     {
@@ -21,11 +20,10 @@ public class Card : NetworkBehaviour
         _button = transform.GetComponent<Button>();
     }
 
-    public void SetupCardVisual(IBooster cardBooster, Color color)
+    public void SetupCardVisual(string name, string desc, Color color)
     {
-        _booster = cardBooster;
-        _nameText.text = cardBooster.Name;
-        _descriptionText.text = cardBooster.Description;
+        _nameText.text = name;
+        _descriptionText.text = desc;
         _cardBackground.color = color;
         _button.interactable = true;
     }
@@ -49,6 +47,7 @@ public class Card : NetworkBehaviour
     [Command(requiresAuthority = false)]
     private void CmdAddBooster(Player player, string name)
     {
+        Debug.LogWarning($"CARD / Adding booster to {player}, by name {name}");
         player.BoosterManager.AddOwnedBooster(name);
     }
 

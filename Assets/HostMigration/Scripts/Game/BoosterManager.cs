@@ -20,7 +20,8 @@ public class BoostersManager : NetworkBehaviour
         Debug.Log(_boosterContainer);
 
         //Ensure that the owned boosters are all initialised as null before starting
-        PopulateOwnedBoosters();
+        // This is now ran in UIManager
+        //PopulateOwnedBoosters();
     }
     public bool AddOwnedBooster(IBooster booster)
     {
@@ -43,6 +44,7 @@ public class BoostersManager : NetworkBehaviour
         return false; // No available slots
     }
 
+    [Server]
     public bool AddOwnedBooster(string boosterName)
     {
         foreach (var slot in OwnedSlots)
@@ -65,6 +67,7 @@ public class BoostersManager : NetworkBehaviour
         return false; // No available slots
     }
 
+    [Server]
     public void RemoveSpecificOwnedBooster(IBooster booster)
     {
         foreach (var slot in OwnedSlots)
@@ -77,6 +80,7 @@ public class BoostersManager : NetworkBehaviour
             slot.RemoveBooster();
         }
     }
+    [Server]
     public void RemoveSpecificOwnedBooster(int slotId)
     {
         foreach (var slot in OwnedSlots)
@@ -89,11 +93,12 @@ public class BoostersManager : NetworkBehaviour
             slot.RemoveBooster();
         }
     }
+    [Server]
     public void RemoveSpecificOwnedBooster(string name)
     {
         foreach (var slot in OwnedSlots)
         {
-            if(slot.CurrentBooster == null) { Debug.LogWarning($"This slot {slot} is null"); return; }
+            if (slot.CurrentBooster == null) { Debug.LogWarning($"This slot {slot} is null!!!!"); return; }
             if (slot.CurrentBooster.Name != name)
             {
                 return;
@@ -102,6 +107,7 @@ public class BoostersManager : NetworkBehaviour
             slot.RemoveBooster();
         }
     }
+    [Server]
     public void RemoveRandomOwnedCommonBooster()
     {
         int amountOfCommonBoosters = GetAmountOfOwnedCommonBoosters();
@@ -120,6 +126,7 @@ public class BoostersManager : NetworkBehaviour
         commonBoosters[random].RemoveBooster();
     }
 
+    [Server]
     private int GetAmountOfOwnedCommonBoosters()
     {
         int counter = 0;
@@ -132,36 +139,52 @@ public class BoostersManager : NetworkBehaviour
 
     #region Potential boosters to unlock
 
+    [Server]
     public void ShowPotentialBoosters()
     {
         Debug.LogWarning(" BOOSTERMANAGER / Showing potential boosters");
         // All client side, as each client will have different boosters.
         PopulatePotentialBoosters();
 
-        // Update visual client-side
-        UIManager.Instance.UpdatePotentialCardsVisualAndShow(
-            PotentialBoosterSlots[0].CurrentBooster,
-            PotentialBoosterSlots[1].CurrentBooster,
-            PotentialBoosterSlots[2].CurrentBooster);
+        // Update visual client-side (RPC)
+        UIManager.Instance.RpcUpdatePotentialCardsVisualAndShow(
+            PotentialBoosterSlots[0].CurrentBooster.Name,
+            PotentialBoosterSlots[0].CurrentBooster.Description,
+            PotentialBoosterSlots[0].CurrentBooster.Rarity,
+            PotentialBoosterSlots[1].CurrentBooster.Name,
+            PotentialBoosterSlots[1].CurrentBooster.Description,
+            PotentialBoosterSlots[1].CurrentBooster.Rarity,
+            PotentialBoosterSlots[2].CurrentBooster.Name,
+            PotentialBoosterSlots[2].CurrentBooster.Description,
+            PotentialBoosterSlots[2].CurrentBooster.Rarity);
     }
 
+    [Server]
     private void PopulatePotentialBoosters()
     {
-        PotentialBoosterSlots = new BoosterSlot[MAX_POTENTIAL_SLOTS];
-        for (int i = 0; i < MAX_POTENTIAL_SLOTS; i++)
+        foreach (var player in PlayersManager.Instance.GetPlayers())
         {
-            PotentialBoosterSlots[i] = new BoosterSlot(_boosterContainer.GetRandomBoosterEntry().GetBoosterAsInterface(), false, i);
-            Debug.Log(PotentialBoosterSlots[i]);
+
+            player.BoosterManager.PotentialBoosterSlots = new BoosterSlot[MAX_POTENTIAL_SLOTS];
+            for (int i = 0; i < MAX_POTENTIAL_SLOTS; i++)
+            {
+                player.BoosterManager.PotentialBoosterSlots[i] = new BoosterSlot(_boosterContainer.GetRandomBoosterEntry().GetBoosterAsInterface(), false, i);
+                Debug.Log(player.name + " got potential slot " + i + " = " + player.BoosterManager.PotentialBoosterSlots[i]);
+            }
         }
     }
 
-    private void PopulateOwnedBoosters()
+    [Server]
+    public void PopulateOwnedBoosters()
     {
-        OwnedSlots = new BoosterSlot[MAX_OWNED_SLOTS];
-        for (int i = 0; i < MAX_OWNED_SLOTS; i++)
+        foreach (var player in PlayersManager.Instance.GetPlayers())
         {
-            OwnedSlots[i] = new BoosterSlot(null, false, i);
-            Debug.Log(OwnedSlots[i]);
+            player.BoosterManager.OwnedSlots = new BoosterSlot[MAX_OWNED_SLOTS];
+            for (int i = 0; i < MAX_OWNED_SLOTS; i++)
+            {
+                player.BoosterManager.OwnedSlots[i] = new BoosterSlot(null, false, i);
+                Debug.Log(player.name + " got owned slot " + i + " = " + player.BoosterManager.OwnedSlots[i]);
+            }
         }
     }
     #endregion
