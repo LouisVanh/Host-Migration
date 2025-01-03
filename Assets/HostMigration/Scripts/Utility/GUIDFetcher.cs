@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class GUIDFetcher : MonoBehaviour
 {
+#if UNITY_EDITOR
     [ContextMenu("Print GUID")]
     public void PrintGUID()
     {
@@ -20,4 +21,5 @@ public class GUIDFetcher : MonoBehaviour
             Debug.LogError($"The GameObject '{gameObject.name}' is not part of a prefab.");
         }
     }
+#endif
 }
