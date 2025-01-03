@@ -336,14 +336,13 @@ public class UIManager : NetworkBehaviour
     public void RestartGameBtn()
     {
         Debug.Log("Trying to restart game");
-        CmdRestartGame();
+        RpcSetRestartGameState();
     }
-    [Command(requiresAuthority = false)]
-    private void CmdRestartGame()
+    [ClientRpc]
+    private void RpcSetRestartGameState()
     {
-        Debug.Log("Changing scene to game again");
         MyNetworkManager.singleton.IsRestartingGame = true;
-        MyNetworkManager.singleton.ServerChangeScene("GameScene");
+        if (isServer) MyNetworkManager.RestartGameScene();
     }
 
     public void StartGameWithOnePlayer()

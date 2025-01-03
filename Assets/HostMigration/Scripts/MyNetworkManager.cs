@@ -7,9 +7,24 @@ using UnityEngine.SceneManagement;
 public class MyNetworkManager : NetworkManager
 {
     public static new MyNetworkManager singleton => (MyNetworkManager)NetworkManager.singleton;
+    private bool _isRestartingGame;
+    public bool IsRestartingGame
+    {
+        get { return _isRestartingGame; }
+        set
+        {
+            if (_isRestartingGame == value) return;
+            if(value == true) // if we want to restart
+            {
+                if (NetworkClient.localPlayer.isServer) Debug.Log("hey i'm the server");
+            }
+        }
+    } // Only for restarts, not normal starts
 
-    public bool IsRestartingGame; // Only for restarts, not normal starts
-
+    public static void RestartGameScene()
+    {
+        singleton.ServerChangeScene("GameScene");
+    }
     public override void OnStartServer()
     {
         Debug.LogWarning("Server Started!");
@@ -50,6 +65,8 @@ public class MyNetworkManager : NetworkManager
             SceneManager.MoveGameObjectToScene(WaveManager.Instance.gameObject, SceneManager.GetActiveScene());
         if (DiceManager.Instance.gameObject)
             SceneManager.MoveGameObjectToScene(DiceManager.Instance.gameObject, SceneManager.GetActiveScene());
+
+        IsRestartingGame = false;
     }
     public override void OnServerChangeScene(string sceneName)
     {
@@ -79,5 +96,4 @@ public class MyNetworkManager : NetworkManager
     }
 
     //Wanna use IEnumerator WaitUntilEndOfFrame()? Should probably do it in start of the actual script instead (call from player for example)
-
 }
