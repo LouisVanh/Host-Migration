@@ -1,6 +1,7 @@
 using Mirror;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public enum ScreenState
 {
@@ -344,6 +345,7 @@ public class UIManager : NetworkBehaviour
     {
         if (PlayersManager.Instance.Players.Count == 1)
         {
+            this.GetComponent<Button>().interactable = false;
             CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
@@ -351,6 +353,7 @@ public class UIManager : NetworkBehaviour
     {
         if (PlayersManager.Instance.Players.Count == 2)
         {
+            this.GetComponent<Button>().interactable = false;
             CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
@@ -358,6 +361,7 @@ public class UIManager : NetworkBehaviour
     {
         if (PlayersManager.Instance.Players.Count == 3)
         {
+            this.GetComponent<Button>().interactable = false;
             CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
@@ -365,6 +369,7 @@ public class UIManager : NetworkBehaviour
     {
         if (PlayersManager.Instance.Players.Count == 4)
         {
+            this.GetComponent<Button>().interactable = false;
             CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }

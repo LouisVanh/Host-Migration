@@ -99,16 +99,16 @@ public class HealthBar : NetworkBehaviour
         switch (screenPos)
         {
             case PlayerPosition.BottomLeft:
-                bar.localPosition = new Vector3(-600, -450);
+                bar.localPosition = new Vector3(-600, -475);
                 break;
             case PlayerPosition.BottomRight:
-                bar.localPosition = new Vector3(+600, -450);
+                bar.localPosition = new Vector3(+600, -475);
                 break;
             case PlayerPosition.TopLeft:
-                bar.localPosition = new Vector3(-600, 300);
+                bar.localPosition = new Vector3(-600, 475);
                 break;
             case PlayerPosition.TopRight:
-                bar.localPosition = new Vector3(+600, 300);
+                bar.localPosition = new Vector3(+600, 475);
                 break;
             default:
                 break;

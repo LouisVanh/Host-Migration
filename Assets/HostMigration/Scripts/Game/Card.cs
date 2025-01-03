@@ -13,6 +13,8 @@ public class Card : NetworkBehaviour
     [ReadOnly, SerializeField]
     BoosterCardVisualData _visualDataDebug;
 
+    [Space(50)]
+    public string IHopeThisMakesTheDebugVisible = "IHopeThisMakesTheDebugVisible";
     protected override void OnValidate()
     {
         if (Application.isPlaying) return;
