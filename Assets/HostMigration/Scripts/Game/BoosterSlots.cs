@@ -18,10 +18,10 @@ public class BoosterSlot
     }
     public BoosterSlot() { } // needed for the weaver alien
 
-    public void AssignBooster(IBooster booster)
+    public void AssignBoosterByName(string name)
     {
-        Debug.Log($"{this}");
-        CurrentBoosterName = booster.Name;
+        Debug.Log("Assigned booster with name" + name);
+        CurrentBoosterName = name;
     }
 
     public void RemoveBooster()

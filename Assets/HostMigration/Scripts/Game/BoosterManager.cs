@@ -3,7 +3,7 @@ using Mirror;
 
 public class BoostersManager : NetworkBehaviour
 {
-    private const int MAX_OWNED_SLOTS = 7;
+    private const int MAX_OWNED_SLOTS = 999;
     private const int MAX_POTENTIAL_SLOTS = 3;
     private BoosterContainer _boosterContainer;
     public BoosterSlot[] OwnedSlots = new BoosterSlot[MAX_OWNED_SLOTS];
@@ -81,7 +81,7 @@ public class BoostersManager : NetworkBehaviour
             if (slot.IsEmpty)
             {
                 IBooster booster = BoosterContainer.GetFirstBoosterByName(boosterName);
-                slot.AssignBooster(booster);
+                slot.AssignBoosterByName(boosterName);
                 if (booster is IBoosterConsumable consumableBooster)
                 {
                     consumableBooster.CmdConsumeEffect(player);

@@ -158,7 +158,7 @@ public class DiceManager : NetworkBehaviour
             NetworkServer.Spawn(dice);
 
             DiceList[index].DiceNetId = dice.GetComponent<NetworkIdentity>().netId;
-            CheckIfEverybodyRolledDice();
+
             // Set position and rotation after spawning so it gets synced. Make sure dice has a NT for this to get synced!
             dice.transform.SetPositionAndRotation(GetDicePosition(index), GetDiceRotation(index));
         }
@@ -205,7 +205,7 @@ public class DiceManager : NetworkBehaviour
     }
 
     [Server]
-    void CheckIfEverybodyRolledDice()
+    internal void CheckIfEverybodyRolledDice()
     {
         bool checkSum = true;
         var list = PlayersManager.Instance.GetAlivePlayers();

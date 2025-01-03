@@ -10,12 +10,32 @@ public class Player : NetworkBehaviour
     public bool IsAlive = true;
     [SyncVar]
     public bool ReadyToPlay;
-    [SyncVar]
+    [SyncVar(hook = nameof(OnPlayerRolledAllDice))]
     public bool HasAlreadyRolled;
     [SyncVar]
     public bool ReadyForNextWave;
     [SyncVar]
     public bool HasAlreadyPickedCard;
+
+    [SyncVar(hook = nameof(OnLifeStealAdded))]
+    public float LifeStealDue;
+
+    private void OnLifeStealAdded(float oldValue, float newValue)
+    {
+        if (this.GetComponent<NetworkIdentity>().netId != NetworkClient.localPlayer.netId) return;
+        Debug.Log($"Lifesteal value: {newValue}");
+        if (newValue > 1)
+        {
+            Debug.LogWarning("restored health with lifesteal perk!");
+            CmdRestoreHealth(Mathf.FloorToInt(newValue));
+            CmdUpdateLifeStealDue(this, newValue - Mathf.FloorToInt(newValue));
+        }
+    }
+    [Command(requiresAuthority = false)]
+    private void CmdUpdateLifeStealDue(Player player, float updatedValue)
+    {
+        player.LifeStealDue = updatedValue;
+    }
     public int DiceCount = 1;
     private bool _canRoll;
     public BoostersManager BoosterManager;
@@ -38,6 +58,18 @@ public class Player : NetworkBehaviour
 
     [SyncVar]
     public PlayerPosition PlayerScreenPosition;
+
+    private void OnPlayerRolledAllDice(bool oldValue, bool newValue)
+    {
+        if (newValue == true && this.GetComponent<NetworkIdentity>().netId == NetworkClient.localPlayer.netId) // Don't check if it's resetting to false or on all clients
+            CmdCheckIfAllPlayersHaveRolled();
+    }
+
+    [Command(requiresAuthority = false)]
+    private void CmdCheckIfAllPlayersHaveRolled()
+    {
+        DiceManager.Instance.CheckIfEverybodyRolledDice();
+    }
 
     public override void OnStopClient()
     {
@@ -90,7 +122,7 @@ public class Player : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.R))
         {
             Debug.Log("Rolling dice from player");
-            CmdRollDice(BoosterManager.LifestealPercentage);
+            CmdRollDice(this);
         }
 
         if (Input.GetKeyDown(KeyCode.L))
@@ -107,7 +139,7 @@ public class Player : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdRollDice(float lifeStealPercentage)
+    public void CmdRollDice(Player player)
     {
         if (!IsAlive)
         {
@@ -126,7 +158,7 @@ public class Player : NetworkBehaviour
                 totalRoll += eyes;
 
                 // Lifesteal perk
-                CmdRestoreHealth(Mathf.RoundToInt(totalRoll * lifeStealPercentage));
+                LifeStealDue += (totalRoll * player.BoosterManager.LifestealPercentage);
                 CmdSpawnDiceWithEyes(PlayerNetId, eyes);
             }
             // Set at the end, so dice don't get rolled after everyone is ready with MoreDice perk
@@ -188,9 +220,9 @@ public class Player : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdSpawnDiceWithEyes(uint playerId, int eyesRolled)
     {
-            var newDice = new Dice(playerId, eyesRolled);
-            //Debug.Log("New dice made: " + newDice);
-            DiceManager.Instance.AddDice(newDice);
+        var newDice = new Dice(playerId, eyesRolled);
+        //Debug.Log("New dice made: " + newDice);
+        DiceManager.Instance.AddDice(newDice);
     }
 
     public void SpawnAndShakeDiceJar()

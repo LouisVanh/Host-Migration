@@ -151,7 +151,7 @@ public class UIManager : NetworkBehaviour
                 _preDiceScreen.gameObject.SetActive(true);
                 HealthBarsCanvas.gameObject.SetActive(true);
                 _waveCountCanvas.gameObject.SetActive(true);
-                _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
+                //_ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
 
                 if (!TurnManager.Instance.FirstWavePlaying) // is this not the first time playing?
                 {
@@ -168,7 +168,7 @@ public class UIManager : NetworkBehaviour
             case ScreenState.EveryoneRollingTime:
                 _waveCountCanvas.gameObject.SetActive(true);
                 _diceRollingScreen.gameObject.SetActive(true);
-                _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
+                //_ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
 
                 break;
 
@@ -207,11 +207,11 @@ public class UIManager : NetworkBehaviour
                 SetEverythingFalse();
                 HealthBarsCanvas.gameObject.SetActive(true);
                 _newBoostersShopCanvas.gameObject.SetActive(true);
-                _ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
+                //_ownedBoosterCardsPopUpIconCanvas.gameObject.SetActive(true);
                 _waveCountCanvas.gameObject.SetActive(true);
 
                 // ... animations under here
-                HideOwnedBoosterLayout();
+                //HideOwnedBoosterLayout();
                 ShowPotentialBoosterLayout();
                 break;
 
@@ -296,7 +296,7 @@ public class UIManager : NetworkBehaviour
 
     private void RollDiceInPlayer()
         => NetworkClient.localPlayer.GetComponent<Player>()
-        .CmdRollDice(NetworkClient.localPlayer.GetComponent<Player>().BoosterManager.LifestealPercentage);
+        .CmdRollDice(NetworkClient.localPlayer.GetComponent<Player>());
 
     private async void CupAnimation()
     {
