@@ -30,7 +30,6 @@ public class SteamLobby : MonoBehaviour
         _hostButton.SetActive(false);
 
         SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, MyNetworkManager.singleton.maxConnections);
-        MyNetworkManager.singleton.StartHost();
     }
 
 

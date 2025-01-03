@@ -6,21 +6,21 @@ using UnityEngine.SceneManagement;
 
 public class MyNetworkManager : NetworkManager
 {
-    public static new MyNetworkManager singleton => (MyNetworkManager)singleton;
+    public static new MyNetworkManager singleton => (MyNetworkManager)NetworkManager.singleton;
+
+    public bool IsRestartingGame; // Only for restarts, not normal starts
 
     public void WhateverNeededWhenStartingGame()
     {
-        // Also for restarts
+        // For restarts and online scene starts
         if (networkSceneName == offlineScene) return;
         TurnManager.Instance.UpdateGameState(GameState.WaitingLobby);
     }
     public override void OnStartServer()
     {
-        if (networkSceneName == "GameScene")
-        {
-            Debug.LogWarning("Server Started!");
-            WhateverNeededWhenStartingGame();
-        }
+        if (networkSceneName == offlineScene) return;
+        Debug.LogWarning("Server Started!");
+        WhateverNeededWhenStartingGame();
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
@@ -45,7 +45,7 @@ public class MyNetworkManager : NetworkManager
 
     public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling)
     {
-        if (networkSceneName == offlineScene) return;
+        if (!IsRestartingGame) return;
         if (UIManager.Instance.gameObject)
             SceneManager.MoveGameObjectToScene(UIManager.Instance.gameObject, SceneManager.GetActiveScene());
         if (TurnManager.Instance.gameObject)
@@ -61,19 +61,24 @@ public class MyNetworkManager : NetworkManager
     }
     public override void OnServerChangeScene(string sceneName)
     {
-        if (networkSceneName == offlineScene) return;
-            if (UIManager.Instance.gameObject)
-                SceneManager.MoveGameObjectToScene(UIManager.Instance.gameObject, SceneManager.GetActiveScene());
-            if (TurnManager.Instance.gameObject)
-                SceneManager.MoveGameObjectToScene(TurnManager.Instance.gameObject, SceneManager.GetActiveScene());
-            if (SoundManager.Instance.gameObject)
-                SceneManager.MoveGameObjectToScene(SoundManager.Instance.gameObject, SceneManager.GetActiveScene());
-            if (PlayersManager.Instance.gameObject)
-                SceneManager.MoveGameObjectToScene(PlayersManager.Instance.gameObject, SceneManager.GetActiveScene());
-            if (WaveManager.Instance.gameObject)
-                SceneManager.MoveGameObjectToScene(WaveManager.Instance.gameObject, SceneManager.GetActiveScene());
-            if (DiceManager.Instance.gameObject)
-                SceneManager.MoveGameObjectToScene(DiceManager.Instance.gameObject, SceneManager.GetActiveScene());
+        if (!IsRestartingGame) return;
+        //if (networkSceneName == offlineScene) return;
+        // This will not work ^^
+        //Debug.Log(networkSceneName + " " + offlineScene); // It's still the offline scene, but it's giving GameScene as the networkSceneName
+        if (UIManager.Instance.gameObject)
+            SceneManager.MoveGameObjectToScene(UIManager.Instance.gameObject, SceneManager.GetActiveScene());
+        if (TurnManager.Instance.gameObject)
+            SceneManager.MoveGameObjectToScene(TurnManager.Instance.gameObject, SceneManager.GetActiveScene());
+        if (SoundManager.Instance.gameObject)
+            SceneManager.MoveGameObjectToScene(SoundManager.Instance.gameObject, SceneManager.GetActiveScene());
+        if (PlayersManager.Instance.gameObject)
+            SceneManager.MoveGameObjectToScene(PlayersManager.Instance.gameObject, SceneManager.GetActiveScene());
+        if (WaveManager.Instance.gameObject)
+            SceneManager.MoveGameObjectToScene(WaveManager.Instance.gameObject, SceneManager.GetActiveScene());
+        if (DiceManager.Instance.gameObject)
+            SceneManager.MoveGameObjectToScene(DiceManager.Instance.gameObject, SceneManager.GetActiveScene());
+
+        IsRestartingGame = false;
     }
 
     public override void OnServerSceneChanged(string sceneName)

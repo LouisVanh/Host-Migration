@@ -342,7 +342,8 @@ public class UIManager : NetworkBehaviour
     private void CmdRestartGame()
     {
         Debug.Log("Changing scene to game again");
-        NetworkManager.singleton.ServerChangeScene("GameScene");
+        MyNetworkManager.singleton.IsRestartingGame = true;
+        MyNetworkManager.singleton.ServerChangeScene("GameScene");
     }
 
     public void StartGameWithOnePlayer()
