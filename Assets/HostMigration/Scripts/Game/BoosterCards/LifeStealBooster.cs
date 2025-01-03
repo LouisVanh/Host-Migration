@@ -8,7 +8,7 @@ public class LifeStealBooster : NetworkBehaviour, IBoosterPermanent
     public BoosterRarity Rarity => BoosterRarity.Common;
     public Player PlayerShownTo { get; }
 
-    public int LifeStealPercentage = 20;
+    public float LifeStealPercentage /*= 20*/;
 
     [Command(requiresAuthority = false)]
     public void CmdAddPermanentEffect(Player player)

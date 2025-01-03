@@ -6,13 +6,17 @@ using UnityEngine.UI;
 [Serializable]
 public class Card : NetworkBehaviour
 {
-    private TMPro.TMP_Text _nameText;
-    private TMPro.TMP_Text _descriptionText;
-    private Image _cardBackground;
-    private Button _button;
+    [ReadOnly, SerializeField] private TMPro.TMP_Text _nameText;
+    [ReadOnly, SerializeField] private TMPro.TMP_Text _descriptionText;
+    [ReadOnly, SerializeField] private Image _cardBackground;
+    [ReadOnly, SerializeField] private Button _button;
+    [ReadOnly, SerializeField]
+    BoosterCardVisualData _visualDataDebug;
 
-    private void Start()
+    protected override void OnValidate()
     {
+        if (Application.isPlaying) return;
+        base.OnValidate();
         // Get references
         _nameText = transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
         _descriptionText = transform.GetChild(1).GetComponent<TMPro.TMP_Text>();
@@ -22,6 +26,7 @@ public class Card : NetworkBehaviour
 
     public void SetupCardVisual(BoosterCardVisualData visualData)
     {
+        _visualDataDebug = visualData;
         if (NetworkClient.localPlayer.name == null) Debug.LogError("player null");
         if (visualData== null) Debug.LogError("visualdata null");
         Debug.Log($"{NetworkClient.localPlayer.name}'s Visualdata: {visualData}");

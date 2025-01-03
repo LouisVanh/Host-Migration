@@ -143,7 +143,7 @@ public class TurnManager : NetworkBehaviour // SERVER ONLY CLASS (ONLY RUN EVERY
                 SetSyncedUIState(ScreenState.AfterRollEnemyAttack);
 
                 // This could be randomised later...
-                WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(3);
+                WaveManager.Instance.CurrentEnemy.EnemyAttackDealDamage(2+WaveManager.Instance.CurrentWaveIndex);
                 await System.Threading.Tasks.Task.Delay(1500);
 
                 if (PlayersManager.Instance.GetAlivePlayers().Count == 0)

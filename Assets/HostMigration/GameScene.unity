@@ -3621,8 +3621,8 @@ MonoBehaviour:
   CurrentEnemy: {fileID: 0}
   EnemyScriptPrefab: {fileID: 8725907999014183258, guid: f6db3da3f942e2d49b61f0e521ca2ff9, type: 3}
   BaseEnemyHealth: 0
-  ScalingFactor: 2
-  BaseBossHealth: 10
+  ScalingFactor: 1
+  BaseBossHealth: 1
   Exponent: 0.175
 --- !u!4 &906394708
 Transform:
@@ -4069,7 +4069,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  LifeStealPercentage: 15
+  LifeStealPercentage: 10
 --- !u!114 &1100390476
 MonoBehaviour:
   m_ObjectHideFlags: 0

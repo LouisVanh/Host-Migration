@@ -158,7 +158,11 @@ public class Player : NetworkBehaviour
                 totalRoll += eyes;
 
                 // Lifesteal perk
-                LifeStealDue += (totalRoll * player.BoosterManager.LifestealPercentage);
+                if (player.BoosterManager.LifestealPercentage > 0)
+                {
+                    Debug.Log("LIFESTEALIN");
+                    LifeStealDue += (totalRoll * player.BoosterManager.LifestealPercentage);
+                }
                 CmdSpawnDiceWithEyes(PlayerNetId, eyes);
             }
             // Set at the end, so dice don't get rolled after everyone is ready with MoreDice perk
