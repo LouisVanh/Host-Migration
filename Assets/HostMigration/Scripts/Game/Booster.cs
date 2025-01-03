@@ -6,19 +6,44 @@ public class BoosterContainer : NetworkBehaviour
 {
     public static string BoosterContainerTag = "BoosterContainer";
     public static List<BoosterEntry> Boosters = new();
+    [ReadOnly, SerializeField] BoosterEntry Booster1, Booster2, Booster3, Booster4, Booster5; // Debug
 
+    protected override void OnValidate()
+    {
+        if (Application.isPlaying) return;
+        base.OnValidate();
+        // Get references
+        Booster1 = transform.GetChild(0).GetComponent<BoosterEntry>();
+        Booster2 = transform.GetChild(1).GetComponent<BoosterEntry>();
+        Booster3 = transform.GetChild(2).GetComponent<BoosterEntry>();
+        Booster4 = transform.GetChild(3).GetComponent<BoosterEntry>();
+        Booster5 = transform.GetChild(4).GetComponent<BoosterEntry>();
+    }
+
+    // Used to have this, but this would sometimes not work?
+    //public override void OnStartClient()
+    //{
+    //    base.OnStartClient();
+    //    var parent = GameObject.FindWithTag(BoosterContainerTag);
+    //    for (int i = 0; i < parent.transform.childCount; i++)
+    //    {
+    //        var child = parent.transform.GetChild(i);
+    //        if (child.gameObject.activeSelf)
+    //            Boosters.Add(child.GetComponent<BoosterEntry>());
+    //    }
+    //}
 
     public override void OnStartClient()
     {
         base.OnStartClient();
-        var parent = GameObject.FindWithTag(BoosterContainerTag);
-        for (int i = 0; i < parent.transform.childCount; i++)
-        {
-            var child = parent.transform.GetChild(i);
-            if (child.gameObject.activeSelf)
-                Boosters.Add(child.GetComponent<BoosterEntry>());
-        }
+        Boosters.Add(Booster1);
+        Boosters.Add(Booster2);
+        Boosters.Add(Booster3);
+        Boosters.Add(Booster4);
+        Boosters.Add(Booster5);
+        Debug.Log(Boosters);
     }
+
 
     public static IBooster GetFirstBoosterByName(string name)
     {

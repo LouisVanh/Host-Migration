@@ -59,7 +59,7 @@ public class Card : NetworkBehaviour
     private void CmdAddBooster(Player player, string name)
     {
         Debug.LogWarning($"CARD / Adding booster to {player}, by name {name}");
-        player.BoosterManager.AddOwnedBooster(player, name);
+        _ = player.BoosterManager.AddOwnedBooster(player, name);
         player.HasAlreadyPickedCard = true;
     }
 

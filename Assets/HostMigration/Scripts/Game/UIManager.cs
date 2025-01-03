@@ -31,6 +31,10 @@ public class UIManager : NetworkBehaviour
     private Canvas _startScreen, _preDiceScreen, _rollingTimePopupScreen, _diceRollingScreen, _allDiceRolledScreen, _ownedBoosterCardsPopUpIconCanvas,
         _coolAnimationCountingDiceCanvas, _newBoostersShopCanvas, _boosterCardsCanvas, _waveCountCanvas, _endGameCanvas;
 
+    [SerializeField] private Button _buttonJoin1;
+    [SerializeField] private Button _buttonJoin2;
+    [SerializeField] private Button _buttonJoin3;
+    [SerializeField] private Button _buttonJoin4;
 
     [Header("Animated")]
 
@@ -345,7 +349,7 @@ public class UIManager : NetworkBehaviour
     {
         if (PlayersManager.Instance.Players.Count == 1)
         {
-            this.GetComponent<Button>().interactable = false;
+            _buttonJoin1.interactable = false;
             CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
@@ -353,7 +357,7 @@ public class UIManager : NetworkBehaviour
     {
         if (PlayersManager.Instance.Players.Count == 2)
         {
-            this.GetComponent<Button>().interactable = false;
+            _buttonJoin2.interactable = false;
             CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
@@ -361,7 +365,7 @@ public class UIManager : NetworkBehaviour
     {
         if (PlayersManager.Instance.Players.Count == 3)
         {
-            this.GetComponent<Button>().interactable = false;
+            _buttonJoin3.interactable = false;
             CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }
@@ -369,7 +373,7 @@ public class UIManager : NetworkBehaviour
     {
         if (PlayersManager.Instance.Players.Count == 4)
         {
-            this.GetComponent<Button>().interactable = false;
+            _buttonJoin4.interactable = false;
             CmdSetReadyAndPossiblyStartGame(NetworkClient.localPlayer.GetComponent<Player>());
         }
     }

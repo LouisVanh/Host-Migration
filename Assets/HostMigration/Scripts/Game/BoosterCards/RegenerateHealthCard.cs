@@ -11,10 +11,14 @@ public class RegenerateHealthBooster : NetworkBehaviour, IBoosterConsumable
     [Command(requiresAuthority = false)]
     public void CmdConsumeEffect(Player player)
     {
+        if (player == null) Debug.LogError("No player found to add effect for");
+        if (player.IsDead) return;
+        Debug.Log($"Inside consume effect: {player.name}");
+
         var healthBar = player.GetComponent<HealthBar>();
         var maxHealthToRestore = healthBar.TotalHealth - healthBar.CurrentHealth;
         healthBar.CurrentHealth += maxHealthToRestore;
 
-        player.BoosterManager.RemoveSpecificOwnedBooster(Name);
+        player.BoosterManager.RemoveSpecificOwnedBooster(player, Name);
     }
 }

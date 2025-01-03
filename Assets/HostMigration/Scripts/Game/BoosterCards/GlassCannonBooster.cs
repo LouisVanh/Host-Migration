@@ -11,9 +11,11 @@ public class GlassCannonBooster : NetworkBehaviour, IBoosterConsumable
     [Command(requiresAuthority = false)]
     public void CmdConsumeEffect(Player player)
     {
+        if (player == null) Debug.LogError("No player found to add effect for");
+        Debug.Log($"Inside consume effect: {player.name}");
         player.BoosterManager.DamageMultiplier *= 2;
         player.CmdTakeDamage(Mathf.RoundToInt(player.HealthBar.CurrentHealth / 2), waitForSeconds: 0);
 
-        player.BoosterManager.RemoveSpecificOwnedBooster(Name);
+        player.BoosterManager.RemoveSpecificOwnedBooster(player, Name);
     }
 }

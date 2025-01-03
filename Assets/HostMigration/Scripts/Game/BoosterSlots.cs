@@ -2,7 +2,7 @@ using Mirror;
 using System;
 using UnityEngine;
 
-//[Serializable] adding or removing this doesn't seem to do anything
+[Serializable] //adding or removing this doesn't seem to do anything
 public class BoosterSlot
 {
     public string CurrentBoosterName;
@@ -18,6 +18,7 @@ public class BoosterSlot
     }
     public BoosterSlot() { } // needed for the weaver alien
 
+    [Server]
     public void AssignBoosterByName(string name)
     {
         Debug.Log("Assigned booster with name" + name);

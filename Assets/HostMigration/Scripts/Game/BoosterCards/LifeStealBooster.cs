@@ -13,6 +13,7 @@ public class LifeStealBooster : NetworkBehaviour, IBoosterPermanent
     [Command(requiresAuthority = false)]
     public void CmdAddPermanentEffect(Player player)
     {
+        if (player == null) Debug.LogError("No player found to add effect for");
         Debug.LogWarning("Setting lifesteal to " + LifeStealPercentage / 100);
         player.BoosterManager.LifestealPercentage += LifeStealPercentage/100;
     }

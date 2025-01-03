@@ -11,6 +11,9 @@ public class MoreDiceBooster : NetworkBehaviour, IBoosterPermanent
     [Command(requiresAuthority = false)]
     public void CmdAddPermanentEffect(Player player)
     {
+        if (player == null) Debug.LogError("No player found to add effect for");
+        Debug.Log($"Inside permanent effect: {player.name}");
+
         player.DiceCount += 1;
     }
 

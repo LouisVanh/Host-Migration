@@ -13,15 +13,16 @@ public class SaviourBooster : NetworkBehaviour, IBoosterConsumable
     {
         //if (player == null) return;
         //if (player.IsDead) return;
+        if (player == null) Debug.LogError("No player found to add effect for");
+        Debug.Log($"Inside consume effect: {player.name}");
 
         var deadGuy = TurnManager.Instance.GetRandomDeadPlayer();
         if (deadGuy == null)
         {
-            player.BoosterManager.RemoveSpecificOwnedBooster(Name);
+            player.BoosterManager.RemoveSpecificOwnedBooster(player, Name);
             return;
         }
-        deadGuy.HealthBar.CurrentHealth += (deadGuy.HealthBar.TotalHealth / 2);
-
-        player.BoosterManager.RemoveSpecificOwnedBooster(Name);
+        deadGuy.RevivePlayer();
+        player.BoosterManager.RemoveSpecificOwnedBooster(player, Name);
     }
 }

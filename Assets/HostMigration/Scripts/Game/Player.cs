@@ -130,12 +130,6 @@ public class Player : NetworkBehaviour
             Debug.Log("Restoring health from player");
             CmdRestoreHealth(5);
         }
-
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            Debug.Log("Reviving");
-            CmdRevivePlayer();
-        }
     }
 
     [Command(requiresAuthority = false)]
@@ -210,13 +204,12 @@ public class Player : NetworkBehaviour
         }
     }
 
-    [Command(requiresAuthority = false)]
-    public void CmdRevivePlayer()
+    internal void RevivePlayer()
     {
         if (!IsAlive)
         {
             Debug.Log("Player reviving!.");
-            HealthBar.CurrentHealth = 10;
+            HealthBar.CurrentHealth = HealthBar.TotalHealth/2;
             IsAlive = true;
         }
     }
