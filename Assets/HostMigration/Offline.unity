@@ -198,17 +198,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &624503927 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5441297675600132805, guid: 15f30840ee0ba904e9ef1983a09859a9, type: 3}
-  m_PrefabInstance: {fileID: 953985534}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 737565de07ae4a54a834ca317d410610, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &624503929 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 239754646332735099, guid: 15f30840ee0ba904e9ef1983a09859a9, type: 3}
@@ -334,9 +323,9 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 624503929}
     - target: {fileID: 4034847609925754354, guid: ea902e4051b60f242b2df836f52a3760, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
-      value: 
-      objectReference: {fileID: 624503927}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5323013315284168058, guid: ea902e4051b60f242b2df836f52a3760, type: 3}
       propertyPath: m_Name
       value: MyNetworkManagerSteam
