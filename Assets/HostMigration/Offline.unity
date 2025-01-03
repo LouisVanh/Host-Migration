@@ -127,30 +127,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2245608761611397093, guid: 91e884cbec2775d41a67984dcdb9fbe3, type: 3}
-      propertyPath: m_UiScaleMode
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2245608761611397093, guid: 91e884cbec2775d41a67984dcdb9fbe3, type: 3}
-      propertyPath: m_MatchWidthOrHeight
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2245608761611397093, guid: 91e884cbec2775d41a67984dcdb9fbe3, type: 3}
-      propertyPath: m_ReferenceResolution.x
-      value: 1920
-      objectReference: {fileID: 0}
-    - target: {fileID: 2245608761611397093, guid: 91e884cbec2775d41a67984dcdb9fbe3, type: 3}
-      propertyPath: m_ReferenceResolution.y
-      value: 1080
-      objectReference: {fileID: 0}
     - target: {fileID: 6442521401059918278, guid: 91e884cbec2775d41a67984dcdb9fbe3, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 338317683}
-    - target: {fileID: 6442521401059918278, guid: 91e884cbec2775d41a67984dcdb9fbe3, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: HostLobby
-      objectReference: {fileID: 0}
     - target: {fileID: 6899095289719004867, guid: 91e884cbec2775d41a67984dcdb9fbe3, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -252,6 +232,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MyNetworkManagerSteam
       objectReference: {fileID: 0}
+    - target: {fileID: 417845213102275913, guid: ea902e4051b60f242b2df836f52a3760, type: 3}
+      propertyPath: hostButton
+      value: 
+      objectReference: {fileID: 1457465836}
     - target: {fileID: 7148191817148936707, guid: ea902e4051b60f242b2df836f52a3760, type: 3}
       propertyPath: onlineScene
       value: Assets/HostMigration/GameScene.unity
@@ -642,6 +626,11 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 0
+--- !u!1 &1457465836 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7817196185253590502, guid: 91e884cbec2775d41a67984dcdb9fbe3, type: 3}
+  m_PrefabInstance: {fileID: 253944121}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1592488537
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,6 +15,7 @@ TagManager:
   - CupPosition3
   - CupPosition4
   - BoosterContainer
+  - SteamHostButton
   layers:
   - Default
   - TransparentFX

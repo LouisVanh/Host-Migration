@@ -5,7 +5,7 @@ using Steamworks;
 public class SteamLobby : MonoBehaviour
 {
 
-    public GameObject hostButton = null;
+    private GameObject _hostButton;
 
 
     private MyNetworkManager networkManager;
@@ -27,18 +27,16 @@ public class SteamLobby : MonoBehaviour
         lobbyCreated = Callback<LobbyCreated_t>.Create(OnLobbyCreated);
         gameLobbyJoinRequested = Callback<GameLobbyJoinRequested_t>.Create(OnGameLobbyJoinRequested);
         lobbyEntered = Callback<LobbyEnter_t>.Create(OnLobbyEntered);
-
+        _hostButton = GameObject.FindWithTag("SteamHostButton");
     }
 
 
 
     public void HostLobby() // CALL THIS FROM A BUTTON
     {
-
-        hostButton.SetActive(false);
+        _hostButton.SetActive(false);
 
         SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, networkManager.maxConnections);
-
     }
 
 
@@ -47,7 +45,7 @@ public class SteamLobby : MonoBehaviour
     {
         if (callback.m_eResult != EResult.k_EResultOK)
         {
-            hostButton.SetActive(true);
+            _hostButton.SetActive(true);
             return;
         }
 
@@ -77,7 +75,7 @@ public class SteamLobby : MonoBehaviour
         networkManager.networkAddress = hostAddress;
         networkManager.StartClient();
 
-        hostButton.SetActive(false);
+        _hostButton.SetActive(false);
 
     }
 
