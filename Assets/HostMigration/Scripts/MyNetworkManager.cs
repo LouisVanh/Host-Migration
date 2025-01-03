@@ -10,17 +10,9 @@ public class MyNetworkManager : NetworkManager
 
     public bool IsRestartingGame; // Only for restarts, not normal starts
 
-    public void WhateverNeededWhenStartingGame()
-    {
-        // For restarts and online scene starts
-        if (networkSceneName == offlineScene) return;
-        TurnManager.Instance.UpdateGameState(GameState.WaitingLobby);
-    }
     public override void OnStartServer()
     {
-        if (networkSceneName == offlineScene) return;
         Debug.LogWarning("Server Started!");
-        WhateverNeededWhenStartingGame();
     }
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
@@ -83,7 +75,6 @@ public class MyNetworkManager : NetworkManager
 
     public override void OnServerSceneChanged(string sceneName)
     {
-        WhateverNeededWhenStartingGame();
         base.OnServerSceneChanged(sceneName);
     }
 

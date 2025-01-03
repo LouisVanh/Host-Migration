@@ -36,6 +36,7 @@ public class BoosterContainer : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
+        Boosters.Clear();
         Boosters.Add(Booster1);
         Boosters.Add(Booster2);
         Boosters.Add(Booster3);
