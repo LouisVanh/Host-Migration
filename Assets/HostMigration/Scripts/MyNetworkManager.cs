@@ -16,7 +16,9 @@ public class MyNetworkManager : NetworkManager
             if (_isRestartingGame == value) return;
             if(value == true) // if we want to restart
             {
+                if(! NetworkClient.localPlayer.isServer) Debug.Log("hey i'm the client");
                 if (NetworkClient.localPlayer.isServer) Debug.Log("hey i'm the server");
+                _isRestartingGame = true;
             }
         }
     } // Only for restarts, not normal starts
@@ -52,7 +54,11 @@ public class MyNetworkManager : NetworkManager
 
     public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling)
     {
+        Debug.LogWarning("Client changing scene IS NOT RUNNING EVER?");
+
         if (!IsRestartingGame) return;
+        Debug.Log("Client changing scene");
+
         if (UIManager.Instance.gameObject)
             SceneManager.MoveGameObjectToScene(UIManager.Instance.gameObject, SceneManager.GetActiveScene());
         if (TurnManager.Instance.gameObject)
@@ -70,7 +76,10 @@ public class MyNetworkManager : NetworkManager
     }
     public override void OnServerChangeScene(string sceneName)
     {
+        Debug.LogWarning("SERVER changing scene IS NOT RUNNING EVER?");
+
         if (!IsRestartingGame) return;
+        Debug.Log("Server changing scene");
         //if (networkSceneName == offlineScene) return;
         // This will not work ^^
         //Debug.Log(networkSceneName + " " + offlineScene); // It's still the offline scene, but it's giving GameScene as the networkSceneName

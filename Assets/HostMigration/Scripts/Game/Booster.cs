@@ -6,7 +6,7 @@ public class BoosterContainer : NetworkBehaviour
 {
     public static string BoosterContainerTag = "BoosterContainer";
     public static List<BoosterEntry> Boosters = new();
-    [ReadOnly, SerializeField] BoosterEntry Booster1, Booster2, Booster3, Booster4, Booster5; // Debug
+    [ReadOnly, SerializeField] BoosterEntry Booster1, Booster2, Booster3, Booster4, Booster5, Booster6; // Debug
 
     protected override void OnValidate()
     {
@@ -18,6 +18,7 @@ public class BoosterContainer : NetworkBehaviour
         Booster3 = transform.GetChild(2).GetComponent<BoosterEntry>();
         Booster4 = transform.GetChild(3).GetComponent<BoosterEntry>();
         Booster5 = transform.GetChild(4).GetComponent<BoosterEntry>();
+        Booster6 = transform.GetChild(5).GetComponent<BoosterEntry>();
     }
 
     // Used to have this, but this would sometimes not work?
@@ -42,6 +43,7 @@ public class BoosterContainer : NetworkBehaviour
         Boosters.Add(Booster3);
         Boosters.Add(Booster4);
         Boosters.Add(Booster5);
+        Boosters.Add(Booster6);
         Debug.Log(Boosters);
     }
 

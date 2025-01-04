@@ -336,12 +336,18 @@ public class UIManager : NetworkBehaviour
     public void RestartGameBtn()
     {
         Debug.Log("Trying to restart game");
+        CmdRestartGame();
+    }
+    [Command(requiresAuthority = false)]
+    void CmdRestartGame()
+    {
         RpcSetRestartGameState();
     }
     [ClientRpc]
-    private void RpcSetRestartGameState()
+    private /*async*/ void RpcSetRestartGameState()
     {
         MyNetworkManager.singleton.IsRestartingGame = true;
+        //await System.Threading.Tasks.Task.Delay(1000); // hack solution, i dont care, fight me
         if (isServer) MyNetworkManager.RestartGameScene();
     }
 

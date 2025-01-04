@@ -6193,6 +6193,7 @@ MonoBehaviour:
   Booster3: {fileID: 159366426}
   Booster4: {fileID: 1100390476}
   Booster5: {fileID: 1013398611}
+  Booster6: {fileID: 1143660810}
 --- !u!4 &1601162745
 Transform:
   m_ObjectHideFlags: 0
@@ -8461,7 +8462,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5379417440480172052, guid: 113d7c0724ae523409bd6b1117f877ac, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
