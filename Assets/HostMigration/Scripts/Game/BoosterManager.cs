@@ -61,6 +61,7 @@ public class BoostersManager : NetworkBehaviour
 
     private void Start()
     {
+        if (MyNetworkManager.singleton.IsDebugging) return;
         _boosterContainer = (BoosterContainer)FindFirstObjectByType(typeof(BoosterContainer));
         Debug.Log(_boosterContainer);
 

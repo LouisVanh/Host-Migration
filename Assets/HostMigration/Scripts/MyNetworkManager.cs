@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class MyNetworkManager : NetworkManager
 {
+    public bool IsDebugging; // Set to true to avoid any normal game scene interactions to test out host migration
     public static new MyNetworkManager singleton => (MyNetworkManager)NetworkManager.singleton;
     private bool _isRestartingGame;
     public bool IsRestartingGame
@@ -57,7 +58,7 @@ public class MyNetworkManager : NetworkManager
         Debug.LogWarning("Client changing scene IS NOT RUNNING EVER?");
 
         if (!IsRestartingGame) return;
-        Debug.Log("Client changing scene");
+        Debug.Log("Client restarting scene");
 
         if (UIManager.Instance.gameObject)
             SceneManager.MoveGameObjectToScene(UIManager.Instance.gameObject, SceneManager.GetActiveScene());
@@ -76,10 +77,10 @@ public class MyNetworkManager : NetworkManager
     }
     public override void OnServerChangeScene(string sceneName)
     {
-        Debug.LogWarning("SERVER changing scene IS NOT RUNNING EVER?");
+        Debug.LogWarning("SERVER CHANGING SCENE");
 
         if (!IsRestartingGame) return;
-        Debug.Log("Server changing scene");
+        Debug.Log("Server restarting scene");
         //if (networkSceneName == offlineScene) return;
         // This will not work ^^
         //Debug.Log(networkSceneName + " " + offlineScene); // It's still the offline scene, but it's giving GameScene as the networkSceneName

@@ -96,6 +96,7 @@ public class Player : NetworkBehaviour
 
     private void Start()
     {
+        if (MyNetworkManager.singleton.IsDebugging) return;
         // This should probably be refactored, but I don't have time for it 
         _cupPosition1 = GameObject.FindWithTag("CupPosition1").transform.position;
         _cupPosition2 = GameObject.FindWithTag("CupPosition2").transform.position;
@@ -108,15 +109,15 @@ public class Player : NetworkBehaviour
             Debug.Log("IsLocalPlayer is true! starting player");
             CmdRegisterPlayer();
 
-
-            UIManager.Instance.StartOwnPlayerUI();
-
-        }
-    }
-
-    private void Update()
-    {
-        if (!isLocalPlayer) return;
+                                                                                                                                                                                                                                   
+            UIManager.Instance.StartOwnPlayerUI();                                                                                                                                                                                 
+                                                                                                                                                                                                                                   
+        }                                                                                                                                                                                                                          
+    }                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                   
+    private void Update()                                                                                                                                                                                                          
+    {                                                                                                                                                                                                                              
+        if (!isLocalPlayer) return;                                                                                                                                                                                                
 
         //if (Input.GetKeyDown(KeyCode.T))
         if (Input.GetKeyDown(KeyCode.R))
