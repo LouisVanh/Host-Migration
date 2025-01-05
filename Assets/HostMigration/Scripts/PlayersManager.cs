@@ -4,25 +4,7 @@ using System.Collections.Generic;
 
 public class PlayersManager : NetworkBehaviour
 {
-    /* README: ENSURE YOUR PLAYER HAS THIS OR IT WILL DO NOTHING
-     * 
-    private void OnDestroy()
-    {
-        if (isServer)
-        {
-            PlayersManager.Instance.RemovePlayer(gameObject.GetComponent<NetworkIdentity>().netId);
-        }
-    }
-
-    [Command]
-    private void CmdRegisterPlayer() // Call this on Start, make sure to check for isLocalPlayer
-    {
-        PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
-    }
-    *
-    */
-
-
+    // Make sure the player has a "PlayerRegistering" component
     public static PlayersManager Instance { get; private set; }
     private void Awake()
     {
@@ -85,6 +67,7 @@ public class PlayersManager : NetworkBehaviour
     {
         // Add handlers for SyncList Actions
         Players.OnAdd += OnPlayerAdded;
+        Players.OnAdd += SetBackupHost;
         Players.OnInsert += OnPlayerInserted;
         Players.OnSet += OnPlayerChanged;
         Players.OnRemove += OnPlayerRemoved;
@@ -100,15 +83,26 @@ public class PlayersManager : NetworkBehaviour
     {
         // Remove handlers when client stops
         Players.OnAdd -= OnPlayerAdded;
+        Players.OnAdd -= SetBackupHost;
         Players.OnInsert -= OnPlayerInserted;
         Players.OnSet -= OnPlayerChanged;
         Players.OnRemove -= OnPlayerRemoved;
         Players.OnClear -= OnPlayerListCleared;
     }
 
+    void SetBackupHost(int index)
+    {
+        if (isServer)
+        {
+            Debug.Log("I'm the server, setting backuphost for everyone now");
+            HostMigrationData.Instance.TrySetBackUpHost("localhost", HostMigrationData.GetNextHost());
+        }
+    }
+
     void OnPlayerAdded(int index)
     {
-        Debug.Log($"Element added at index {index} {Players[index]}");
+        Debug.Log($"Element added at index {index} of players list:{Players[index]}");
+        if (MyNetworkManager.singleton.IsDebugging) return;
         if (NetworkServer.spawned.TryGetValue(Players[index], out NetworkIdentity playerId))
         {
             playerId.GetComponent<Player>().PlayerScreenPosition = (PlayerPosition)index;

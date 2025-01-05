@@ -3,89 +3,101 @@ using System.Collections.Generic;
 
 public class OnScreenDebugger : MonoBehaviour
 {
+    // MIT license: Made by teledev, contact teled on discord for help
     private class LogEntry
     {
         public string Message;
-        public LogType Type;
+        public LogType LogType;
 
         public LogEntry(string message, LogType type)
         {
             Message = message;
-            Type = type;
+            LogType = type;
         }
     }
 
     [Header("Log Type Filters")]
-    public bool ShowErrors = true;
-    public bool ShowWarnings = true;
-    public bool ShowDefault = true;
+    [SerializeField] private bool _switchLogTypesRuntime = false;
 
-    private List<LogEntry> logEntries = new List<LogEntry>();
-    private Vector2 scrollPosition;
-    private const byte MaxLogs = 50;
+    [Space(10)]
+    [SerializeField] private KeyCode _errorToggleKey = KeyCode.E;
+    [SerializeField] private KeyCode _warningToggleKey = KeyCode.W;
+    [SerializeField] private KeyCode _defaultToggleKey = KeyCode.D;
 
-    private GUIStyle logStyle;
+    [Space(10)]
+    [SerializeField] private bool _showErrors = true;
+    [SerializeField] private bool _showWarnings = true;
+    [SerializeField] private bool _showDefault = true;
 
-    private void OnEnable()
+    [Header("Internal")]
+    [SerializeField] private byte _maxAmountOfLogs = 50;
+    private List<LogEntry> _logEntries = new();
+    private Vector2 _scrollPosition;
+    private GUIStyle _logStyle;
+
+
+    private void OnEnable() => Application.logMessageReceived += HandleLog;
+    private void OnDisable() => Application.logMessageReceived -= HandleLog;
+
+    private void Update() // Toggle specific logs on runtime
     {
-        Application.logMessageReceived += HandleLog;
-
+        if (!_switchLogTypesRuntime) return; // Set on design time
+        if (Input.GetKeyDown(_errorToggleKey)) _showErrors = !_showErrors;
+        if (Input.GetKeyDown(_defaultToggleKey)) _showDefault = !_showDefault;
+        if (Input.GetKeyDown(_warningToggleKey)) _showWarnings = !_showWarnings;
     }
-
-    private void OnDisable()
-    {
-        Application.logMessageReceived -= HandleLog;
-    }
-
     private void HandleLog(string logString, string stackTrace, LogType type)
     {
-        logEntries.Add(new LogEntry(logString, type));
+        _logEntries.Add(new LogEntry(logString, type));
 
-        // Limit the number of logs stored
-        if (logEntries.Count > MaxLogs)
+        // Limit the number of logs stored (keeping the most recent)
+        if (_logEntries.Count > _maxAmountOfLogs)
         {
-            logEntries.RemoveAt(0);
+            _logEntries.RemoveAt(0);
         }
     }
 
     private void OnGUI()
     {
-        logStyle = new GUIStyle(GUI.skin.label)
+        if (_logStyle == null)
         {
-            wordWrap = true,
-            fontSize = 11, // Smaller font size
-            padding = new RectOffset(0, 0, -3, -3) // Compact padding
-        };
+            _logStyle = new GUIStyle(GUI.skin.label)
+            {
+                wordWrap = true,
+                fontSize = 11, // Small
+                padding = new RectOffset(0, 0, -3, -3) // Compact spacing
+            };
+        }
+
         try
         {
             GUILayout.BeginArea(new Rect(10, 10, Screen.width - 20, Screen.height - 20));
-            scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition);
 
-            foreach (var logEntry in logEntries)
+            foreach (var logEntry in _logEntries)
             {
-                // Filter logs based on toggle settings
-                if (!ShouldDisplayLog(logEntry.Type))
+                // Filter logs based on toggle settings in editor
+                if (!ShouldDisplayLog(logEntry.LogType))
                     continue;
 
-                // Set the color based on the log type
-                switch (logEntry.Type)
+                switch (logEntry.LogType)
                 {
                     case LogType.Log:
-                        logStyle.normal.textColor = Color.white;
+                        _logStyle.normal.textColor = Color.white;
                         break;
+
                     case LogType.Warning:
-                        logStyle.normal.textColor = Color.yellow;
+                        _logStyle.normal.textColor = Color.yellow;
                         break;
+
+                    case LogType.Assert:
                     case LogType.Error:
                     case LogType.Exception:
-                        logStyle.normal.textColor = Color.red;
-                        break;
-                    default:
-                        logStyle.normal.textColor = Color.gray;
+                        _logStyle.normal.textColor = Color.red;
                         break;
                 }
 
-                GUILayout.Label(logEntry.Message, logStyle);
+                GUILayout.Label(logEntry.Message, _logStyle);
             }
 
             GUILayout.EndScrollView();
@@ -99,8 +111,8 @@ public class OnScreenDebugger : MonoBehaviour
 
     private bool ShouldDisplayLog(LogType type)
     {
-        return (ShowErrors && (type == LogType.Error || type == LogType.Exception)) ||
-               (ShowWarnings && type == LogType.Warning) ||
-               (ShowDefault && type == LogType.Log);
+        return (_showErrors && (type == LogType.Error || type == LogType.Exception)) ||
+               (_showWarnings && type == LogType.Warning) ||
+               (_showDefault && type == LogType.Log);
     }
 }
