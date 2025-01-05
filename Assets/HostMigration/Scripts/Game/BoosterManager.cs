@@ -86,17 +86,17 @@ public class BoostersManager : NetworkBehaviour
                 if (booster is IBoosterConsumable consumableBooster)
                 {
                     if (consumableBooster == null) Debug.LogError("BOOSTER IS NULL!");
-                    Debug.Log(consumableBooster.Name);
-                    Debug.Log(player.name);
-                    Debug.Log(player.PlayerScreenPosition + " is a random field of this player");
+                    //Debug.Log(consumableBooster.Name);
+                    //Debug.Log(player.name);
+                    //Debug.Log(player.PlayerScreenPosition + " is a random field of this player");
                     consumableBooster.CmdConsumeEffect(player);
                 }
                 else if (booster is IBoosterPermanent permanentBooster)
                 {
                     if (permanentBooster == null) Debug.LogError("BOOSTER IS NULL!");
-                    Debug.Log(permanentBooster.Name);
-                    Debug.Log(player.name);
-                    Debug.Log(player.PlayerScreenPosition + " is a random field of this player");
+                    //Debug.Log(permanentBooster.Name);
+                    //Debug.Log(player.name);
+                    //Debug.Log(player.PlayerScreenPosition + " is a random field of this player");
                     permanentBooster.CmdAddPermanentEffect(player);
                 }
                 return true; // everything happened successfully

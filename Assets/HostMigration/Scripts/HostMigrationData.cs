@@ -2,21 +2,28 @@ using Mirror;
 using System.Collections;
 using UnityEngine;
 
-// this is the host data each player will store, so the address, which for us i hardcoded as localhost, but for steam would probably be the players steamid
 [System.Serializable]
-public struct HostData
+public struct ServerOnlyInformation
 {
-    public string address;
-    public uint netID;
-    public HostData(string address, uint netID)
+    // Any information that only the server has access to, which will need to be synced to the next host
+
+}
+
+// this is the host data each player will store, so the connection address, but for steam would probably be the players steamid
+[System.Serializable]
+public struct HostConnectionData
+{
+    public string ConnectionAddress;
+    public uint FutureHostNetId;
+    public HostConnectionData(string address, uint netID)
     {
-        this.address = address;
-        this.netID = netID;
+        this.ConnectionAddress = address;
+        this.FutureHostNetId = netID;
     }
 
     public override string ToString()
     {
-        return $"HostData with address: {this.address} and netId: {this.netID}";
+        return $"HostData with address: {this.ConnectionAddress} and netId: {this.FutureHostNetId}";
     }
 }
 
@@ -24,17 +31,15 @@ public struct HostData
 [System.Serializable]
 public struct PlayerData
 {
-    public Vector3 pos;
-    public Quaternion rot;
+    public Vector3 Position;
+    public Quaternion Rotation;
     public string StartGameMessage;
     public bool NeedsToHostMigrate;
-    //public int health;
 
-    public PlayerData(Vector3 pos, Quaternion rot, /*int health,*/ string startGameMessage, bool shouldMigrate)
+    public PlayerData(Vector3 pos, Quaternion rot, string startGameMessage, bool shouldMigrate)
     {
-        this.pos = pos;
-        this.rot = rot;
-        //this.health = health;
+        this.Position = pos;
+        this.Rotation = rot;
         this.StartGameMessage = startGameMessage;
 
         // This will be set to true OnDestroy
@@ -43,11 +48,11 @@ public struct PlayerData
 
     public override string ToString()
     {
-        return $"Playerdata with pos: {pos} and msg: {StartGameMessage}";
+        return $"Playerdata with pos: {Position} and msg: {StartGameMessage}";
     }
 }
 
-public class HostMigrationData : NetworkBehaviour
+public class HostMigrationData : MonoBehaviour
 {
 
     public static HostMigrationData Instance { get; private set; }
@@ -75,7 +80,7 @@ public class HostMigrationData : NetworkBehaviour
             }
 
             //once found send to each client to store;
-            HostData newHostData = new HostData(address, randomHost.identity.netId);
+            HostConnectionData newHostData = new HostConnectionData(address, randomHost.identity.netId);
             Debug.Log($"Trying to send over new host data: " + newHostData);
             randomHost.identity.GetComponent<MyClient>().StoreNewHostData(newHostData);
         }
@@ -105,7 +110,7 @@ public class HostMigrationData : NetworkBehaviour
             yield return new WaitForSeconds(0.6f);
 
             //if not new host, set hostaddress to backup and initialize joiining
-            MyNetworkManager.singleton.networkAddress = MyNetworkManager.backUpHostData.address;
+            MyNetworkManager.singleton.networkAddress = MyNetworkManager.backUpHostData.ConnectionAddress;
             MyNetworkManager.singleton.StartClient();
             Debug.Log("Started new client");
         }

@@ -15,7 +15,7 @@ public class MyNetworkManager : NetworkManager
     //this is set by localclient, so once leaving this will be stored
     public static PlayerData myPlayerData;
     //also stored by localclient everytime a new client joins
-    public static HostData backUpHostData;
+    public static HostConnectionData backUpHostData;
 
     public bool IsDebugging; // Set to true to avoid any normal game scene interactions to test out host migration
 

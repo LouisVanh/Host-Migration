@@ -29,7 +29,7 @@ public class MyClient : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void StoreNewHostData(HostData hostData)
+    public void StoreNewHostData(HostConnectionData hostData)
     {
         Debug.Log($"Sucess: Storing data: {hostData}");
         //storing new hostData just incase current host leaves
@@ -37,7 +37,7 @@ public class MyClient : NetworkBehaviour
 
 
         //checking if this player is new host if not set false
-        if (hostData.netID == netId && isLocalPlayer)
+        if (hostData.FutureHostNetId == netId && isLocalPlayer)
         {
             Debug.Log($"I'm the new host! Storing host data: {hostData}");
             MyNetworkManager.isNewHost = true;
@@ -57,7 +57,7 @@ public class MyClient : NetworkBehaviour
 
         Debug.Log("Data found, restoring");
 
-        transform.SetPositionAndRotation(MyNetworkManager.myPlayerData.pos, MyNetworkManager.myPlayerData.rot);
+        transform.SetPositionAndRotation(MyNetworkManager.myPlayerData.Position, MyNetworkManager.myPlayerData.Rotation);
 
         // Set anything on the server side of player data (health, amount of dice, ...) anything saved serverside
         SetNetIdOnServer(MyNetworkManager.myPlayerData.StartGameMessage);
