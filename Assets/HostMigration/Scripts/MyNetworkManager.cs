@@ -6,18 +6,58 @@ using UnityEngine.SceneManagement;
 
 public class MyNetworkManager : NetworkManager
 {
+    #region host migration
+    //Disconnect only if you are host, if not this will be false and you will join next lobby
+    public static bool disconnectGracefully = false;
+    //If new host, so you start new lobby
+    public static bool isNewHost = false;
+
+    //this is set by localclient, so once leaving this will be stored
+    public static PlayerData myPlayerData;
+    //also stored by localclient everytime a new client joins
+    public static HostData backUpHostData;
+
     public bool IsDebugging; // Set to true to avoid any normal game scene interactions to test out host migration
+
+    public override void OnServerAddPlayer(NetworkConnectionToClient conn)
+    {
+        base.OnServerAddPlayer(conn);
+        Debug.LogWarning("Server added a player!");
+        // Don't do it here as it calls to early for the playercount to work, done in PlayerRegistering
+        //TrySetBackUpHost("localhost", GetNextHost());
+    }
+    public override void OnClientDisconnect()
+    {
+        if (!disconnectGracefully)
+        {
+            Debug.Log("Client disconnected, retrying to join!");
+            HostMigrationData.Instance.StartCoroutineMigrateHost();
+        }
+        else
+        {
+            Debug.LogWarning("Host disconnected, clearing data!");
+            //clear the data if not rejoining a game
+            myPlayerData = new PlayerData();
+        }
+
+        base.OnClientDisconnect();
+    }
+
+    #endregion host migration
+
+
+    #region normal network manager
     public static new MyNetworkManager singleton => (MyNetworkManager)NetworkManager.singleton;
     private bool _isRestartingGame;
-    public bool IsRestartingGame
+    public bool IsRestartingGame // This is set through an RPC, so all players receive this
     {
         get { return _isRestartingGame; }
         set
         {
             if (_isRestartingGame == value) return;
-            if(value == true) // if we want to restart
+            if (value == true) // if we want to restart
             {
-                if(! NetworkClient.localPlayer.isServer) Debug.Log("hey i'm the client");
+                if (!NetworkClient.localPlayer.isServer) Debug.Log("hey i'm the client");
                 if (NetworkClient.localPlayer.isServer) Debug.Log("hey i'm the server");
                 _isRestartingGame = true;
             }
@@ -31,10 +71,6 @@ public class MyNetworkManager : NetworkManager
     public override void OnStartServer()
     {
         Debug.LogWarning("Server Started!");
-    }
-    public override void OnServerAddPlayer(NetworkConnectionToClient conn)
-    {
-        base.OnServerAddPlayer(conn);
     }
     public override void OnStopServer()
     {
@@ -106,4 +142,5 @@ public class MyNetworkManager : NetworkManager
     }
 
     //Wanna use IEnumerator WaitUntilEndOfFrame()? Should probably do it in start of the actual script instead (call from player for example)
+    #endregion normal networkmanager
 }
