@@ -7,6 +7,8 @@ public struct ServerOnlyInformation
 {
     // Any information that only the server has access to, which will need to be synced to the next host
 
+    // For this example, every player has a secret nickname that the server gave them. (That only the server knows)
+    // This needs to be saved in here and then later 
 }
 
 // this is the host data each player will store, so the connection address, but for steam would probably be the players steamid
@@ -29,7 +31,7 @@ public struct HostConnectionData
 
 //This will be any data you want to synchronize during host migration, so for us we want to restore positions, rotations and players health.
 [System.Serializable]
-public struct PlayerData
+public struct PlayerData    
 {
     public Vector3 Position;
     public Quaternion Rotation;
