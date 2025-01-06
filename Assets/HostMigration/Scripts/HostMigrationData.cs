@@ -35,10 +35,10 @@ public struct HostConnectionData
 [Serializable]
 public struct MigrationData<T>
 {
-    public uint OwnerNetId;            // The player/object this data belongs to
+    public uint OwnerNetId;       // The player this data belongs to
     public string ComponentName;  // The name of the component (e.g., "PlayerController")
     public string VariableName;   // The name of the variable (e.g., "Health")
-    public T VariableValue;               // The value of the variable
+    public T VariableValue;       // The value of the variable (e.g 100)
 
     public MigrationData(uint netId, string componentName, string variableName, T value)
     {
@@ -210,7 +210,6 @@ public class HostMigrationData : MonoBehaviour
 
         yield return null;
     }
-
 
     public static NetworkConnectionToClient GetNextHost()
     {

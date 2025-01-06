@@ -16,8 +16,8 @@ public class MigrationDataTransfer : NetworkBehaviour
     }
 
     [TargetRpc]
-    public void SendMigrationData(List<MigrationData<object>> migrationDataList)
+    public void SendMigrationData(NetworkConnection conn, List<MigrationData<object>> migrationDataList)
     {
-
+        // Send over the data to the next host
     }
 }
