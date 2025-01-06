@@ -15,9 +15,9 @@ public class MigrationDataTransfer : NetworkBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    [TargetRpc]
-    public void SendMigrationData(NetworkConnection conn, List<MigrationData<object>> migrationDataList)
-    {
-        // Send over the data to the next host
-    }
+    //[TargetRpc]
+    //public void SendMigrationData(NetworkConnection conn, List<MigrationData<object>> migrationDataList)
+    //{
+    //    // Send over the data to the next host
+    //}
 }

@@ -11,7 +11,7 @@ public struct ServerOnlyInformation
     // Any information that only the server has access to, which will need to be synced to the next host
 
     // For this example, every player has a secret nickname that the server gave them. (That only the server knows)
-    // This needs to be saved in here and then later 
+    // This needs to be saved in here and then later sent to the new host.
 }
 
 // this is the host data each player will store, so the connection address, but for steam would probably be the players steamid
@@ -33,26 +33,29 @@ public struct HostConnectionData
 }
 
 [Serializable]
-public struct MigrationData<T>
+public struct MigrationData
 {
-    public uint OwnerNetId;       // The player this data belongs to
-    public string ComponentName;  // The name of the component (e.g., "PlayerController")
-    public string VariableName;   // The name of the variable (e.g., "Health")
-    public T VariableValue;       // The value of the variable (e.g 100)
+    public uint OwnerNetId;        // The player this data belongs to
+    public string ComponentName;   // The name of the component (e.g., "PlayerController")
+    public string TypeName;        // The name of the type (e.g., "System.Int32")
+    public string VariableName;    // The name of the variable (e.g., "Health")
+    public string SerializedValue; // The serialized value as a string
 
-    public MigrationData(uint netId, string componentName, string variableName, T value)
+    public MigrationData(uint ownerNetId, string componentName, string variableName, object value)
     {
-        this.OwnerNetId = netId;
-        this.ComponentName = componentName;
-        this.VariableName = variableName;
-        this.VariableValue = value;
+        OwnerNetId = ownerNetId;
+        ComponentName = componentName;
+        VariableName = variableName;
+        TypeName = value.GetType().AssemblyQualifiedName; // Fully qualified type name
+        SerializedValue = JsonUtility.ToJson(value); // Use JSON for serialization
     }
 
     public override string ToString()
     {
-        return $"NetID: {OwnerNetId}, Component: {ComponentName}, Variable: {VariableName}, Value: {VariableValue}";
+        return $"NetID: {OwnerNetId}, Component: {ComponentName}, Variable: {VariableName}, Type: {TypeName}, Value: {SerializedValue}";
     }
 }
+
 
 
 //This will be any data you want to synchronize during host migration, so for us we want to restore positions, rotations and players health.
@@ -93,24 +96,24 @@ public class HostMigrationData : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
-    private List<MigrationData<object>> _migrationDatas = new();
+    private List<MigrationData> _migrationDatas = new();
 
     // Save new info to this, send it through the MigrationDataTransfer
-    public void AddMigrationData(MigrationData<object> migrationData)
+    public void AddMigrationData(MigrationData migrationData)
     {
         Debug.Log($"Attempting to add migration data: {migrationData}");
 
         // Check if an entry already exists with the same netId, componentName, and variableName
         for (int i = 0; i < _migrationDatas.Count; i++)
         {
-            if (_migrationDatas[i] is MigrationData<object> existingData &&
-                existingData.OwnerNetId == migrationData.OwnerNetId &&
-                existingData.ComponentName == migrationData.ComponentName &&
-                existingData.VariableName == migrationData.VariableName)
+            if (_migrationDatas[i].OwnerNetId == migrationData.OwnerNetId &&
+                _migrationDatas[i].ComponentName == migrationData.ComponentName &&
+                _migrationDatas[i].VariableName == migrationData.VariableName)
+                // Don't need to check for the type/value, irrelevant. If it exists it's covered here already.
             {
-                // Replace the existing value
                 _migrationDatas[i] = migrationData;
-                Debug.Log($"Replaced migration data for NetID {migrationData.OwnerNetId}, Component {migrationData.ComponentName}, Variable {migrationData.VariableName}");
+                Debug.Log($"Replaced migration data for NetID {migrationData.OwnerNetId}," +
+                    $" Component {migrationData.ComponentName}, Variable {migrationData.VariableName}");
                 return;
             }
         }
@@ -120,44 +123,54 @@ public class HostMigrationData : MonoBehaviour
         Debug.Log($"Added new migration data: {migrationData}");
     }
 
+
     public void RetrieveFromDataMembers()
     {
-        // Iterate through all migration data
         foreach (var migrationData in _migrationDatas)
         {
             // Find the player object using the OwnerNetId
-            NetworkIdentity playerIdentity = NetworkServer.connections.Values
-                .Where(conn => conn.identity.netId == migrationData.OwnerNetId)
-                .Select(conn => conn.identity)
-                .FirstOrDefault();
+            if (NetworkServer.spawned.TryGetValue(migrationData.OwnerNetId, out NetworkIdentity playerIdentity)){
 
-            if (playerIdentity == null)
-            {
-                Debug.LogWarning($"Player with NetID: {migrationData.OwnerNetId} not found!");
-                continue; // Skip to the next migration data
-            }
+                if (playerIdentity == null)
+                {
+                    Debug.LogWarning($"Player with NetID: {migrationData.OwnerNetId} not found!");
+                    continue;
+                }
 
-            // Get the component where the variable resides
-            Component targetComponent = playerIdentity.GetComponent(migrationData.ComponentName);
-            if (targetComponent == null)
-            {
-                Debug.LogWarning($"Component {migrationData.ComponentName} not found on player with NetID: {migrationData.OwnerNetId}!");
-                continue; // Skip to the next migration data
-            }
+                // Get the component where the variable resides
+                Component targetComponent = playerIdentity.GetComponent(migrationData.ComponentName);
+                if (targetComponent == null)
+                {
+                    Debug.LogWarning($"Component {migrationData.ComponentName} not found on player with NetID: {migrationData.OwnerNetId}!");
+                    continue;
+                }
 
-            // Use reflection to set the variable dynamically (you may need to adjust based on the variable type)
-            var field = targetComponent.GetType().GetField(migrationData.VariableName);
-            if (field != null)
-            {
-                field.SetValue(targetComponent, Convert.ChangeType(migrationData.VariableValue, field.FieldType));
-                Debug.Log($"Restored {migrationData.VariableName} to {migrationData.VariableValue} for player {migrationData.OwnerNetId}");
-            }
-            else
-            {
-                Debug.LogWarning($"Variable {migrationData.VariableName} not found in component {migrationData.ComponentName}!");
+                // Use reflection to set the variable dynamically
+                var field = targetComponent.GetType().GetField(migrationData.VariableName);
+                if (field != null)
+                {
+                    try
+                    {
+                        // Deserialize the value based on the type
+                        Type variableType = Type.GetType(migrationData.TypeName);
+                        object deserializedValue = JsonUtility.FromJson(migrationData.SerializedValue, variableType);
+
+                        field.SetValue(targetComponent, deserializedValue);
+                        Debug.Log($"Restored {migrationData.VariableName} to {deserializedValue} for player {migrationData.OwnerNetId}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"Failed to restore {migrationData.VariableName}: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"Variable {migrationData.VariableName} not found in component {migrationData.ComponentName}!");
+                }
             }
         }
     }
+
 
     //Server code
     public void TrySetBackUpHost(string address, NetworkConnectionToClient? randomHost)
