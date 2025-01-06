@@ -8,14 +8,14 @@ public class MyNetworkManager : NetworkManager
 {
     #region host migration
     //Disconnect only if you are host, if not this will be false and you will join next lobby
-    public static bool disconnectGracefully = false;
+    public static bool DisconnectGracefully = false;
     //If new host, so you start new lobby
-    public static bool isNewHost = false;
+    public static bool IsNewHost = false;
 
     //this is set by localclient, so once leaving this will be stored
-    public static PlayerData myPlayerData;
+    public static PlayerData MyPlayerData;
     //also stored by localclient everytime a new client joins
-    public static HostConnectionData backUpHostData;
+    public static HostConnectionData BackUpHostConnectionData;
 
     public bool IsDebugging; // Set to true to avoid any normal game scene interactions to test out host migration
 
@@ -28,7 +28,7 @@ public class MyNetworkManager : NetworkManager
     }
     public override void OnClientDisconnect()
     {
-        if (!disconnectGracefully)
+        if (!DisconnectGracefully)
         {
             Debug.Log("Client disconnected, retrying to join!");
             HostMigrationData.Instance.StartCoroutineMigrateHost();
@@ -37,7 +37,7 @@ public class MyNetworkManager : NetworkManager
         {
             Debug.LogWarning("Host disconnected, clearing data!");
             //clear the data if not rejoining a game
-            myPlayerData = new PlayerData();
+            MyPlayerData = new PlayerData();
         }
 
         base.OnClientDisconnect();

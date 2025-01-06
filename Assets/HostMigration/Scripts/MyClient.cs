@@ -18,10 +18,10 @@ public class MyClient : NetworkBehaviour
         if (isServer)
         {
             //if you are server and disconnect you want to set this true so you dont initiate a rejoining phase
-            MyNetworkManager.disconnectGracefully = true;
+            MyNetworkManager.DisconnectGracefully = true;
         }
         else
-            MyNetworkManager.disconnectGracefully = false;
+            MyNetworkManager.DisconnectGracefully = false;
 
         if (!isOwned) return;
 
@@ -33,23 +33,23 @@ public class MyClient : NetworkBehaviour
     {
         Debug.Log($"Sucess: Storing data: {hostData}");
         //storing new hostData just incase current host leaves
-        MyNetworkManager.backUpHostData = hostData;
+        MyNetworkManager.BackUpHostConnectionData = hostData;
 
 
         //checking if this player is new host if not set false
         if (hostData.FutureHostNetId == netId && isLocalPlayer)
         {
             Debug.Log($"I'm the new host! Storing host data: {hostData}");
-            MyNetworkManager.isNewHost = true;
+            MyNetworkManager.IsNewHost = true;
         }
         else
-            MyNetworkManager.isNewHost = false;
+            MyNetworkManager.IsNewHost = false;
     }
 
     private void RemakeGame()
     {
         //Check if there is previous data if so reinitialize states to continue
-        if (MyNetworkManager.myPlayerData.NeedsToHostMigrate == false)
+        if (MyNetworkManager.MyPlayerData.NeedsToHostMigrate == false)
         {
             Debug.LogWarning("No data found, returning: this is either the start of the game or HM's bugged");
             return;
@@ -57,11 +57,11 @@ public class MyClient : NetworkBehaviour
 
         Debug.Log("Data found, restoring");
 
-        transform.SetPositionAndRotation(MyNetworkManager.myPlayerData.Position, MyNetworkManager.myPlayerData.Rotation);
+        transform.SetPositionAndRotation(MyNetworkManager.MyPlayerData.Position, MyNetworkManager.MyPlayerData.Rotation);
 
         // Set anything on the server side of player data (health, amount of dice, ...) anything saved serverside
-        SetNetIdOnServer(MyNetworkManager.myPlayerData.StartGameMessage);
-        MyNetworkManager.myPlayerData.NeedsToHostMigrate = false; // (just did)
+        SetNetIdOnServer(MyNetworkManager.MyPlayerData.StartGameMessage);
+        MyNetworkManager.MyPlayerData.NeedsToHostMigrate = false; // (just did)
     }
 
     // experimentation
@@ -80,7 +80,7 @@ public class MyClient : NetworkBehaviour
         {
             var data = new PlayerData(transform.position, transform.rotation, _netId, shouldMigrate: true);
             Debug.LogWarning($"Player {this.name} being destroyed, trying to save {data}");
-            MyNetworkManager.myPlayerData = data;
+            MyNetworkManager.MyPlayerData = data;
         }
     }
 }
