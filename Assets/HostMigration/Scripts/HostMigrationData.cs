@@ -46,14 +46,21 @@ public struct MigrationData
         OwnerNetId = ownerNetId;
         ComponentName = componentName;
         VariableName = variableName;
-        TypeName = value.GetType().AssemblyQualifiedName; // Fully qualified type name
-        SerializedValue = JsonUtility.ToJson(value); // Use JSON for serialization
+        // These are automatically derived from value
+        //TypeName = value.GetType().AssemblyQualifiedName; // Fully qualified type name
+        //SerializedValue = JsonUtility.ToJson(value); // Use JSON for serialization
+        TypeName = value.GetType().ToString();
+        Debug.Log("value = " + value);
+        SerializedValue = value.ToString();
+        Debug.Log("SerializedValue = " + value.ToString());
     }
 
     public override string ToString()
     {
-        return $"NetID: {OwnerNetId}, Component: {ComponentName}, Variable: {VariableName}, Type: {TypeName}, Value: {SerializedValue}";
+        string valueString = string.IsNullOrWhiteSpace(SerializedValue) ? "null" : SerializedValue.ToString();
+        return $"NetID: {OwnerNetId}, Component: {ComponentName}, Variable: {VariableName}, Type: {TypeName}, Value: {valueString}";
     }
+
 }
 
 
@@ -89,16 +96,30 @@ public class HostMigrationData : MonoBehaviour
     private void Awake()
     {
         if (Instance != null && Instance != this)
-            Destroy(this.gameObject);
+            Destroy(this);
         else
             Instance = this;
 
-        DontDestroyOnLoad(this.gameObject);
+        //DontDestroyOnLoad(this.gameObject); // Already done in netmgr
+    }
+    [Space(50)]
+    [/*ReadOnly,*/ SerializeField] private List<MigrationData> _migrationDatas = new();
+    [Space(1000)]
+    [SerializeField] private string _spaceForTheEditor = " ";
+    public List<MigrationData> GetMigrationDatas() { return _migrationDatas; }
+
+    public void OverrideMigrationData(List<MigrationData> newDatas)
+    {
+        _migrationDatas.Clear();
+        _migrationDatas = newDatas;
     }
 
-    private List<MigrationData> _migrationDatas = new();
-
-    // Save new info to this, send it through the MigrationDataTransfer
+    // Save new info to this, send it through the MigrationDataTransfer 
+    // Serveronly
+    /// <summary>
+    /// Add server-side data to a list in HostMigrationData, to transfer over to the next host
+    /// </summary>
+    /// <param name="migrationData"></param>
     public void AddMigrationData(MigrationData migrationData)
     {
         Debug.Log($"Attempting to add migration data: {migrationData}");
@@ -129,47 +150,58 @@ public class HostMigrationData : MonoBehaviour
         foreach (var migrationData in _migrationDatas)
         {
             // Find the player object using the OwnerNetId
-            if (NetworkServer.spawned.TryGetValue(migrationData.OwnerNetId, out NetworkIdentity playerIdentity)){
+            if (!NetworkServer.spawned.TryGetValue(migrationData.OwnerNetId, out NetworkIdentity playerIdentity))
+            {
+                Debug.LogWarning($"Player with NetID: {migrationData.OwnerNetId} not found!");
+                continue;
+            }
 
-                if (playerIdentity == null)
-                {
-                    Debug.LogWarning($"Player with NetID: {migrationData.OwnerNetId} not found!");
-                    continue;
-                }
+            // Get the component where the variable resides
+            Component targetComponent = playerIdentity.GetComponent(migrationData.ComponentName);
+            if (targetComponent == null)
+            {
+                Debug.LogWarning($"Component {migrationData.ComponentName} not found on player with NetID: {migrationData.OwnerNetId}!");
+                continue;
+            }
 
-                // Get the component where the variable resides
-                Component targetComponent = playerIdentity.GetComponent(migrationData.ComponentName);
-                if (targetComponent == null)
+            // Use reflection to find and set the variable dynamically
+            var field = targetComponent.GetType().GetField(migrationData.VariableName,
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (field != null)
+            {
+                try
                 {
-                    Debug.LogWarning($"Component {migrationData.ComponentName} not found on player with NetID: {migrationData.OwnerNetId}!");
-                    continue;
-                }
-
-                // Use reflection to set the variable dynamically
-                var field = targetComponent.GetType().GetField(migrationData.VariableName);
-                if (field != null)
-                {
-                    try
+                    // Handle primitive types and complex types separately during deserialization
+                    object deserializedValue;
+                    if (field.FieldType == typeof(string))
                     {
-                        // Deserialize the value based on the type
-                        Type variableType = Type.GetType(migrationData.TypeName);
-                        object deserializedValue = JsonUtility.FromJson(migrationData.SerializedValue, variableType);
-
-                        field.SetValue(targetComponent, deserializedValue);
-                        Debug.Log($"Restored {migrationData.VariableName} to {deserializedValue} for player {migrationData.OwnerNetId}");
+                        deserializedValue = migrationData.SerializedValue; // Strings are stored as-is
                     }
-                    catch (Exception ex)
+                    else if (field.FieldType.IsPrimitive || field.FieldType == typeof(decimal))
                     {
-                        Debug.LogError($"Failed to restore {migrationData.VariableName}: {ex.Message}");
+                        deserializedValue = Convert.ChangeType(migrationData.SerializedValue, field.FieldType);
                     }
+                    else
+                    {
+                        deserializedValue = JsonUtility.FromJson(migrationData.SerializedValue, field.FieldType);
+                    }
+
+                    // Set the deserialized value back to the field
+                    field.SetValue(targetComponent, deserializedValue);
+                    Debug.Log($"Restored {migrationData.VariableName} to {deserializedValue} for player {migrationData.OwnerNetId}");
                 }
-                else
+                catch (Exception ex)
                 {
-                    Debug.LogWarning($"Variable {migrationData.VariableName} not found in component {migrationData.ComponentName}!");
+                    Debug.LogError($"Failed to restore {migrationData.VariableName}: {ex.Message}");
                 }
+            }
+            else
+            {
+                Debug.LogWarning($"Variable {migrationData.VariableName} not found in component {migrationData.ComponentName}!");
             }
         }
     }
+
 
 
     //Server code

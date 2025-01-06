@@ -9,11 +9,16 @@ public class TopSecretServerInfo : NetworkBehaviour
     public void Update() // Testing purposes of course
     {
         if (!isServer) return;
-
+        if (!isLocalPlayer) return;
         if (Input.GetKeyDown(KeyCode.X))
         {
             Debug.Log("I am the server and I pressed X");
             SetSecretNameOfEveryone();
+        }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            NetworkServerDebugger.PrintAllNetworkObjects();
         }
     }
 
@@ -24,7 +29,12 @@ public class TopSecretServerInfo : NetworkBehaviour
         {
             if (NetworkServer.spawned.TryGetValue(player, out NetworkIdentity playerNetId))
             {
-                playerNetId.GetComponent<TopSecretServerInfo>().SecretName = TopSecretServerInfo.GetSecretName();
+                string secretName = TopSecretServerInfo.GetSecretName();
+                playerNetId.GetComponent<TopSecretServerInfo>().SecretName = secretName;
+
+                Debug.Log("Name set: " + secretName);
+                HostMigrationData.Instance.AddMigrationData(
+                    new MigrationData(playerNetId.netId, nameof(TopSecretServerInfo), nameof(SecretName), secretName));
             }
         }
     }
