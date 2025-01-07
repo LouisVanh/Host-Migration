@@ -9,7 +9,7 @@ using UnityEngine;
 public struct ServerOnlyInformation
 {
     // Any information that only the server has access to, which will need to be synced to the next host
-
+    public List<MigrationData> MigrationDatas;
     // For this example, every player has a secret nickname that the server gave them. (That only the server knows)
     // This needs to be saved in here and then later sent to the new host.
 }
@@ -63,8 +63,6 @@ public struct MigrationData
 
 }
 
-
-
 //This will be any data you want to synchronize during host migration, so for us we want to restore positions, rotations and players health.
 [System.Serializable]
 public struct PlayerData
@@ -73,13 +71,14 @@ public struct PlayerData
     public Quaternion Rotation;
     public string StartGameMessage;
     public bool NeedsToHostMigrate;
+    public uint UniqueClientIdentifier;
 
-    public PlayerData(Vector3 pos, Quaternion rot, string startGameMessage, bool shouldMigrate)
+    public PlayerData(Vector3 pos, Quaternion rot, string startGameMessage, uint ucid, bool shouldMigrate)
     {
         this.Position = pos;
         this.Rotation = rot;
         this.StartGameMessage = startGameMessage;
-
+        this.UniqueClientIdentifier = ucid;
         // This will be set to true OnDestroy
         this.NeedsToHostMigrate = shouldMigrate;
     }
@@ -102,7 +101,7 @@ public class HostMigrationData : MonoBehaviour
 
         //DontDestroyOnLoad(this.gameObject); // Already done in netmgr
     }
-    [Space(50)]
+    [Space(10)]
     [/*ReadOnly,*/ SerializeField] private List<MigrationData> _migrationDatas = new();
     [Space(1000)]
     [SerializeField] private string _spaceForTheEditor = " ";
