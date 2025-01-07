@@ -6,10 +6,11 @@ using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
-public struct ServerOnlyInformation
+public class ServerOnlyInformation
 {
     // Any information that only the server has access to, which will need to be synced to the next host
-    public List<MigrationData> MigrationDatas;
+    [Space(10)] 
+    public List<MigrationData> MigrationDatas = new();
     // For this example, every player has a secret nickname that the server gave them. (That only the server knows)
     // This needs to be saved in here and then later sent to the new host.
 }
@@ -101,16 +102,16 @@ public class HostMigrationData : MonoBehaviour
 
         //DontDestroyOnLoad(this.gameObject); // Already done in netmgr
     }
-    [Space(10)]
-    [/*ReadOnly,*/ SerializeField] private List<MigrationData> _migrationDatas = new();
-    [Space(1000)]
-    [SerializeField] private string _spaceForTheEditor = " ";
-    public List<MigrationData> GetMigrationDatas() { return _migrationDatas; }
+
+    // It should be readonly, but for debugging it won't show the values properly
+    [SerializeField]private ServerOnlyInformation _serverOnlyInformation;
+
+    public List<MigrationData> GetMigrationDatas() { return _serverOnlyInformation.MigrationDatas; }
 
     public void OverrideMigrationData(List<MigrationData> newDatas)
     {
-        _migrationDatas.Clear();
-        _migrationDatas = newDatas;
+        _serverOnlyInformation.MigrationDatas.Clear();
+        _serverOnlyInformation.MigrationDatas = newDatas;
     }
 
     // Save new info to this, send it through the MigrationDataTransfer 
@@ -124,14 +125,14 @@ public class HostMigrationData : MonoBehaviour
         Debug.Log($"Attempting to add migration data: {migrationData}");
 
         // Check if an entry already exists with the same netId, componentName, and variableName
-        for (int i = 0; i < _migrationDatas.Count; i++)
+        for (int i = 0; i < _serverOnlyInformation.MigrationDatas.Count; i++)
         {
-            if (_migrationDatas[i].OwnerNetId == migrationData.OwnerNetId &&
-                _migrationDatas[i].ComponentName == migrationData.ComponentName &&
-                _migrationDatas[i].VariableName == migrationData.VariableName)
+            if (_serverOnlyInformation.MigrationDatas[i].OwnerNetId == migrationData.OwnerNetId &&
+                _serverOnlyInformation.MigrationDatas[i].ComponentName == migrationData.ComponentName &&
+                _serverOnlyInformation.MigrationDatas[i].VariableName == migrationData.VariableName)
                 // Don't need to check for the type/value, irrelevant. If it exists it's covered here already.
             {
-                _migrationDatas[i] = migrationData;
+                _serverOnlyInformation.MigrationDatas[i] = migrationData;
                 Debug.Log($"Replaced migration data for NetID {migrationData.OwnerNetId}," +
                     $" Component {migrationData.ComponentName}, Variable {migrationData.VariableName}");
                 return;
@@ -139,14 +140,14 @@ public class HostMigrationData : MonoBehaviour
         }
 
         // If no matching entry was found, add the new data
-        _migrationDatas.Add(migrationData);
+        _serverOnlyInformation.MigrationDatas.Add(migrationData);
         Debug.Log($"Added new migration data: {migrationData}");
     }
 
 
     public void RetrieveFromDataMembers()
     {
-        foreach (var migrationData in _migrationDatas)
+        foreach (var migrationData in _serverOnlyInformation.MigrationDatas)
         {
             // Find the player object using the OwnerNetId
             if (!NetworkServer.spawned.TryGetValue(migrationData.OwnerNetId, out NetworkIdentity playerIdentity))

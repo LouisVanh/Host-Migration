@@ -17,22 +17,18 @@ public class UniqueClientIdProvider : NetworkBehaviour
     private uint _lastIdProvided;
 
     [Command(requiresAuthority = false)]
-    public void CmdRequestNewClientId(uint playerWhoRequestedNetId) // Unfortunately commands cannot return uints, going to have to TargetRpc it.
+    public void CmdRequestNewClientId(NetworkConnectionToClient sender = null)
     {
         // Always return a new id, so it stays unique across host migrations
         _lastIdProvided++;
         Debug.Log("Provided new client id: " + _lastIdProvided);
-        if (NetworkServer.spawned.TryGetValue(playerWhoRequestedNetId, out NetworkIdentity netId))
-        {
-            Debug.Log("Sent id over!");
-            RpcSendNewClientId(netId.connectionToClient, _lastIdProvided);
-        }
+        RpcSendNewClientId(sender, _lastIdProvided);
     }
 
     [TargetRpc]
     public void RpcSendNewClientId(NetworkConnection conn, uint id)
     {
         Debug.Log("Received UCID:" + id);
-        conn.identity.GetComponent<MyClient>().UniqueClientIdentifier = id;
+        NetworkClient.localPlayer.GetComponent<MyClient>().UniqueClientIdentifier = id;
     }
 }

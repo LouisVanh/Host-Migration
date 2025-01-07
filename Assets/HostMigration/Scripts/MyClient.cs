@@ -32,7 +32,7 @@ public class MyClient : NetworkBehaviour
             // This is the start of the first game, set the unique identifier
             _netId = "My netId is " + netIdentity.netId + " and it's currently " + DateTime.Now.ToString("HH:mm:ss");
             Debug.Log("Client started! New startup info: " + _netId);
-            UniqueClientIdProvider.Instance.CmdRequestNewClientId(this.netIdentity.netId);
+            UniqueClientIdProvider.Instance.CmdRequestNewClientId();
             Debug.Log("Client started! New UCID: " + UniqueClientIdentifier);
 
             Debug.LogWarning("No data found, returning: this is either the start of the game or HM's bugged");
@@ -84,7 +84,7 @@ public class MyClient : NetworkBehaviour
         //when you are about to be destroyed save your data to be reused on new host
         if (isLocalPlayer)
         {
-            var data = new PlayerData(transform.position, transform.rotation, _netId, shouldMigrate: true);
+            var data = new PlayerData(transform.position, transform.rotation, _netId, UniqueClientIdentifier, shouldMigrate: true);
             Debug.LogWarning($"Player {this.name} being destroyed, trying to save {data}");
             MyNetworkManager.MyPlayerData = data;
         }
