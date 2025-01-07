@@ -9,11 +9,10 @@ public class MyClient : NetworkBehaviour
 {
     //private string _timeOfJoining;
     private string _netId;
+    [ReadOnly] public uint UniqueClientIdentifier;
 
     private void Start()
     {
-        _netId = "My netId is " + netIdentity.netId + " and it's currently " + DateTime.Now.ToString("HH:mm:ss");
-        Debug.Log("Client started! New info: " + _netId);
 
         if (isServer)
         {
@@ -21,10 +20,24 @@ public class MyClient : NetworkBehaviour
             MyNetworkManager.DisconnectGracefully = true;
         }
         else
+        {
             MyNetworkManager.DisconnectGracefully = false;
+        }
 
-        if (!isOwned) return;
+        if (!isOwned) return; // only simulate remaking game for the local player client
 
+        //Check if there is previous data if so reinitialize states to continue
+        if (MyNetworkManager.MyPlayerData.NeedsToHostMigrate == false)
+        {
+            // This is the start of the first game, set the unique identifier
+            _netId = "My netId is " + netIdentity.netId + " and it's currently " + DateTime.Now.ToString("HH:mm:ss");
+            Debug.Log("Client started! New startup info: " + _netId);
+            UniqueClientIdProvider.Instance.CmdRequestNewClientId(this.netIdentity.netId);
+            Debug.Log("Client started! New UCID: " + UniqueClientIdentifier);
+
+            Debug.LogWarning("No data found, returning: this is either the start of the game or HM's bugged");
+            return;
+        }
         RemakeGame();
     }
 
@@ -48,13 +61,6 @@ public class MyClient : NetworkBehaviour
 
     private void RemakeGame()
     {
-        //Check if there is previous data if so reinitialize states to continue
-        if (MyNetworkManager.MyPlayerData.NeedsToHostMigrate == false)
-        {
-            Debug.LogWarning("No data found, returning: this is either the start of the game or HM's bugged");
-            return;
-        }
-
         Debug.Log("Data found, restoring");
 
         transform.SetPositionAndRotation(MyNetworkManager.MyPlayerData.Position, MyNetworkManager.MyPlayerData.Rotation);
