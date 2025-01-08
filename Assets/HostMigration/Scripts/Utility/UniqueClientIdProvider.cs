@@ -17,22 +17,31 @@ public class UniqueClientIdProvider : NetworkBehaviour
     private uint _lastIdProvided;
 
     [Command(requiresAuthority = false)]
-    public void CmdRequestNewClientId(NetworkConnectionToClient sender = null)
+    public async void CmdRequestNewClientId(NetworkConnectionToClient sender = null)
     {
+        await System.Threading.Tasks.Task.Delay(150);
         // Always return a new id, so it stays unique across host migrations
         _lastIdProvided++;
         Debug.Log("Provided new client id: " + _lastIdProvided);
-        RpcSendNewClientId(sender.identity.netId, _lastIdProvided);
+        await System.Threading.Tasks.Task.Delay(1500);
+        if (NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity playerId))
+        {
+            RpcSendNewClientId(playerId.GetComponent<MyClient>(), _lastIdProvided);
+        }
+        else
+        {
+            Debug.Log("ATTEMPTING TO DEBUG THIS BULLSHIT");
+            NetworkServerDebugger.PrintAllNetworkObjects();
+        }
     }
 
     [ClientRpc]
-    public void RpcSendNewClientId(uint netId, uint ucid)
+    public void RpcSendNewClientId(MyClient client, uint ucid)
     {
-        Debug.Log("Received UCID: '" + ucid + "' for player "+netId);
-        if (NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity playerId))
-        {
-            playerId.GetComponent<MyClient>().UniqueClientIdentifier = ucid;
-        }
+        Debug.Log("Received UCID: '" + ucid + "' for player " + netId);
+        Debug.Assert(client != null);
+        client.UniqueClientIdentifier = ucid;
+        AssignColorByClient(client);
     }
 
     public static MyClient FindClientByUCID(uint ucid)
@@ -54,5 +63,32 @@ public class UniqueClientIdProvider : NetworkBehaviour
         }
         Debug.LogWarning("No client found with ucid" + ucid);
         return null;
+    }
+
+    public static void AssignColorByUCID(uint ucid)
+    {
+        var client = FindClientByUCID(ucid);
+        client.Color = ucid switch
+        {
+            1 => Color.red,
+            2 => Color.blue,
+            3 => Color.green,
+            4 => Color.black,
+            5 => Color.magenta,
+            _ => throw new System.NotImplementedException(),
+        };
+    }
+
+    public static void AssignColorByClient(MyClient client)
+    {
+        client.Color = client.UniqueClientIdentifier switch
+        {
+            1 => Color.red,
+            2 => Color.blue,
+            3 => Color.green,
+            4 => Color.black,
+            5 => Color.magenta,
+            _ => throw new System.NotImplementedException(),
+        };
     }
 }

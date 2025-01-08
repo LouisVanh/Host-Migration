@@ -70,7 +70,7 @@ public struct PlayerData
 {
     public Vector3 Position;
     public Quaternion Rotation;
-    public string StartGameMessage;
+    public string PrivateClientInfo;
     public bool NeedsToHostMigrate;
     public uint UniqueClientIdentifier;
 
@@ -78,7 +78,7 @@ public struct PlayerData
     {
         this.Position = pos;
         this.Rotation = rot;
-        this.StartGameMessage = startGameMessage;
+        this.PrivateClientInfo = startGameMessage;
         this.UniqueClientIdentifier = ucid;
         // This will be set to true OnDestroy
         this.NeedsToHostMigrate = shouldMigrate;
@@ -86,7 +86,7 @@ public struct PlayerData
 
     public override string ToString()
     {
-        return $"Playerdata with pos: {Position} and msg: {StartGameMessage}";
+        return $"Playerdata with pos: {Position} and msg: {PrivateClientInfo}";
     }
 }
 
