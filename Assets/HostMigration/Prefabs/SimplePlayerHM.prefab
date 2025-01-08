@@ -119,6 +119,8 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _privateInfo: 
+  UniqueClientIdentifier: 0
 --- !u!114 &6255449258580299451
 MonoBehaviour:
   m_ObjectHideFlags: 0

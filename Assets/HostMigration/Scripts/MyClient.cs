@@ -8,8 +8,8 @@ using UnityEngine;
 public class MyClient : NetworkBehaviour
 {
     //private string _timeOfJoining;
-    private string _netId;
-    [ReadOnly] public uint UniqueClientIdentifier;
+    [ReadOnly, SerializeField] private string _privateInfo;
+    [SyncVar, ReadOnly] public uint UniqueClientIdentifier;
 
     private void Start()
     {
@@ -30,10 +30,10 @@ public class MyClient : NetworkBehaviour
         if (MyNetworkManager.MyPlayerData.NeedsToHostMigrate == false)
         {
             // This is the start of the first game, set the unique identifier
-            _netId = "My netId is " + netIdentity.netId + " and it's currently " + DateTime.Now.ToString("HH:mm:ss");
-            Debug.Log("Client started! New startup info: " + _netId);
+            _privateInfo = "My netId is " + netIdentity.netId + " and it's currently " + DateTime.Now.ToString("HH:mm:ss");
+            Debug.Log("Client started for first time! New startup info: " + _privateInfo);
+            Debug.Log("Client started for first time! Requesting new UCID");
             UniqueClientIdProvider.Instance.CmdRequestNewClientId();
-            Debug.Log("Client started! New UCID: " + UniqueClientIdentifier);
 
             Debug.LogWarning("No data found, returning: this is either the start of the game or HM's bugged");
             return;
@@ -52,7 +52,7 @@ public class MyClient : NetworkBehaviour
         //checking if this player is new host if not set false
         if (hostData.FutureHostNetId == netId && isLocalPlayer)
         {
-            Debug.Log($"I'm the new host! Storing host data: {hostData}");
+            Debug.Log($"I'm the future host! Storing host data: {hostData}");
             MyNetworkManager.IsNewHost = true;
         }
         else
@@ -75,7 +75,7 @@ public class MyClient : NetworkBehaviour
     void SetNetIdOnServer(string value)
     {
         Debug.Log("not sure why this is here");
-        _netId = value;
+        _privateInfo = value;
     }
 
     private void OnDestroy()
@@ -84,7 +84,7 @@ public class MyClient : NetworkBehaviour
         //when you are about to be destroyed save your data to be reused on new host
         if (isLocalPlayer)
         {
-            var data = new PlayerData(transform.position, transform.rotation, _netId, UniqueClientIdentifier, shouldMigrate: true);
+            var data = new PlayerData(transform.position, transform.rotation, _privateInfo, UniqueClientIdentifier, shouldMigrate: true);
             Debug.LogWarning($"Player {this.name} being destroyed, trying to save {data}");
             MyNetworkManager.MyPlayerData = data;
         }

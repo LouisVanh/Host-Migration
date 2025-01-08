@@ -36,15 +36,15 @@ public struct HostConnectionData
 [Serializable]
 public struct MigrationData
 {
-    public uint OwnerNetId;        // The player this data belongs to
-    public string ComponentName;   // The name of the component (e.g., "PlayerController")
-    public string TypeName;        // The name of the type (e.g., "System.Int32")
-    public string VariableName;    // The name of the variable (e.g., "Health")
-    public string SerializedValue; // The serialized value as a string
+    public uint UniqueClientIdentifier;     // The player this data belongs to
+    public string ComponentName;            // The name of the component (e.g., "PlayerController")
+    public string TypeName;                 // The name of the type (e.g., "System.Int32")
+    public string VariableName;             // The name of the variable (e.g., "Health")
+    public string SerializedValue;          // The serialized value as a string
 
-    public MigrationData(uint ownerNetId, string componentName, string variableName, object value)
+    public MigrationData(uint ucid, string componentName, string variableName, object value)
     {
-        OwnerNetId = ownerNetId;
+        UniqueClientIdentifier = ucid;
         ComponentName = componentName;
         VariableName = variableName;
         // These are automatically derived from value
@@ -59,7 +59,7 @@ public struct MigrationData
     public override string ToString()
     {
         string valueString = string.IsNullOrWhiteSpace(SerializedValue) ? "null" : SerializedValue.ToString();
-        return $"NetID: {OwnerNetId}, Component: {ComponentName}, Variable: {VariableName}, Type: {TypeName}, Value: {valueString}";
+        return $"UCID: {UniqueClientIdentifier}, Component: {ComponentName}, Variable: {VariableName}, Type: {TypeName}, Value: {valueString}";
     }
 
 }
@@ -102,7 +102,7 @@ public class HostMigrationData : MonoBehaviour
 
         //DontDestroyOnLoad(this.gameObject); // Already done in netmgr
     }
-
+       
     // It should be readonly, but for debugging it won't show the values properly
     [SerializeField]private ServerOnlyInformation _serverOnlyInformation;
 
@@ -112,28 +112,27 @@ public class HostMigrationData : MonoBehaviour
     {
         _serverOnlyInformation.MigrationDatas.Clear();
         _serverOnlyInformation.MigrationDatas = newDatas;
+        Debug.Log("Succesfully overridden migration datas");
     }
 
-    // Save new info to this, send it through the MigrationDataTransfer 
-    // Serveronly
     /// <summary>
-    /// Add server-side data to a list in HostMigrationData, to transfer over to the next host
+    /// [Server] Add server-side data to a list in HostMigrationData, to transfer over to the next host with MigrationDataTransfer
     /// </summary>
     /// <param name="migrationData"></param>
     public void AddMigrationData(MigrationData migrationData)
     {
         Debug.Log($"Attempting to add migration data: {migrationData}");
 
-        // Check if an entry already exists with the same netId, componentName, and variableName
+        // Check if an entry already exists with the same ucid, componentName, and variableName
         for (int i = 0; i < _serverOnlyInformation.MigrationDatas.Count; i++)
         {
-            if (_serverOnlyInformation.MigrationDatas[i].OwnerNetId == migrationData.OwnerNetId &&
+            if (_serverOnlyInformation.MigrationDatas[i].UniqueClientIdentifier == migrationData.UniqueClientIdentifier &&
                 _serverOnlyInformation.MigrationDatas[i].ComponentName == migrationData.ComponentName &&
                 _serverOnlyInformation.MigrationDatas[i].VariableName == migrationData.VariableName)
                 // Don't need to check for the type/value, irrelevant. If it exists it's covered here already.
             {
                 _serverOnlyInformation.MigrationDatas[i] = migrationData;
-                Debug.Log($"Replaced migration data for NetID {migrationData.OwnerNetId}," +
+                Debug.Log($"Replaced migration data for UCID {migrationData.UniqueClientIdentifier}," +
                     $" Component {migrationData.ComponentName}, Variable {migrationData.VariableName}");
                 return;
             }
@@ -144,15 +143,17 @@ public class HostMigrationData : MonoBehaviour
         Debug.Log($"Added new migration data: {migrationData}");
     }
 
-
+    // Client: retrieve data that was received
     public void RetrieveFromDataMembers()
     {
         foreach (var migrationData in _serverOnlyInformation.MigrationDatas)
         {
             // Find the player object using the OwnerNetId
-            if (!NetworkServer.spawned.TryGetValue(migrationData.OwnerNetId, out NetworkIdentity playerIdentity))
+            var owner = UniqueClientIdProvider.FindClientByUCID(migrationData.UniqueClientIdentifier);
+            if(owner==null) { Debug.LogWarning("No player found with UCID" + migrationData.UniqueClientIdentifier); return; }
+            if (!NetworkServer.spawned.TryGetValue(owner.netId, out NetworkIdentity playerIdentity))
             {
-                Debug.LogWarning($"Player with NetID: {migrationData.OwnerNetId} not found!");
+                Debug.LogWarning($"[{migrationData.UniqueClientIdentifier}]Player with NetID: {owner.netId} not found!");
                 continue;
             }
 
@@ -160,7 +161,7 @@ public class HostMigrationData : MonoBehaviour
             Component targetComponent = playerIdentity.GetComponent(migrationData.ComponentName);
             if (targetComponent == null)
             {
-                Debug.LogWarning($"Component {migrationData.ComponentName} not found on player with NetID: {migrationData.OwnerNetId}!");
+                Debug.LogWarning($"Component {migrationData.ComponentName} not found on player with NetID: {owner.netId}!");
                 continue;
             }
 
@@ -188,7 +189,7 @@ public class HostMigrationData : MonoBehaviour
 
                     // Set the deserialized value back to the field
                     field.SetValue(targetComponent, deserializedValue);
-                    Debug.Log($"Restored {migrationData.VariableName} to {deserializedValue} for player {migrationData.OwnerNetId}");
+                    Debug.Log($"Restored {migrationData.VariableName} to {deserializedValue} for player {owner.netId}");
                 }
                 catch (Exception ex)
                 {
@@ -205,7 +206,7 @@ public class HostMigrationData : MonoBehaviour
 
 
     //Server code
-    public void TrySetBackUpHost(string address, NetworkConnectionToClient? randomHost)
+    public void TrySetBackUpHost(string address, NetworkConnectionToClient randomHost)
     {
         Debug.Log("Trying to setup backup host");
         if (PlayersManager.Instance.GetPlayers().Count > 1)
@@ -258,6 +259,7 @@ public class HostMigrationData : MonoBehaviour
 
     public static NetworkConnectionToClient GetNextHost()
     {
+        // gets a random host (who's not yourself)
         foreach (NetworkConnectionToClient conn in NetworkServer.connections.Values)
         {
             if (conn.identity.isLocalPlayer) continue;

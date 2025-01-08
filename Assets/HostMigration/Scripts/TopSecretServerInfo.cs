@@ -33,8 +33,9 @@ public class TopSecretServerInfo : NetworkBehaviour
                 playerNetId.GetComponent<TopSecretServerInfo>().SecretName = secretName;
 
                 Debug.Log("Name set: " + secretName);
+                var ucid = playerNetId.GetComponent<MyClient>().UniqueClientIdentifier;
                 HostMigrationData.Instance.AddMigrationData(
-                    new MigrationData(playerNetId.netId, nameof(TopSecretServerInfo), nameof(SecretName), secretName));
+                    new MigrationData(ucid, nameof(TopSecretServerInfo), nameof(SecretName), secretName));
             }
         }
     }
@@ -52,7 +53,7 @@ public class TopSecretServerInfo : NetworkBehaviour
             6 => "Louis",
             7 => "Cedric",
             8 => "Alexander",
-            9 => "Jessie",
+            9 => "Filou",
             _ => throw new System.NotImplementedException(),
         };
     }
