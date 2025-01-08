@@ -24,9 +24,9 @@ public class UniqueClientIdProvider : NetworkBehaviour
         _lastIdProvided++;
         Debug.Log("Provided new client id: " + _lastIdProvided);
         await System.Threading.Tasks.Task.Delay(1500);
-        if (NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity playerId))
+        if (NetworkServer.spawned.TryGetValue(sender.identity.netId, out NetworkIdentity playerId))
         {
-            RpcSendNewClientId(playerId.GetComponent<MyClient>(), _lastIdProvided);
+            RpcSendClientId(playerId.GetComponent<MyClient>(), _lastIdProvided);
         }
         else
         {
@@ -36,12 +36,18 @@ public class UniqueClientIdProvider : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcSendNewClientId(MyClient client, uint ucid)
+    public void RpcSendClientId(MyClient client, uint ucid)
     {
         Debug.Log("Received UCID: '" + ucid + "' for player " + netId);
         Debug.Assert(client != null);
         client.UniqueClientIdentifier = ucid;
         AssignColorByClient(client);
+    }
+
+    [Command (requiresAuthority = false)]
+    public void CmdMakeSureEveryoneKnowsMyUCID(MyClient client)
+    {
+        RpcSendClientId(client, client.UniqueClientIdentifier);
     }
 
     public static MyClient FindClientByUCID(uint ucid)
@@ -65,6 +71,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
         return null;
     }
 
+    #region Colour
     public static void AssignColorByUCID(uint ucid)
     {
         var client = FindClientByUCID(ucid);
@@ -91,4 +98,5 @@ public class UniqueClientIdProvider : NetworkBehaviour
             _ => throw new System.NotImplementedException(),
         };
     }
+    #endregion colour
 }
