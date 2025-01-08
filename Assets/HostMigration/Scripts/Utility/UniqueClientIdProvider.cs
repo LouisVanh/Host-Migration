@@ -22,15 +22,15 @@ public class UniqueClientIdProvider : NetworkBehaviour
         // Always return a new id, so it stays unique across host migrations
         _lastIdProvided++;
         Debug.Log("Provided new client id: " + _lastIdProvided);
-        sender.identity.GetComponent<MyClient>().UniqueClientIdentifier = _lastIdProvided;
+        RpcSendNewClientId(sender, _lastIdProvided);
     }
 
-    //[TargetRpc]
-    //private void RpcSendNewClientId(NetworkConnectionToClient conn, uint id)
-    //{
-    //    Debug.Log("Received UCID:" + id);
-    //    NetworkClient.localPlayer.GetComponent<MyClient>().UniqueClientIdentifier = id;
-    //}
+    [TargetRpc]
+    private void RpcSendNewClientId(NetworkConnectionToClient conn, uint ucid)
+    {
+        Debug.Log("Received UCID:" + ucid);
+        NetworkClient.localPlayer.GetComponent<MyClient>().UniqueClientIdentifier = ucid;
+    }
 
     public static MyClient FindClientByUCID(uint ucid)
     {
