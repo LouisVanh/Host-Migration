@@ -104,10 +104,11 @@ public class HostMigrationData : MonoBehaviour
     }
        
     // It should be readonly, but for debugging it won't show the values properly
-    [SerializeField]private ServerOnlyInformation _serverOnlyInformation;
+    [SerializeField] private ServerOnlyInformation _serverOnlyInformation;
 
     public List<MigrationData> GetMigrationDatas() { return _serverOnlyInformation.MigrationDatas; }
 
+    #region Migration Data manipulation
     public void OverrideMigrationData(List<MigrationData> newDatas)
     {
         _serverOnlyInformation.MigrationDatas.Clear();
@@ -202,8 +203,7 @@ public class HostMigrationData : MonoBehaviour
             }
         }
     }
-
-
+    #endregion
 
     //Server code
     public void TrySetBackUpHost(string address, NetworkConnectionToClient randomHost)

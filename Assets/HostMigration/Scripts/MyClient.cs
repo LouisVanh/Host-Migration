@@ -27,7 +27,6 @@ public class MyClient : NetworkBehaviour
 
     private void Start()
     {
-
         if (isServer)
         {
             //if you are server and disconnect you want to set this true so you dont initiate a rejoining phase

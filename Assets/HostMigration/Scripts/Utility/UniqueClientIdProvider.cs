@@ -19,11 +19,11 @@ public class UniqueClientIdProvider : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public async void CmdRequestNewClientId(NetworkConnectionToClient sender = null)
     {
-        await System.Threading.Tasks.Task.Delay(150);
+        //await System.Threading.Tasks.Task.Delay(150);
         // Always return a new id, so it stays unique across host migrations
         _lastIdProvided++;
         Debug.Log("Provided new client id: " + _lastIdProvided);
-        await System.Threading.Tasks.Task.Delay(1500);
+        //await System.Threading.Tasks.Task.Delay(1500);
         if (NetworkServer.spawned.TryGetValue(sender.identity.netId, out NetworkIdentity playerId))
         {
             RpcSendClientId(playerId.GetComponent<MyClient>(), _lastIdProvided);
@@ -47,7 +47,19 @@ public class UniqueClientIdProvider : NetworkBehaviour
     [Command (requiresAuthority = false)]
     public void CmdMakeSureEveryoneKnowsMyUCID(MyClient client)
     {
+        if(client.UniqueClientIdentifier == 0)
+        {
+            Debug.Log("Tried to send UCID, but I don't have one assigned yet. Returning.");
+            return;
+        }
         RpcSendClientId(client, client.UniqueClientIdentifier);
+    }
+
+    [Server, ClientRpc]
+    public void RpcSendNewPlayerMyUCID()
+    {
+        var client = NetworkClient.localPlayer.GetComponent<MyClient>();
+        CmdMakeSureEveryoneKnowsMyUCID(client);
     }
 
     public static MyClient FindClientByUCID(uint ucid)
