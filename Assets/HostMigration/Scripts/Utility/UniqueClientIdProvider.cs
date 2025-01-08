@@ -22,14 +22,17 @@ public class UniqueClientIdProvider : NetworkBehaviour
         // Always return a new id, so it stays unique across host migrations
         _lastIdProvided++;
         Debug.Log("Provided new client id: " + _lastIdProvided);
-        RpcSendNewClientId(sender, _lastIdProvided);
+        RpcSendNewClientId(sender.identity.netId, _lastIdProvided);
     }
 
-    [TargetRpc]
-    private void RpcSendNewClientId(NetworkConnectionToClient conn, uint ucid)
+    [ClientRpc]
+    public void RpcSendNewClientId(uint netId, uint ucid)
     {
-        Debug.Log("Received UCID:" + ucid);
-        NetworkClient.localPlayer.GetComponent<MyClient>().UniqueClientIdentifier = ucid;
+        Debug.Log("Received UCID: '" + ucid + "' for player "+netId);
+        if (NetworkServer.spawned.TryGetValue(netId, out NetworkIdentity playerId))
+        {
+            playerId.GetComponent<MyClient>().UniqueClientIdentifier = ucid;
+        }
     }
 
     public static MyClient FindClientByUCID(uint ucid)
@@ -39,14 +42,14 @@ public class UniqueClientIdProvider : NetworkBehaviour
         // Loop through them until you find the one with this UCID
         foreach (var player in players)
         {
-            if(NetworkServer.spawned.TryGetValue(player, out NetworkIdentity playerId))
+            if (NetworkServer.spawned.TryGetValue(player, out NetworkIdentity playerId))
             {
                 var client = playerId.GetComponent<MyClient>();
-                if(client.UniqueClientIdentifier == ucid)
+                if (client.UniqueClientIdentifier == ucid)
                 {
                     Debug.Log("Found the client with ucid" + ucid);
                     return client;
-                }    
+                }
             }
         }
         Debug.LogWarning("No client found with ucid" + ucid);

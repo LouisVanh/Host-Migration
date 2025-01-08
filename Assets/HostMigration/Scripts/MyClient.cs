@@ -9,7 +9,7 @@ public class MyClient : NetworkBehaviour
 {
     //private string _timeOfJoining;
     [ReadOnly, SerializeField] private string _privateInfo;
-    [SyncVar, ReadOnly] public uint UniqueClientIdentifier;
+    [ReadOnly] public uint UniqueClientIdentifier;
 
     private void Start()
     {
@@ -67,6 +67,7 @@ public class MyClient : NetworkBehaviour
 
         // Set anything on the server side of player data (health, amount of dice, ...) anything saved serverside
         SetNetIdOnServer(MyNetworkManager.MyPlayerData.StartGameMessage);
+        UniqueClientIdProvider.Instance.RpcSendNewClientId(this.netId, MyNetworkManager.MyPlayerData.UniqueClientIdentifier);
         MyNetworkManager.MyPlayerData.NeedsToHostMigrate = false; // (just did)
     }
 
