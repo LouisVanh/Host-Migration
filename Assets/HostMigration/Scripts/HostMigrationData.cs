@@ -208,10 +208,10 @@ public class HostMigrationData : MonoBehaviour
     //Server code
     public void TrySetBackUpHost(string address, NetworkConnectionToClient randomHost)
     {
-        Debug.Log("Trying to setup backup host");
+        //Debug.Log("Trying to setup backup host");
         if (PlayersManager.Instance.GetPlayers().Count > 1)
         {
-            Debug.Log("Multiple players detected!");
+            //Debug.Log("Multiple players detected!");
             if (randomHost == null)
             {
                 Debug.LogError("No next backup host found");
@@ -223,7 +223,7 @@ public class HostMigrationData : MonoBehaviour
             Debug.Log($"Trying to send over new host data: " + newHostData);
             randomHost.identity.GetComponent<MyClient>().StoreNewHostData(newHostData);
         }
-        else Debug.LogWarning("you're the only player, can't find a backup host");
+        else Debug.LogWarning("I'm the only player, can't find a backup host");
     }
 
     public void StartCoroutineMigrateHost()

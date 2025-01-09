@@ -35,7 +35,7 @@ public class MyNetworkManager : NetworkManager
             else
             {
                 Debug.Log("3. Host is not the only person here! Sending over UCID to new player");
-                UniqueClientIdProvider.Instance.CmdMakeSureEveryoneKnowsMyUCID(hostClient, hostClient.UniqueClientIdentifier);
+                UniqueClientIdProvider.Instance.CmdEveryoneSyncYourUCID(newPlayer: conn);
             }
         }
         // Don't do it here as it calls to early for the playercount to work, done in PlayerRegistering

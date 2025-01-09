@@ -15,6 +15,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
     }
 
     private uint _lastIdProvided;
+    private NetworkConnectionToClient _cachedNetworkConnectionToClient; // This is horrible.
 
     [Command(requiresAuthority = false)]
     public void CmdRequestNewClientId(NetworkConnectionToClient sender = null)
@@ -28,7 +29,8 @@ public class UniqueClientIdProvider : NetworkBehaviour
         }
     }
 
-    [Command (requiresAuthority = false)]
+    #region Post migration
+    [Command (requiresAuthority = false)] // For post migration:
     public async void CmdMakeSureEveryoneKnowsMyUCID(MyClient client, uint ucid)
     {
         await System.Threading.Tasks.Task.Delay(1000); 
@@ -40,7 +42,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
         RpcSendClientId(client, ucid);
     }
 
-    [ClientRpc]
+    [ClientRpc] // For post migration:
     public void RpcSendClientId(MyClient client, uint ucid)
     {
         Debug.Log("Received UCID: '" + ucid + "' for player " + client.netId + "... will assign color soon");
@@ -49,6 +51,44 @@ public class UniqueClientIdProvider : NetworkBehaviour
         client.UniqueClientIdentifier = ucid;
         AssignColorByClient(client);
     }
+    #endregion Post Migration
+
+    #region On player joining
+    [Command(requiresAuthority =false)]
+    public void CmdEveryoneSyncYourUCID(NetworkConnectionToClient newPlayer) // Getting our hands dirty because syncvars are reset upon migration
+    {
+        // This command is called OnServerAddPlayer.
+        // Unfortunately, passing newPlayer through a ClientRpc gives an error. Bandage fix:
+        _cachedNetworkConnectionToClient = newPlayer;
+        // This needs to a) ClientRPC to all players
+        RpcNotifyAllClientsToSendUCID();
+    }
+
+    [ClientRpc]
+    private void RpcNotifyAllClientsToSendUCID()
+    {
+        // That rpc should get the player's Client and UCID, and call a command
+        var client = NetworkClient.localPlayer.GetComponent<MyClient>();
+        var ucid = client.UniqueClientIdentifier;
+        CmdSendOwnUCIDToNewPlayer(client, ucid);
+    }
+
+    [Command(requiresAuthority =false)]
+    private void CmdSendOwnUCIDToNewPlayer(MyClient client, uint ucid)
+    {
+        // This needs to b) TargetRPC to the new player, setting the UCID and color
+        RpcSendOwnUCIDToNewPlayer(newPlayer: _cachedNetworkConnectionToClient, client, ucid);
+    } 
+
+    [TargetRpc]
+    private void RpcSendOwnUCIDToNewPlayer(NetworkConnectionToClient newPlayer, MyClient client, uint ucid)
+    {
+        Debug.Assert(client != null);
+        Debug.Assert(ucid != 0);
+        client.UniqueClientIdentifier = ucid;
+        AssignColorByClient(client);
+    }
+    #endregion On player joining
 
     public static MyClient FindClientByUCID(uint ucid)
     {
