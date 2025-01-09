@@ -19,20 +19,25 @@ public class UniqueClientIdProvider : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdRequestNewClientId(NetworkConnectionToClient sender = null)
     {
-        //await System.Threading.Tasks.Task.Delay(150);
         // Always return a new id, so it stays unique across host migrations
         _lastIdProvided++;
         Debug.Log("Provided new client id: " + _lastIdProvided);
-        //await System.Threading.Tasks.Task.Delay(1500);
         if (NetworkServer.spawned.TryGetValue(sender.identity.netId, out NetworkIdentity playerId))
         {
             RpcSendClientId(playerId.GetComponent<MyClient>(), _lastIdProvided);
         }
-        else
+    }
+
+    [Command (requiresAuthority = false)]
+    public async void CmdMakeSureEveryoneKnowsMyUCID(MyClient client, uint ucid)
+    {
+        await System.Threading.Tasks.Task.Delay(1000); 
+        if(ucid == 0)
         {
-            Debug.Log("ATTEMPTING TO DEBUG THIS BULLSHIT");
-            NetworkServerDebugger.PrintAllNetworkObjects();
+            Debug.LogWarning($"{client} tried to send empty UCID. Returning.");
+            return;
         }
+        RpcSendClientId(client, ucid);
     }
 
     [ClientRpc]
@@ -43,31 +48,6 @@ public class UniqueClientIdProvider : NetworkBehaviour
         Debug.Assert(ucid != 0);
         client.UniqueClientIdentifier = ucid;
         AssignColorByClient(client);
-    }
-
-    [Command (requiresAuthority = false)]
-    public async void CmdMakeSureEveryoneKnowsMyUCID(MyClient client)
-    {
-        await System.Threading.Tasks.Task.Delay(3000); 
-        if(client.UniqueClientIdentifier == 0)
-        {
-            Debug.LogWarning($"{client} tried to send empty UCID. Returning.");
-            return;
-        }
-        RpcSendClientId(client, client.UniqueClientIdentifier);
-    }
-
-    [ClientRpc] // Called from server
-    public void RpcSendNewPlayerMyUCID()
-    {
-        var client = NetworkClient.localPlayer.GetComponent<MyClient>();
-        Debug.Log("RpcSendNewPlayerMyUCID: trying to send" + client);
-        if(client.UniqueClientIdentifier == 0)
-        {
-            Debug.LogWarning("client's UCID was 0, returning from SendNewPlayerMyUCID");
-            return;
-        }
-        CmdMakeSureEveryoneKnowsMyUCID(client);
     }
 
     public static MyClient FindClientByUCID(uint ucid)
@@ -117,7 +97,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
             5 => Color.magenta,
             _ => throw new System.NotImplementedException(),
         };
-        Debug.Log($"Assigned color to {client}: {client.Color}");
+        Debug.Log($"Assigned color to {client}");
     }
     #endregion colour
 }

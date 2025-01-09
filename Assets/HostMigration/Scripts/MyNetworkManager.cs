@@ -22,23 +22,22 @@ public class MyNetworkManager : NetworkManager
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         base.OnServerAddPlayer(conn);
-        Debug.LogWarning("OnServerAddPlayer called!");
-        Debug.LogWarning("Server netid: "+NetworkServer.localConnection.identity.netId);
-        //if(NetworkServer.localConnection.identity.GetComponent<MyClient>().UniqueClientIdentifier != 0)
+        Debug.LogWarning("1. OnServerAddPlayer called!");
+
         if(NetworkServer.spawned.TryGetValue(NetworkServer.localConnection.identity.netId, out NetworkIdentity hostId))
         {
-            Debug.Log("Host found!");
-            if(hostId.GetComponent<MyClient>().UniqueClientIdentifier ==0)
+            Debug.Log("2. Host found!");
+            var hostClient = hostId.GetComponent<MyClient>();
+            if (hostClient.UniqueClientIdentifier ==0)
             {
-                Debug.Log("But host is the only person here");
+                Debug.Log("3. But host is the only person here");
             }
             else
             {
-                Debug.Log("Host is not the only person here! Sending over UCID to new player");
-                UniqueClientIdProvider.Instance.RpcSendNewPlayerMyUCID();
+                Debug.Log("3. Host is not the only person here! Sending over UCID to new player");
+                UniqueClientIdProvider.Instance.CmdMakeSureEveryoneKnowsMyUCID(hostClient, hostClient.UniqueClientIdentifier);
             }
         }
-        //UniqueClientIdProvider.Instance.RpcSendNewPlayerMyUCID();
         // Don't do it here as it calls to early for the playercount to work, done in PlayerRegistering
         //TrySetBackUpHost("localhost", GetNextHost());
     }

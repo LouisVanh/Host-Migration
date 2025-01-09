@@ -1320,7 +1320,7 @@ MonoBehaviour:
   _showErrors: 1
   _showWarnings: 1
   _showDefault: 1
-  _maxAmountOfLogs: 50
+  _maxAmountOfLogs: 80
 --- !u!4 &1966942860
 Transform:
   m_ObjectHideFlags: 0
@@ -1546,7 +1546,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _serverOnlyInformation:
     MigrationDatas: []
-  CurrentClientRetrievingDataFor: {fileID: 0}
 --- !u!114 &7853191276070496747
 MonoBehaviour:
   m_ObjectHideFlags: 0

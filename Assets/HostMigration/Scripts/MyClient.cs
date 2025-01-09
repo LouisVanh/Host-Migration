@@ -79,10 +79,9 @@ public class MyClient : NetworkBehaviour
         transform.SetPositionAndRotation(MyNetworkManager.MyPlayerData.Position, MyNetworkManager.MyPlayerData.Rotation);
         _privateInfo = MyNetworkManager.MyPlayerData.PrivateClientInfo;
         UniqueClientIdentifier = MyNetworkManager.MyPlayerData.UniqueClientIdentifier;
-        //UniqueClientIdProvider.AssignColorByUCID(UniqueClientIdentifier);
         // Set anything on the server side of player data (health, amount of dice, ...) anything saved serverside
         //SetNetIdOnServer(MyNetworkManager.MyPlayerData.StartGameMessage);
-        //UniqueClientIdProvider.Instance.RpcSendClientId(this, MyNetworkManager.MyPlayerData.UniqueClientIdentifier);
+        UniqueClientIdProvider.Instance.CmdMakeSureEveryoneKnowsMyUCID(this, this.UniqueClientIdentifier);
 
 
         MyNetworkManager.MyPlayerData.NeedsToHostMigrate = false; // (just did)

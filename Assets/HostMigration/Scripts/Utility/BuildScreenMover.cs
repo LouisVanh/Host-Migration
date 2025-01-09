@@ -13,8 +13,8 @@ public class MultiInstanceWindowManager : MonoBehaviour
     public async void SetWindowToQuarterScreen()
     {
         // Define a constant window size (quarter of a 1920x1080 screen)
-        int windowWidth = 640;
-        int windowHeight = 360;
+        int windowWidth = 800;
+        int windowHeight = 450;
         int padding = 250;
         // Set the windowed mode and size
         Screen.SetResolution(windowWidth, windowHeight, false);
