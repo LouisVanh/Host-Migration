@@ -3,6 +3,7 @@ using Mirror;
 
 public class UniqueClientIdProvider : NetworkBehaviour
 {
+    #region Singleton
     public static UniqueClientIdProvider Instance { get; private set; }
     private void Awake()
     {
@@ -13,10 +14,32 @@ public class UniqueClientIdProvider : NetworkBehaviour
 
         DontDestroyOnLoad(this.gameObject);
     }
+    #endregion Singleton
 
     private uint _lastIdProvided;
-    private NetworkConnectionToClient _cachedNetworkConnectionToClient; // This is horrible.
 
+    public static MyClient FindClientByUCID(uint ucid)
+    {
+        // Find all objects in the scene with this component (will all be players, which are registered)
+        var players = PlayersManager.Instance.Players;
+        // Loop through them until you find the one with this UCID
+        foreach (var player in players)
+        {
+            if (NetworkServer.spawned.TryGetValue(player, out NetworkIdentity playerId))
+            {
+                var client = playerId.GetComponent<MyClient>();
+                if (client.UniqueClientIdentifier == ucid)
+                {
+                    Debug.Log("Found the client with ucid" + ucid);
+                    return client;
+                }
+            }
+        }
+        Debug.LogWarning("No client found with ucid" + ucid);
+        return null;
+    }
+
+    #region First time joining
     [Command(requiresAuthority = false)]
     public void CmdRequestNewClientId(NetworkConnectionToClient sender = null)
     {
@@ -28,7 +51,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
             RpcSendClientId(playerId.GetComponent<MyClient>(), _lastIdProvided);
         }
     }
-
+    #endregion First time joining
     #region Post migration
     [Command(requiresAuthority = false)] // For post migration:
     public async void CmdMakeSureEveryoneKnowsMyUCID(MyClient client, uint ucid)
@@ -52,7 +75,6 @@ public class UniqueClientIdProvider : NetworkBehaviour
         AssignColorByClient(client);
     }
     #endregion Post Migration
-
     #region On player joining
     [Server]
     public void EveryoneSyncYourUCID(NetworkConnectionToClient newPlayer) // Getting our hands dirty because syncvars are reset upon migration (Called OnServerAddPlayer)
@@ -103,28 +125,6 @@ public class UniqueClientIdProvider : NetworkBehaviour
         AssignColorByClient(client);
     }
     #endregion On player joining
-
-    public static MyClient FindClientByUCID(uint ucid)
-    {
-        // Find all objects in the scene with this component (will all be players, which are registered)
-        var players = PlayersManager.Instance.Players;
-        // Loop through them until you find the one with this UCID
-        foreach (var player in players)
-        {
-            if (NetworkServer.spawned.TryGetValue(player, out NetworkIdentity playerId))
-            {
-                var client = playerId.GetComponent<MyClient>();
-                if (client.UniqueClientIdentifier == ucid)
-                {
-                    Debug.Log("Found the client with ucid" + ucid);
-                    return client;
-                }
-            }
-        }
-        Debug.LogWarning("No client found with ucid" + ucid);
-        return null;
-    }
-
     #region Colour
     public static void AssignColorByUCID(uint ucid)
     {
