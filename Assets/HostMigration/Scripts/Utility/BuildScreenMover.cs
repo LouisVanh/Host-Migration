@@ -13,9 +13,10 @@ public class MultiInstanceWindowManager : MonoBehaviour
     public async void SetWindowToQuarterScreen()
     {
         // Define a constant window size (quarter of a 1920x1080 screen)
-        int windowWidth = 800;
-        int windowHeight = 450;
-        int padding = 250;
+        int windowWidth = 880;
+        int windowHeight = 495;
+        int paddingWidth = 50;
+        int paddingHeight = 25;
         // Set the windowed mode and size
         Screen.SetResolution(windowWidth, windowHeight, false);
         // Check how many instances of the program are running
@@ -28,20 +29,20 @@ public class MultiInstanceWindowManager : MonoBehaviour
         switch (instanceIndex%4)
         {
             case 0: // Top-left
-                x = 0;
+                x = paddingWidth/2;
                 y = 0;
                 break;
             case 1: // Top-right
-                x = windowWidth + padding + padding;
+                x = windowWidth + paddingWidth + paddingWidth/2;
                 y = 0;
                 break;
             case 2: // Bottom-left
-                x = 0;
-                y = windowHeight + padding;
+                x = paddingWidth/2;
+                y = windowHeight + paddingHeight;
                 break;
             case 3: // Bottom-right
-                x = windowWidth + padding + padding;
-                y = windowHeight + padding;
+                x = windowWidth + paddingWidth + paddingWidth/2;
+                y = windowHeight + paddingHeight;
                 break;
             default: // If more than 4 instances, stack them at (0,0)
                 x = 0;

@@ -95,7 +95,7 @@ public class PlayersManager : NetworkBehaviour
         if (isServer)
         {
             Debug.Log("I'm the server, setting backuphost for everyone now");
-            HostMigrationData.Instance.TrySetBackUpHost("localhost", HostMigrationData.GetNextHost());
+            HostMigrationData.Instance.TrySetBackUpHost("localhost");
         }
     }
 

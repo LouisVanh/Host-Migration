@@ -206,12 +206,13 @@ public class HostMigrationData : MonoBehaviour
     #endregion
 
     //Server code
-    public void TrySetBackUpHost(string address, NetworkConnectionToClient randomHost)
+    public void TrySetBackUpHost(string address)
     {
         //Debug.Log("Trying to setup backup host");
-        if (PlayersManager.Instance.GetPlayers().Count > 1)
+        if (PlayersManager.Instance.Players.Count > 1)
         {
             //Debug.Log("Multiple players detected!");
+            var randomHost = GetNextHost();
             if (randomHost == null)
             {
                 Debug.LogError("No next backup host found");
