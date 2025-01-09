@@ -1,7 +1,5 @@
 using UnityEngine;
 using Mirror;
-using kcp2k;
-using Mirror.FizzySteam;
 
 public class UniqueClientIdProvider : NetworkBehaviour
 {

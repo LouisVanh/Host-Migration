@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
 using UnityEngine.SceneManagement;
+using Steamworks;
+using Mirror.FizzySteam;
+using kcp2k;
 
 public class MyNetworkManager : NetworkManager
 {
@@ -24,11 +27,22 @@ public class MyNetworkManager : NetworkManager
         base.OnServerAddPlayer(conn);
         Debug.LogWarning("1. OnServerAddPlayer called!");
 
-        if(NetworkServer.spawned.TryGetValue(NetworkServer.localConnection.identity.netId, out NetworkIdentity hostId))
+        if (IsUsingSteamTransport)
+        {
+            // Get SteamID for the player joining
+            CSteamID playerSteamID = SteamUser.GetSteamID();
+            Debug.Log($"New player joined with SteamID: {playerSteamID.m_SteamID}");
+        }
+        else if (IsUsingKCPTransport)
+        {
+            Debug.Log($"New player joined locally. Will assign UCID later.");
+        }
+
+        if (NetworkServer.spawned.TryGetValue(NetworkServer.localConnection.identity.netId, out NetworkIdentity hostId))
         {
             Debug.Log("2. Host found!");
             var hostClient = hostId.GetComponent<MyClient>();
-            if (hostClient.UniqueClientIdentifier ==0)
+            if (hostClient.UniqueClientIdentifier == 0)
             {
                 Debug.Log("3. But host is the only person here");
             }
@@ -60,8 +74,9 @@ public class MyNetworkManager : NetworkManager
 
     #endregion host migration
     #region Transport
-    private void Start()
+    public override void Start()
     {
+        base.Start();
         CheckWhatTransportIsBeingUsed();
     }
 
@@ -75,7 +90,6 @@ public class MyNetworkManager : NetworkManager
         Debug.Log($"Steam: {IsUsingSteamTransport} - KCP: {IsUsingKCPTransport}");
     }
     #endregion Transport
-
     #region Normal network manager
     public static new MyNetworkManager singleton => (MyNetworkManager)NetworkManager.singleton;
     private bool _isRestartingGame;

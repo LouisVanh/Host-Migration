@@ -11,9 +11,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/HostMigration/GameScene.unity
     guid: 060ee387c45a14a4c9ad732dade4679a
-  - enabled: 1
+  - enabled: 0
     path: Assets/HostMigration/MigrateTestScene.unity
     guid: b406cd0176cbb0c41ae6ed8c3f5d243b
+  - enabled: 1
+    path: Assets/HostMigration/MigrateSteamTestScene.unity
+    guid: 66cbf6a2ad6064c4da7b1705235cbbde
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
