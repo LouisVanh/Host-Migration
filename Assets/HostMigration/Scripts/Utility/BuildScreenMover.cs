@@ -10,12 +10,14 @@ public class MultiInstanceWindowManager : MonoBehaviour
         SetWindowToQuarterScreen();
     }
 
-    public void SetWindowToQuarterScreen()
+    public async void SetWindowToQuarterScreen()
     {
         // Define a constant window size (quarter of a 1920x1080 screen)
-        int windowWidth = 780;
-        int windowHeight = 450;
-
+        int windowWidth = 640;
+        int windowHeight = 360;
+        int padding = 250;
+        // Set the windowed mode and size
+        Screen.SetResolution(windowWidth, windowHeight, false);
         // Check how many instances of the program are running
         int instanceIndex = GetInstanceIndex();
 
@@ -30,16 +32,16 @@ public class MultiInstanceWindowManager : MonoBehaviour
                 y = 0;
                 break;
             case 1: // Top-right
-                x = windowWidth;
+                x = windowWidth + padding + padding;
                 y = 0;
                 break;
             case 2: // Bottom-left
                 x = 0;
-                y = windowHeight;
+                y = windowHeight + padding;
                 break;
             case 3: // Bottom-right
-                x = windowWidth;
-                y = windowHeight;
+                x = windowWidth + padding + padding;
+                y = windowHeight + padding;
                 break;
             default: // If more than 4 instances, stack them at (0,0)
                 x = 0;
@@ -47,11 +49,9 @@ public class MultiInstanceWindowManager : MonoBehaviour
                 break;
         }
 
-        // Set the windowed mode and size
-        Screen.SetResolution(windowWidth, windowHeight, false);
-
+        await System.Threading.Tasks.Task.Delay(3000);
         // Move the window to the specified position
-        SetWindowPosition(x, y);
+        SetWindowPosition(x, y, windowWidth, windowHeight);
     }
 
     private int GetInstanceIndex()
@@ -84,10 +84,10 @@ public class MultiInstanceWindowManager : MonoBehaviour
     [DllImport("user32.dll")]
     private static extern System.IntPtr GetActiveWindow();
 
-    private void SetWindowPosition(int x, int y)
+    private void SetWindowPosition(int x, int y, int width, int height)
     {
         System.IntPtr hWnd = GetActiveWindow();
-        MoveWindow(hWnd, x, y, 960, 540, true); // Use fixed size values here too
+        MoveWindow(hWnd, x, y, width, height, true);
     }
 #else
     private void SetWindowPosition(int x, int y)
