@@ -12,13 +12,9 @@ public class MultiInstanceWindowManager : MonoBehaviour
 
     public void SetWindowToQuarterScreen()
     {
-        // Get the current screen resolution
-        int screenWidth = Screen.currentResolution.width;
-        int screenHeight = Screen.currentResolution.height;
-
-        // Calculate the size for 1/4th of the screen
-        int windowWidth = screenWidth / 2;
-        int windowHeight = screenHeight / 2;
+        // Define a constant window size (quarter of a 1920x1080 screen)
+        int windowWidth = 780;
+        int windowHeight = 450;
 
         // Check how many instances of the program are running
         int instanceIndex = GetInstanceIndex();
@@ -27,23 +23,23 @@ public class MultiInstanceWindowManager : MonoBehaviour
         int x = 0;
         int y = 0;
 
-        switch (instanceIndex)
+        switch (instanceIndex%4)
         {
             case 0: // Top-left
                 x = 0;
                 y = 0;
                 break;
             case 1: // Top-right
-                x = screenWidth / 2;
+                x = windowWidth;
                 y = 0;
                 break;
             case 2: // Bottom-left
                 x = 0;
-                y = screenHeight / 2;
+                y = windowHeight;
                 break;
             case 3: // Bottom-right
-                x = screenWidth / 2;
-                y = screenHeight / 2;
+                x = windowWidth;
+                y = windowHeight;
                 break;
             default: // If more than 4 instances, stack them at (0,0)
                 x = 0;
@@ -91,7 +87,7 @@ public class MultiInstanceWindowManager : MonoBehaviour
     private void SetWindowPosition(int x, int y)
     {
         System.IntPtr hWnd = GetActiveWindow();
-        MoveWindow(hWnd, x, y, Screen.width / 2, Screen.height / 2, true);
+        MoveWindow(hWnd, x, y, 960, 540, true); // Use fixed size values here too
     }
 #else
     private void SetWindowPosition(int x, int y)
@@ -99,5 +95,5 @@ public class MultiInstanceWindowManager : MonoBehaviour
         Debug.LogWarning("SetWindowPosition is not implemented for this platform.");
     }
 #endif
-#endif //UNITY EDITOR
+#endif //UNITY_EDITOR
 }

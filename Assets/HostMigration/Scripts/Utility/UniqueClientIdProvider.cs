@@ -17,7 +17,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
     private uint _lastIdProvided;
 
     [Command(requiresAuthority = false)]
-    public async void CmdRequestNewClientId(NetworkConnectionToClient sender = null)
+    public void CmdRequestNewClientId(NetworkConnectionToClient sender = null)
     {
         //await System.Threading.Tasks.Task.Delay(150);
         // Always return a new id, so it stays unique across host migrations
@@ -40,24 +40,27 @@ public class UniqueClientIdProvider : NetworkBehaviour
     {
         Debug.Log("Received UCID: '" + ucid + "' for player " + netId);
         Debug.Assert(client != null);
+        Debug.Assert(ucid != 0);
         client.UniqueClientIdentifier = ucid;
         AssignColorByClient(client);
     }
 
     [Command (requiresAuthority = false)]
-    public void CmdMakeSureEveryoneKnowsMyUCID(MyClient client)
+    public async void CmdMakeSureEveryoneKnowsMyUCID(MyClient client)
     {
+        await System.Threading.Tasks.Task.Delay(250); 
         if(client.UniqueClientIdentifier == 0)
         {
-            Debug.Log("Tried to send UCID, but I don't have one assigned yet. Returning.");
+            Debug.LogWarning("Tried to send UCID, but I don't have one assigned yet. Returning.");
             return;
         }
         RpcSendClientId(client, client.UniqueClientIdentifier);
     }
 
-    [Server, ClientRpc]
+    [ClientRpc] // Called from server
     public void RpcSendNewPlayerMyUCID()
     {
+        Debug.Log("RpcSendNewPlayerMyUCID: trying to send");
         var client = NetworkClient.localPlayer.GetComponent<MyClient>();
         CmdMakeSureEveryoneKnowsMyUCID(client);
     }
