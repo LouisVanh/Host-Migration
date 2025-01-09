@@ -1,5 +1,7 @@
 using UnityEngine;
 using Mirror;
+using kcp2k;
+using Mirror.FizzySteam;
 
 public class UniqueClientIdProvider : NetworkBehaviour
 {
@@ -17,7 +19,6 @@ public class UniqueClientIdProvider : NetworkBehaviour
     #endregion Singleton
 
     private uint _lastIdProvided;
-
     public static MyClient FindClientByUCID(uint ucid)
     {
         // Find all objects in the scene with this component (will all be players, which are registered)

@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class MyNetworkManager : NetworkManager
 {
-    #region host migration
+    #region Host migration
     //Disconnect only if you are host, if not this will be false and you will join next lobby
     public static bool DisconnectGracefully = false;
     //If new host, so you start new lobby
@@ -57,11 +57,26 @@ public class MyNetworkManager : NetworkManager
 
         base.OnClientDisconnect();
     }
-    
+
     #endregion host migration
+    #region Transport
+    private void Start()
+    {
+        CheckWhatTransportIsBeingUsed();
+    }
 
+    public bool IsUsingSteamTransport;
+    public bool IsUsingKCPTransport;
 
-    #region normal network manager
+    private void CheckWhatTransportIsBeingUsed()
+    {
+        IsUsingSteamTransport = Transport.active is FizzySteamworks;
+        IsUsingKCPTransport = Transport.active is KcpTransport;
+        Debug.Log($"Steam: {IsUsingSteamTransport} - KCP: {IsUsingKCPTransport}");
+    }
+    #endregion Transport
+
+    #region Normal network manager
     public static new MyNetworkManager singleton => (MyNetworkManager)NetworkManager.singleton;
     private bool _isRestartingGame;
     public bool IsRestartingGame // This is set through an RPC, so all players receive this
