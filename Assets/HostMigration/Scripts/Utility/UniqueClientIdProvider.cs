@@ -30,11 +30,11 @@ public class UniqueClientIdProvider : NetworkBehaviour
     }
 
     #region Post migration
-    [Command (requiresAuthority = false)] // For post migration:
+    [Command(requiresAuthority = false)] // For post migration:
     public async void CmdMakeSureEveryoneKnowsMyUCID(MyClient client, uint ucid)
     {
-        await System.Threading.Tasks.Task.Delay(1000); 
-        if(ucid == 0)
+        await System.Threading.Tasks.Task.Delay(1000);
+        if (ucid == 0)
         {
             Debug.LogWarning($"{client} tried to send empty UCID. Returning.");
             return;
@@ -54,35 +54,49 @@ public class UniqueClientIdProvider : NetworkBehaviour
     #endregion Post Migration
 
     #region On player joining
-    [Command(requiresAuthority =false)]
-    public void CmdEveryoneSyncYourUCID(NetworkConnectionToClient newPlayer) // Getting our hands dirty because syncvars are reset upon migration
+    [Server]
+    public void EveryoneSyncYourUCID(NetworkConnectionToClient newPlayer) // Getting our hands dirty because syncvars are reset upon migration (Called OnServerAddPlayer)
     {
-        // This command is called OnServerAddPlayer.
         // Unfortunately, passing newPlayer through a ClientRpc gives an error. Bandage fix:
-        _cachedNetworkConnectionToClient = newPlayer;
+        var newPlayerNetId = newPlayer.identity.netId;
         // This needs to a) ClientRPC to all players
-        RpcNotifyAllClientsToSendUCID();
+        Debug.LogWarning("Notifying everyone about the new player to send UCIDs");
+        RpcNotifyAllClientsToSendUCID(newPlayerNetId);
     }
 
     [ClientRpc]
-    private void RpcNotifyAllClientsToSendUCID()
+    private void RpcNotifyAllClientsToSendUCID(uint newPlayerNetId)
     {
-        // That rpc should get the player's Client and UCID, and call a command
+        // This rpc should get the player's Client and UCID, and call a command
+        // Don't send to yourself when joining ofcourse
+        if (NetworkClient.localPlayer.netId == newPlayerNetId) return;
         var client = NetworkClient.localPlayer.GetComponent<MyClient>();
         var ucid = client.UniqueClientIdentifier;
-        CmdSendOwnUCIDToNewPlayer(client, ucid);
+        if (client == null || ucid == 0)
+        {
+            Debug.LogWarning("UCID not initialised yet. Skipping");
+            return;
+        }
+        Debug.LogWarning("UCID succesfully retrieved, Cmding it over");
+        CmdSendOwnUCIDToNewPlayer(newPlayerNetId, client, ucid);
     }
 
-    [Command(requiresAuthority =false)]
-    private void CmdSendOwnUCIDToNewPlayer(MyClient client, uint ucid)
+    [Command(requiresAuthority = false)]
+    private void CmdSendOwnUCIDToNewPlayer(uint newPlayerNetId, MyClient client, uint ucid)
     {
         // This needs to b) TargetRPC to the new player, setting the UCID and color
-        RpcSendOwnUCIDToNewPlayer(newPlayer: _cachedNetworkConnectionToClient, client, ucid);
-    } 
+        if (NetworkServer.spawned.TryGetValue(newPlayerNetId, out NetworkIdentity newPlayerId))
+        {
+            Debug.Log("Success! Player id found");
+            RpcSendOwnUCIDToNewPlayer(newPlayer: newPlayerId.connectionToClient, client, ucid);
+        }
+        else Debug.LogWarning("Couldn't find that player id: " + newPlayerNetId);
+    }
 
     [TargetRpc]
     private void RpcSendOwnUCIDToNewPlayer(NetworkConnectionToClient newPlayer, MyClient client, uint ucid)
     {
+        Debug.LogWarning("Everything succesfully retrieved!");
         Debug.Assert(client != null);
         Debug.Assert(ucid != 0);
         client.UniqueClientIdentifier = ucid;
