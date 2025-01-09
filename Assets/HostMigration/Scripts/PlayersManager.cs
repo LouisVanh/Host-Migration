@@ -16,6 +16,17 @@ public class PlayersManager : NetworkBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
+    public List<MyClient> GetClients()
+    {
+        List<MyClient> playerList = new();
+        foreach (uint playerId in Players)
+        {
+            if (NetworkClient.spawned.TryGetValue(playerId, out NetworkIdentity playerObj))
+                playerList.Add(playerObj.GetComponent<MyClient>());
+        }
+        return playerList;
+    }
+
     public List<Player> GetPlayers()
     {
         List<Player> playerList = new();

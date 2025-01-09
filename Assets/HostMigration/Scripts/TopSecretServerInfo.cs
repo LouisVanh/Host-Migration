@@ -25,18 +25,15 @@ public class TopSecretServerInfo : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void SetSecretNameOfEveryone()
     {
-        foreach (var player in PlayersManager.Instance.Players)
+        foreach (var player in PlayersManager.Instance.GetClients())
         {
-            if (NetworkServer.spawned.TryGetValue(player, out NetworkIdentity playerNetId))
-            {
                 string secretName = TopSecretServerInfo.GetSecretName();
-                playerNetId.GetComponent<TopSecretServerInfo>().SecretName = secretName;
+                player.GetComponent<TopSecretServerInfo>().SecretName = secretName;
 
                 Debug.Log("Name set: " + secretName);
-                var ucid = playerNetId.GetComponent<MyClient>().UniqueClientIdentifier;
+                var ucid = player.GetComponent<MyClient>().UniqueClientIdentifier;
                 HostMigrationData.Instance.AddMigrationData(
                     new MigrationData(ucid, nameof(TopSecretServerInfo), nameof(SecretName), secretName));
-            }
         }
     }
 

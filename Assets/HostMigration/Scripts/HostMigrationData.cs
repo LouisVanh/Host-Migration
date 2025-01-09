@@ -209,7 +209,7 @@ public class HostMigrationData : MonoBehaviour
     public void TrySetBackUpHost(string address)
     {
         //Debug.Log("Trying to setup backup host");
-        if (PlayersManager.Instance.Players.Count > 1)
+        if (PlayersManager.Instance.GetClients().Count > 1)
         {
             //Debug.Log("Multiple players detected!");
             var randomHost = GetNextHost();
