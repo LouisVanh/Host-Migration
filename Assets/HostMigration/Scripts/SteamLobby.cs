@@ -63,7 +63,8 @@ public class SteamLobby : MonoBehaviour
             return;
         }
 
-        string hostAddress = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), HostAddressKey);
+        SteamLobbyId = new CSteamID(callback.m_ulSteamIDLobby);
+        string hostAddress = SteamMatchmaking.GetLobbyData(SteamLobbyId, HostAddressKey);
 
         Debug.LogWarning("Entering lobby with hostaddress " + hostAddress);
         MyNetworkManager.singleton.networkAddress = hostAddress;
