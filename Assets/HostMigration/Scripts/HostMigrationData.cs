@@ -206,7 +206,7 @@ public class HostMigrationData : MonoBehaviour
     #endregion
 
     //Server code
-    public void TrySetBackUpHost(string address)
+    public void TrySetBackUpHost()
     {
         //Debug.Log("Trying to setup backup host");
         if (PlayersManager.Instance.GetClients().Count > 1)
@@ -218,6 +218,10 @@ public class HostMigrationData : MonoBehaviour
                 Debug.LogError("No next backup host found");
                 return;
             }
+
+            string address = "";
+            if (MyNetworkManager.singleton.IsUsingKCPTransport) address = "localhost";
+            if (MyNetworkManager.singleton.IsUsingSteamTransport) address = MyNetworkManager.HostSteamId.ToString();
 
             //once found send to each client to store;
             HostConnectionData newHostData = new HostConnectionData(address, randomHost.identity.netId);

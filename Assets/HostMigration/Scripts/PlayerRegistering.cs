@@ -20,9 +20,6 @@ public class PlayerRegistering : NetworkBehaviour
     private void CmdRegisterPlayer() // Call this on Start, make sure to check for isLocalPlayer
     {
         PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
-        if (MyNetworkManager.singleton.IsUsingKCPTransport)
-        {
-            HostMigrationData.Instance.TrySetBackUpHost("localhost");
-        }
+        HostMigrationData.Instance.TrySetBackUpHost();
     }
 }
