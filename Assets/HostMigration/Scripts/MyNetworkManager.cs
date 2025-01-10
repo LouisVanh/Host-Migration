@@ -30,7 +30,7 @@ public class MyNetworkManager : NetworkManager
         //TrySetBackUpHost("localhost", GetNextHost());
     }
 
-    private async void OnStartSyncUCID(NetworkConnectionToClient conn)
+    private void OnStartSyncUCID(NetworkConnectionToClient conn)
     {
         Debug.LogWarning("1. OnServerAddPlayer called!");
 
@@ -45,7 +45,7 @@ public class MyNetworkManager : NetworkManager
             Debug.Log($"New player joined locally. Will assign UCID later.");
         }
 
-        await System.Threading.Tasks.Task.Delay(50); // Small delay to ensure client exists
+        //await System.Threading.Tasks.Task.Delay(50); // Small delay to ensure client exists
         if (NetworkServer.spawned.TryGetValue(NetworkServer.localConnection.identity.netId, out NetworkIdentity hostId))
         {
             Debug.Log("2. Host found!");
