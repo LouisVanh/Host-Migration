@@ -75,19 +75,32 @@ public class MyClient : NetworkBehaviour
 
     private void RemakeGame() // LOAD DATA FROM YOUR LOCAL SAVE. UPDATE IT WHEREVER NEEDED.
     {
-        BenchmarkManager.StartBenchmark(BenchmarkManager.MethodClientStopWatch);
+        BenchmarkManager.StartBenchmark(BenchmarkManager.MethodClientStopWatch, needsTwoStops: true);
         Debug.Log("Data found, restoring");
 
         transform.SetPositionAndRotation(MyNetworkManager.MyPlayerData.Position, MyNetworkManager.MyPlayerData.Rotation);
         _privateInfo = MyNetworkManager.MyPlayerData.PrivateClientInfo;
         UniqueClientIdentifier = MyNetworkManager.MyPlayerData.UniqueClientIdentifier;
         ExtraBytes = MyNetworkManager.MyPlayerData.ExtraData;
+
+        // Do something with this extra data:
+        ulong sum = 0;
+        foreach (byte b in ExtraBytes)
+        {
+            sum += b;
+        }
+        Debug.Log($"Sum of all {ExtraBytes.Length} bytes: {sum}");
+
+        // Clear the massive garbage we just made, so the game won't lag.
+        GC.Collect(); // get rid of all of the memory stored, as this also slows down the game
+        long afterMemory = GC.GetTotalMemory(true);
+
         // Set anything on the server side of player data (health, amount of dice, ...) anything saved serverside
-        //SetNetIdOnServer(MyNetworkManager.MyPlayerData.StartGameMessage);
         UniqueClientIdProvider.Instance.CmdMakeSureEveryoneKnowsMyUCID(this, this.UniqueClientIdentifier);
 
 
         MyNetworkManager.MyPlayerData.NeedsToHostMigrate = false; // (just did)
+        BenchmarkManager.StopBenchmark(BenchmarkManager.MethodClientStopWatch);
     }
 
     private void OnDestroy()
@@ -97,12 +110,23 @@ public class MyClient : NetworkBehaviour
         if (isLocalPlayer)
         {
             // Initialize the extraData with random data (In this case, 7029 bytes, to make it 7100 bytes total, which will be 100x the original size) --> no increase
-            // Initialize the extraData with random data (In this case, 70929 bytes, to make it 71 kilobytes total, which will be 100x the original size) --> 3ms increase
-            // Initialize the extraData with random data (In this case, 709929 bytes, to make it 710 kilobytes total, which will be 100x the original size) --> 3ms increase
+            // Initialize the extraData with random data (In this case, 70929 bytes, to make it 71 kilobytes total, which will be 1000x the original size) --> 3ms increase
+            // Initialize the extraData with random data (In this case, 709929 bytes, to make it 710 kilobytes total, which will be 10.000x the original size) --> 15ms increase
+            // Initialize the extraData with random data (In this case, 7099929 bytes, to make it 7.1 megabytes total, which will be 100.000x the original size) --> 10ms increase
+            // Initialize the extraData with random data (In this case, 70999929 bytes, to make it 71 megabytes total, which will be 1000.000x the original size) --> 11ms increase
+            // Initialize the extraData with random data (In this case, 709999929 bytes, to make it 710 megabytes total, which will be 10.000.000x the original size) --> 17ms increase
+            // Initialize the extraData with random data (In this case, 7099999929 bytes, to make it 7.1 gigabytes total, which will be 100.000.000x the original size) --> 17ms increase
+
+            long beforeMemory = GC.GetTotalMemory(true);
 
             System.Random rand = new System.Random();
-            byte[] extraData = new byte[709929]; // Array size to fill the remaining space
+            //byte[] extraData = new byte[709999929]; // Array size to fill the remaining space
+            byte[] extraData = new byte[1000000000]; // Array size to fill the remaining space with 1 gigabyte of data
             rand.NextBytes(extraData); // Fill the array with random bytes
+
+            GC.Collect(); // get rid of all of the memory stored, as this also slows down the game
+            long afterMemory = GC.GetTotalMemory(true);
+            Debug.Log($"Memory used: {afterMemory - beforeMemory} bytes");
 
             var data = new PlayerData(transform.position, transform.rotation, _privateInfo, UniqueClientIdentifier, shouldMigrate: true, extraData);
             Debug.LogWarning($"Player {this.name} being destroyed, trying to save {data}");
