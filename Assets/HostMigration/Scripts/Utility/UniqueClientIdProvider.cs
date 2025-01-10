@@ -1,5 +1,6 @@
 using UnityEngine;
 using Mirror;
+using Steamworks;
 
 public class UniqueClientIdProvider : NetworkBehaviour
 {
@@ -153,4 +154,27 @@ public class UniqueClientIdProvider : NetworkBehaviour
         Debug.Log($"Assigned color to {client}");
     }
     #endregion colour
+    #region Steam
+    [TargetRpc]
+    public void GetSteamIdFromPlayerAndSetAsFutureHost(NetworkConnectionToClient conn)
+    {
+        var steamId = SteamUser.GetSteamID();
+        var nextHostNetId = NetworkClient.localPlayer.netId;
+        CmdSendRpcToUpdateFutureHostSteamId(steamId, nextHostNetId);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdSendRpcToUpdateFutureHostSteamId(CSteamID steamId, uint nextHostNetId)
+    {
+        MyClient nextHost;
+        if (NetworkServer.spawned.TryGetValue(nextHostNetId, out NetworkIdentity hostNetId))
+        {
+            nextHost = hostNetId.GetComponent<MyClient>();
+            HostConnectionData newHostData = new HostConnectionData(steamId.ToString(), nextHost.netId);
+
+            Debug.Log($"Trying to store new host data: " + newHostData);
+            nextHost.StoreNewHostData(newHostData);
+        }
+    }
+    #endregion
 }

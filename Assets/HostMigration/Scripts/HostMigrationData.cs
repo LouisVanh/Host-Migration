@@ -2,14 +2,13 @@ using Mirror;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 [System.Serializable]
 public class ServerOnlyInformation
 {
     // Any information that only the server has access to, which will need to be synced to the next host
-    [Space(10)] 
+    [Space(10)]
     public List<MigrationData> MigrationDatas = new();
     // For this example, every player has a secret nickname that the server gave them. (That only the server knows)
     // This needs to be saved in here and then later sent to the new host.
@@ -102,7 +101,7 @@ public class HostMigrationData : MonoBehaviour
 
         //DontDestroyOnLoad(this.gameObject); // Already done in netmgr
     }
-       
+
     // It should be readonly, but for debugging it won't show the values properly
     [SerializeField] private ServerOnlyInformation _serverOnlyInformation;
 
@@ -130,7 +129,7 @@ public class HostMigrationData : MonoBehaviour
             if (_serverOnlyInformation.MigrationDatas[i].UniqueClientIdentifier == migrationData.UniqueClientIdentifier &&
                 _serverOnlyInformation.MigrationDatas[i].ComponentName == migrationData.ComponentName &&
                 _serverOnlyInformation.MigrationDatas[i].VariableName == migrationData.VariableName)
-                // Don't need to check for the type/value, irrelevant. If it exists it's covered here already.
+            // Don't need to check for the type/value, irrelevant. If it exists it's covered here already.
             {
                 _serverOnlyInformation.MigrationDatas[i] = migrationData;
                 Debug.Log($"Replaced migration data for UCID {migrationData.UniqueClientIdentifier}," +
@@ -151,7 +150,7 @@ public class HostMigrationData : MonoBehaviour
         {
             // Find the player object using the OwnerNetId
             var owner = UniqueClientIdProvider.FindClientByUCID(migrationData.UniqueClientIdentifier);
-            if(owner==null) { Debug.LogWarning("No player found with UCID" + migrationData.UniqueClientIdentifier); return; }
+            if (owner == null) { Debug.LogWarning("No player found with UCID" + migrationData.UniqueClientIdentifier); return; }
             if (!NetworkServer.spawned.TryGetValue(owner.netId, out NetworkIdentity playerIdentity))
             {
                 Debug.LogWarning($"[{migrationData.UniqueClientIdentifier}]Player with NetID: {owner.netId} not found!");
@@ -206,7 +205,7 @@ public class HostMigrationData : MonoBehaviour
     #endregion
 
     //Server code
-    public void TrySetBackUpHost()
+    public async void TrySetBackUpHost()
     {
         //Debug.Log("Trying to setup backup host");
         if (PlayersManager.Instance.GetClients().Count > 1)
@@ -219,14 +218,19 @@ public class HostMigrationData : MonoBehaviour
                 return;
             }
 
-            string address = "";
-            if (MyNetworkManager.singleton.IsUsingKCPTransport) address = "localhost";
-            if (MyNetworkManager.singleton.IsUsingSteamTransport) address = MyNetworkManager.HostSteamId.ToString();
+            if (MyNetworkManager.singleton.IsUsingKCPTransport)
+            {
+                var address = "localhost";
+                //once found send to each client to store;
+                HostConnectionData newHostData = new HostConnectionData(address, randomHost.identity.netId);
+                Debug.Log($"Trying to send over new host data: " + newHostData);
+                randomHost.identity.GetComponent<MyClient>().StoreNewHostData(newHostData);
+            }
 
-            //once found send to each client to store;
-            HostConnectionData newHostData = new HostConnectionData(address, randomHost.identity.netId);
-            Debug.Log($"Trying to send over new host data: " + newHostData);
-            randomHost.identity.GetComponent<MyClient>().StoreNewHostData(newHostData);
+            if (MyNetworkManager.singleton.IsUsingSteamTransport)
+            {
+                UniqueClientIdProvider.Instance.GetSteamIdFromPlayerAndSetAsFutureHost(randomHost);
+            }
         }
         else Debug.LogWarning("I'm the only player, can't find a backup host");
     }

@@ -19,7 +19,7 @@ public class MyNetworkManager : NetworkManager
     public static PlayerData MyPlayerData;
     //also stored by localclient everytime a new client joins
     public static HostConnectionData BackUpHostConnectionData;
-    public static CSteamID HostSteamId;
+    public static CSteamID FutureHostSteamId;
     public bool IsDebugging; // Set to true to avoid any normal game scene interactions to test out host migration
 
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
@@ -37,8 +37,8 @@ public class MyNetworkManager : NetworkManager
         if (IsUsingSteamTransport)
         {
             // Get SteamID for the player joining
-            HostSteamId = SteamUser.GetSteamID();
-            Debug.Log($"New player joined with SteamID: {HostSteamId.m_SteamID}");
+            FutureHostSteamId = SteamUser.GetSteamID();
+            Debug.Log($"New player joined with SteamID: {FutureHostSteamId.m_SteamID}");
         }
         else if (IsUsingKCPTransport)
         {

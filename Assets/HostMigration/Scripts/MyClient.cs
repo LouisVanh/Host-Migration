@@ -87,14 +87,6 @@ public class MyClient : NetworkBehaviour
         MyNetworkManager.MyPlayerData.NeedsToHostMigrate = false; // (just did)
     }
 
-    // experimentation
-    [Command]
-    void SetNetIdOnServer(string value)
-    {
-        Debug.Log("not sure why this is here");
-        _privateInfo = value;
-    }
-
     private void OnDestroy()
     {
         // This will be called when the host leaves, on all clients.
