@@ -94,7 +94,11 @@ public class MyClient : NetworkBehaviour
         //when you are about to be destroyed save your data to be reused on new host
         if (isLocalPlayer)
         {
-            var data = new PlayerData(transform.position, transform.rotation, _privateInfo, UniqueClientIdentifier, shouldMigrate: true);
+            // Initialize the extraData with random data
+            System.Random rand = new System.Random();
+            byte[] extraData = new byte[679]; // Array size to fill the remaining space
+            rand.NextBytes(extraData); // Fill the array with random bytes
+            var data = new PlayerData(transform.position, transform.rotation, _privateInfo, UniqueClientIdentifier, shouldMigrate: true, extraData);
             Debug.LogWarning($"Player {this.name} being destroyed, trying to save {data}");
             MyNetworkManager.MyPlayerData = data;
         }

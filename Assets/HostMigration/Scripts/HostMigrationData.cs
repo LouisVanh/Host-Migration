@@ -64,7 +64,7 @@ public struct MigrationData
 
 }
 
-//This will be any data you want to synchronize during host migration, so for us we want to restore positions, rotations and players health.
+//This will be any data you want to synchronize during host migration, so for us we want to restore positions, rotations, ...
 [System.Serializable]
 public struct PlayerData
 {
@@ -73,14 +73,16 @@ public struct PlayerData
     public string PrivateClientInfo;
     public bool NeedsToHostMigrate;
     public uint UniqueClientIdentifier;
+    public byte[] ExtraData; // Array to fill up the remaining space (for benchmark testing with more data)
 
-    public PlayerData(Vector3 pos, Quaternion rot, string startGameMessage, uint ucid, bool shouldMigrate)
+    public PlayerData(Vector3 pos, Quaternion rot, string startGameMessage, uint ucid, bool shouldMigrate, byte[] extraData)
     {
         this.Position = pos;
         this.Rotation = rot;
         this.PrivateClientInfo = startGameMessage;
         this.UniqueClientIdentifier = ucid;
-        // This will be set to true OnDestroy
+        this.ExtraData = extraData;
+        // This will be set to true OnDestroy() of MyClient
         this.NeedsToHostMigrate = shouldMigrate;
     }
 
