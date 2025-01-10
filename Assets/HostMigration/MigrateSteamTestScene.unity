@@ -1575,6 +1575,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: MyNetworkManagerSteam_STEAM_HM
       objectReference: {fileID: 0}
+    - target: {fileID: 6747707975593400659, guid: 2767780f0330eb741b9a3a16cf5f5718, type: 3}
+      propertyPath: IsDebugging
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7224771704611758886, guid: 2767780f0330eb741b9a3a16cf5f5718, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
