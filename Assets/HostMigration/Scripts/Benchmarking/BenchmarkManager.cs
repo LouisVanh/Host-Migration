@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Diagnostics;
-using UnityEngine;
 
 public static class BenchmarkManager
 {
@@ -14,18 +12,20 @@ public static class BenchmarkManager
     {
         stopwatch.Reset();  // Reset to start fresh
         stopwatch.Start();
-        UnityEngine.Debug.Log($"Benchmark started {stopwatch}.");
+        UnityEngine.Debug.Log($"Benchmark started.");
     }
 
     /// <summary>
-    /// Stops the benchmark timer and logs the elapsed time.
+    /// Stops the benchmark timer and logs the elapsed time in microseconds.
     /// </summary>
     public static void StopBenchmark(Stopwatch stopwatch)
     {
         stopwatch.Stop();
-        var result = stopwatch.ElapsedMilliseconds;
 
-        if(stopwatch == MethodClientStopWatch) UnityEngine.Debug.Log($"Benchmark Client-side info finished. Elapsed time: {result} ms");
-        if(stopwatch == MethodServerRetrievalStopWatch) UnityEngine.Debug.Log($"Benchmark Server-side retrieval info finished. Elapsed time: {result} ms");
+        // Calculate elapsed time in microseconds
+        double elapsedMicroseconds = stopwatch.ElapsedTicks * (1000000.0 / Stopwatch.Frequency);
+
+        if (stopwatch == MethodClientStopWatch) UnityEngine.Debug.Log($"Benchmark Client-side info finished. Elapsed time: {elapsedMicroseconds} µs");
+        if (stopwatch == MethodServerRetrievalStopWatch) UnityEngine.Debug.Log($"Benchmark Server-side retrieval info finished. Elapsed time: {elapsedMicroseconds} µs");
     }
 }
