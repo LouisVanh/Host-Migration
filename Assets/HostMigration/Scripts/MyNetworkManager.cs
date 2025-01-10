@@ -25,6 +25,13 @@ public class MyNetworkManager : NetworkManager
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
         base.OnServerAddPlayer(conn);
+        OnStartSyncUCID(conn);
+        // Don't do it here as it calls to early for the playercount to work, done in PlayerRegistering
+        //TrySetBackUpHost("localhost", GetNextHost());
+    }
+
+    private async void OnStartSyncUCID(NetworkConnectionToClient conn)
+    {
         Debug.LogWarning("1. OnServerAddPlayer called!");
 
         if (IsUsingSteamTransport)
@@ -38,23 +45,25 @@ public class MyNetworkManager : NetworkManager
             Debug.Log($"New player joined locally. Will assign UCID later.");
         }
 
+        await System.Threading.Tasks.Task.Delay(50); // Small delay to ensure client exists
         if (NetworkServer.spawned.TryGetValue(NetworkServer.localConnection.identity.netId, out NetworkIdentity hostId))
         {
             Debug.Log("2. Host found!");
-            var hostClient = hostId.GetComponent<MyClient>();
-            if (hostClient.UniqueClientIdentifier == 0)
+            if (hostId.TryGetComponent(out MyClient hostClient))
             {
-                Debug.Log("3. But host is the only person here");
-            }
-            else
-            {
-                Debug.Log("3. Host is not the only person here! Sending over UCID to new player");
-                UniqueClientIdProvider.Instance.EveryoneSyncYourUCID(newPlayer: conn);
+                if (hostClient.UniqueClientIdentifier == 0)
+                {
+                    Debug.Log("3. But host is the only person here");
+                }
+                else
+                {
+                    Debug.Log("3. Host is not the only person here! Sending over UCID to new player");
+                    UniqueClientIdProvider.Instance.EveryoneSyncYourUCID(newPlayer: conn);
+                }
             }
         }
-        // Don't do it here as it calls to early for the playercount to work, done in PlayerRegistering
-        //TrySetBackUpHost("localhost", GetNextHost());
     }
+
     public override void OnClientDisconnect()
     {
         if (!DisconnectGracefully)
