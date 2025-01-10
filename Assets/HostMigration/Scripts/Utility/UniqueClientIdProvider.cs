@@ -158,6 +158,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
     [TargetRpc]
     public void GetSteamIdFromPlayerAndSetAsFutureHost(NetworkConnectionToClient conn)
     {
+        Debug.LogWarning("Sending over message to set future steam host");
         var steamId = SteamUser.GetSteamID();
         var nextHostNetId = NetworkClient.localPlayer.netId;
         CmdSendRpcToUpdateFutureHostSteamId(steamId, nextHostNetId);
@@ -166,17 +167,17 @@ public class UniqueClientIdProvider : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdSendRpcToUpdateFutureHostSteamId(CSteamID steamId, uint nextHostNetId)
     {
-        MyClient nextHost;
         if (NetworkServer.spawned.TryGetValue(nextHostNetId, out NetworkIdentity hostNetId))
         {
-            nextHost = hostNetId.GetComponent<MyClient>();
+            MyClient nextHost = hostNetId.GetComponent<MyClient>();
             HostConnectionData newHostData = new HostConnectionData(steamId.ToString(), nextHost.netId);
 
-            Debug.Log($"Trying to store new host data: " + newHostData);
             var lobbyId = SteamLobby.SteamLobbyId;
+            Debug.Log($"[lid:{lobbyId}] Trying to store new STEAM host data: " + newHostData);
             SteamMatchmaking.SetLobbyData(lobbyId, SteamLobby.HostAddressKey, steamId.ToString());
             nextHost.StoreNewHostData(newHostData);
         }
+        else Debug.LogError("Tried to set steam lobby data for future host, but future host isn't spawned...");
     }
     #endregion
 }

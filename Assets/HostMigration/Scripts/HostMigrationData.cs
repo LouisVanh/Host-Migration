@@ -208,7 +208,7 @@ public class HostMigrationData : MonoBehaviour
     //Server code
     public void TrySetBackUpHost()
     {
-        //Debug.Log("Trying to setup backup host");
+        Debug.Log("Trying to setup backup host");
         if (PlayersManager.Instance.GetClients().Count > 1)
         {
             //Debug.Log("Multiple players detected!");
@@ -230,6 +230,7 @@ public class HostMigrationData : MonoBehaviour
 
             if (MyNetworkManager.singleton.IsUsingSteamTransport)
             {
+                Debug.LogWarning("----- TrySetBackUpHost: steam found, sending over id");
                 UniqueClientIdProvider.Instance.GetSteamIdFromPlayerAndSetAsFutureHost(randomHost);
             }
         }
