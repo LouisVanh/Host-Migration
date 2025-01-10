@@ -44,8 +44,9 @@ public class SteamLobby : MonoBehaviour
 
         MyNetworkManager.singleton.StartHost();
 
-        SteamMatchmaking.SetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), HostAddressKey, SteamUser.GetSteamID().ToString());
-
+        var lobby = new CSteamID(callback.m_ulSteamIDLobby);
+        SteamMatchmaking.SetLobbyData(lobby, HostAddressKey, SteamUser.GetSteamID().ToString());
+        Debug.LogWarning($"Created Steam lobby: {lobby} - steamid: {SteamUser.GetSteamID()}");
     }
 
     private void OnGameLobbyJoinRequested(GameLobbyJoinRequested_t callback)

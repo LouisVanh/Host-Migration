@@ -173,7 +173,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
             HostConnectionData newHostData = new HostConnectionData(steamId.ToString(), nextHost.netId);
 
             Debug.Log($"Trying to store new host data: " + newHostData);
-            SteamMatchmaking.SetLobbyData(steamId, SteamLobby.HostAddressKey, steamId.ToString());
+            SteamMatchmaking.SetLobbyData(SteamUser.GetSteamID(), SteamLobby.HostAddressKey, steamId.ToString());
             nextHost.StoreNewHostData(newHostData);
         }
     }
