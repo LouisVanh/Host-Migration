@@ -48,7 +48,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
         Debug.Log("Provided new client id: " + _lastIdProvided);
         if (NetworkServer.spawned.TryGetValue(sender.identity.netId, out NetworkIdentity playerId))
         {
-            RpcSendClientId(playerId.GetComponent<MyClient>(), _lastIdProvided);
+            RpcSendClientId(playerId.GetComponent<MyClient>(), _lastIdProvided, isBenchmarking: false);
         }
     }
     #endregion First time joining
@@ -62,17 +62,24 @@ public class UniqueClientIdProvider : NetworkBehaviour
             Debug.LogWarning($"{client} tried to send empty UCID. Returning.");
             return;
         }
-        RpcSendClientId(client, ucid);
+        RpcSendClientId(client, ucid, isBenchmarking: true);
     }
 
     [ClientRpc] // For post migration:
-    public void RpcSendClientId(MyClient client, uint ucid)
+    public void RpcSendClientId(MyClient client, uint ucid, bool isBenchmarking)
     {
         Debug.Log("Received UCID: '" + ucid + "' for player " + client.netId + "... will assign color soon");
         Debug.Assert(client != null);
         Debug.Assert(ucid != 0);
         client.UniqueClientIdentifier = ucid;
         AssignColorByClient(client);
+
+        // Benchmarking: Track results of client-side data retrieval on all clients
+        if (!isBenchmarking) return;
+        if (NetworkClient.localPlayer.GetComponent<MyClient>() == client)
+        {
+            BenchmarkManager.StopBenchmark(BenchmarkManager.MethodClientStopWatch);
+        }
     }
     #endregion Post Migration
     #region On player joining

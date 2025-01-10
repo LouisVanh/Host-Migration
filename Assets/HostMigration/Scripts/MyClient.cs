@@ -74,6 +74,7 @@ public class MyClient : NetworkBehaviour
 
     private void RemakeGame() // LOAD DATA FROM YOUR LOCAL SAVE. UPDATE IT WHEREVER NEEDED.
     {
+        BenchmarkManager.StartBenchmark(BenchmarkManager.MethodClientStopWatch);
         Debug.Log("Data found, restoring");
 
         transform.SetPositionAndRotation(MyNetworkManager.MyPlayerData.Position, MyNetworkManager.MyPlayerData.Rotation);
