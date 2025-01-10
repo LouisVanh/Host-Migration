@@ -1,4 +1,5 @@
 using Mirror;
+using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -248,6 +249,10 @@ public class HostMigrationData : MonoBehaviour
             Debug.Log("I'm the new host, waiting to start server");
             yield return new WaitForSeconds(0.3f);
             MyNetworkManager.singleton.StartHost();
+            if (MyNetworkManager.singleton.IsUsingSteamTransport)
+            {
+                MyNetworkManager.singleton.gameObject.GetComponent<SteamLobby>().HostLobby();
+            }
             Debug.Log("Started new host");
 
         }
