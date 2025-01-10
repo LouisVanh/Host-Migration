@@ -147,6 +147,7 @@ public class HostMigrationData : MonoBehaviour
     // Client: retrieve data that was received
     public void RetrieveFromDataMembers()
     {
+        BenchmarkManager.StartBenchmark(BenchmarkManager.MethodServerRetrievalStopWatch);
         foreach (var migrationData in _serverOnlyInformation.MigrationDatas)
         {
             // Find the player object using the OwnerNetId
@@ -202,6 +203,7 @@ public class HostMigrationData : MonoBehaviour
                 Debug.LogWarning($"Variable {migrationData.VariableName} not found in component {migrationData.ComponentName}!");
             }
         }
+        BenchmarkManager.StopBenchmark(BenchmarkManager.MethodServerRetrievalStopWatch);
     }
     #endregion
 
