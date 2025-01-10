@@ -10,6 +10,7 @@ public class MyClient : NetworkBehaviour
     //private string _timeOfJoining;
     [ReadOnly, SerializeField] private string _privateInfo;
     [ReadOnly] public uint UniqueClientIdentifier;
+    public byte[] ExtraBytes;
 
     private Color _color;
     public Color Color
@@ -80,6 +81,7 @@ public class MyClient : NetworkBehaviour
         transform.SetPositionAndRotation(MyNetworkManager.MyPlayerData.Position, MyNetworkManager.MyPlayerData.Rotation);
         _privateInfo = MyNetworkManager.MyPlayerData.PrivateClientInfo;
         UniqueClientIdentifier = MyNetworkManager.MyPlayerData.UniqueClientIdentifier;
+        ExtraBytes = MyNetworkManager.MyPlayerData.ExtraData;
         // Set anything on the server side of player data (health, amount of dice, ...) anything saved serverside
         //SetNetIdOnServer(MyNetworkManager.MyPlayerData.StartGameMessage);
         UniqueClientIdProvider.Instance.CmdMakeSureEveryoneKnowsMyUCID(this, this.UniqueClientIdentifier);
@@ -94,10 +96,14 @@ public class MyClient : NetworkBehaviour
         //when you are about to be destroyed save your data to be reused on new host
         if (isLocalPlayer)
         {
-            // Initialize the extraData with random data
+            // Initialize the extraData with random data (In this case, 7029 bytes, to make it 7100 bytes total, which will be 100x the original size) --> no increase
+            // Initialize the extraData with random data (In this case, 70929 bytes, to make it 71 kilobytes total, which will be 100x the original size) --> 3ms increase
+            // Initialize the extraData with random data (In this case, 709929 bytes, to make it 710 kilobytes total, which will be 100x the original size) --> 3ms increase
+
             System.Random rand = new System.Random();
-            byte[] extraData = new byte[679]; // Array size to fill the remaining space
+            byte[] extraData = new byte[709929]; // Array size to fill the remaining space
             rand.NextBytes(extraData); // Fill the array with random bytes
+
             var data = new PlayerData(transform.position, transform.rotation, _privateInfo, UniqueClientIdentifier, shouldMigrate: true, extraData);
             Debug.LogWarning($"Player {this.name} being destroyed, trying to save {data}");
             MyNetworkManager.MyPlayerData = data;
