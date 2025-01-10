@@ -10,8 +10,7 @@ public class SteamLobby : MonoBehaviour
     protected Callback<GameLobbyJoinRequested_t> gameLobbyJoinRequested;
     protected Callback<LobbyEnter_t> lobbyEntered;
 
-    private const string HostAddressKey = "HostAddress";
-
+    public const string HostAddressKey = "HostAddress";
 
     private void Start()
     {
@@ -63,6 +62,7 @@ public class SteamLobby : MonoBehaviour
 
         string hostAddress = SteamMatchmaking.GetLobbyData(new CSteamID(callback.m_ulSteamIDLobby), HostAddressKey);
 
+        Debug.LogWarning("Entering lobby with hostaddress " + hostAddress);
         MyNetworkManager.singleton.networkAddress = hostAddress;
         MyNetworkManager.singleton.StartClient();
 
