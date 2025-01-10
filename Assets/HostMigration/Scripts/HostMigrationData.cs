@@ -206,7 +206,7 @@ public class HostMigrationData : MonoBehaviour
     #endregion
 
     //Server code
-    public async void TrySetBackUpHost()
+    public void TrySetBackUpHost()
     {
         //Debug.Log("Trying to setup backup host");
         if (PlayersManager.Instance.GetClients().Count > 1)
@@ -233,7 +233,7 @@ public class HostMigrationData : MonoBehaviour
                 UniqueClientIdProvider.Instance.GetSteamIdFromPlayerAndSetAsFutureHost(randomHost);
             }
         }
-        else Debug.LogWarning("I'm the only player, can't find a backup host");
+        else Debug.LogWarning("----- I'm the only player, can't find a backup host");
     }
 
     public void StartCoroutineMigrateHost()
@@ -249,10 +249,10 @@ public class HostMigrationData : MonoBehaviour
             Debug.Log("I'm the new host, waiting to start server");
             yield return new WaitForSeconds(0.3f);
             MyNetworkManager.singleton.StartHost();
-            if (MyNetworkManager.singleton.IsUsingSteamTransport)
-            {
-                MyNetworkManager.singleton.gameObject.GetComponent<SteamLobby>().HostLobby();
-            }
+            //if (MyNetworkManager.singleton.IsUsingSteamTransport)
+            //{
+            //    MyNetworkManager.singleton.gameObject.GetComponent<SteamLobby>().HostLobby();
+            //}
             Debug.Log("Started new host");
 
         }

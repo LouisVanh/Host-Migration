@@ -4,10 +4,12 @@ using System.Runtime.InteropServices;
 
 public class MultiInstanceWindowManager : MonoBehaviour
 {
-#if !UNITY_EDITOR
+    [SerializeField] private bool _isMultiDisplayOn;
+   #if !UNITY_EDITOR
     void Start()
     {
-        SetWindowToQuarterScreen();
+        if (_isMultiDisplayOn) SetWindowToQuarterScreen();
+        else Screen.fullScreen = true;
     }
 
     public async void SetWindowToQuarterScreen()
@@ -26,22 +28,22 @@ public class MultiInstanceWindowManager : MonoBehaviour
         int x = 0;
         int y = 0;
 
-        switch (instanceIndex%4)
+        switch (instanceIndex % 4)
         {
             case 0: // Top-left
-                x = paddingWidth/2;
+                x = paddingWidth / 2;
                 y = 0;
                 break;
             case 1: // Top-right
-                x = windowWidth + paddingWidth + paddingWidth/2;
+                x = windowWidth + paddingWidth + paddingWidth / 2;
                 y = 0;
                 break;
             case 2: // Bottom-left
-                x = paddingWidth/2;
+                x = paddingWidth / 2;
                 y = windowHeight + paddingHeight;
                 break;
             case 3: // Bottom-right
-                x = windowWidth + paddingWidth + paddingWidth/2;
+                x = windowWidth + paddingWidth + paddingWidth / 2;
                 y = windowHeight + paddingHeight;
                 break;
             default: // If more than 4 instances, stack them at (0,0)

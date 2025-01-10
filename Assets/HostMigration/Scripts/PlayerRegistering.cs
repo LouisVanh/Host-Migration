@@ -5,7 +5,7 @@ public class PlayerRegistering : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
-        CmdRegisterPlayer();
+        CmdRegisterPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
     }
     public override void OnStopClient()
     {
@@ -17,9 +17,9 @@ public class PlayerRegistering : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    private void CmdRegisterPlayer() // Call this on Start, make sure to check for isLocalPlayer
+    private void CmdRegisterPlayer(uint netId) // Call this on Start, make sure to check for isLocalPlayer
     {
-        PlayersManager.Instance.AddPlayer(gameObject.GetComponent<NetworkIdentity>().netId);
+        PlayersManager.Instance.AddPlayer(netId);
         HostMigrationData.Instance.TrySetBackUpHost();
     }
 }
