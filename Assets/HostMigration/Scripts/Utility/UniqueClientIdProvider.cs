@@ -30,7 +30,7 @@ public class UniqueClientIdProvider : NetworkBehaviour
                 var client = playerId.GetComponent<MyClient>();
                 if (client.UniqueClientIdentifier == ucid)
                 {
-                    Debug.Log("Found the client with ucid" + ucid);
+                    //Debug.Log("Found the client with ucid" + ucid);
                     return client;
                 }
             }

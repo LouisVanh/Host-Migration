@@ -51,9 +51,7 @@ public struct MigrationData
         //TypeName = value.GetType().AssemblyQualifiedName; // Fully qualified type name
         //SerializedValue = JsonUtility.ToJson(value); // Use JSON for serialization
         TypeName = value.GetType().ToString();
-        Debug.Log("value = " + value);
         SerializedValue = value.ToString();
-        Debug.Log("SerializedValue = " + value.ToString());
     }
 
     public override string ToString()
@@ -124,7 +122,7 @@ public class HostMigrationData : MonoBehaviour
     /// <param name="migrationData"></param>
     public void AddMigrationData(MigrationData migrationData)
     {
-        Debug.Log($"Attempting to add migration data: {migrationData}");
+        //Debug.Log($"Attempting to add migration data: {migrationData}");
 
         // Check if an entry already exists with the same ucid, componentName, and variableName
         for (int i = 0; i < _serverOnlyInformation.MigrationDatas.Count; i++)
@@ -135,15 +133,15 @@ public class HostMigrationData : MonoBehaviour
             // Don't need to check for the type/value, irrelevant. If it exists it's covered here already.
             {
                 _serverOnlyInformation.MigrationDatas[i] = migrationData;
-                Debug.Log($"Replaced migration data for UCID {migrationData.UniqueClientIdentifier}," +
-                    $" Component {migrationData.ComponentName}, Variable {migrationData.VariableName}");
+                //Debug.Log($"Replaced migration data for UCID {migrationData.UniqueClientIdentifier}," +
+                //    $" Component {migrationData.ComponentName}, Variable {migrationData.VariableName}");
                 return;
             }
         }
 
         // If no matching entry was found, add the new data
         _serverOnlyInformation.MigrationDatas.Add(migrationData);
-        Debug.Log($"Added new migration data: {migrationData}");
+        //Debug.Log($"Added new migration data: {migrationData}");
     }
 
     // Client: retrieve data that was received
@@ -193,7 +191,7 @@ public class HostMigrationData : MonoBehaviour
 
                     // Set the deserialized value back to the field
                     field.SetValue(targetComponent, deserializedValue);
-                    Debug.Log($"Restored {migrationData.VariableName} to {deserializedValue} for player {owner.netId}");
+                    //Debug.Log($"Restored {migrationData.VariableName} to {deserializedValue} for player {owner.netId}");
                 }
                 catch (Exception ex)
                 {
@@ -205,6 +203,11 @@ public class HostMigrationData : MonoBehaviour
                 Debug.LogWarning($"Variable {migrationData.VariableName} not found in component {migrationData.ComponentName}!");
             }
         }
+
+        // Clear the massive garbage we just made, so the game won't lag.
+        GC.Collect(); // get rid of all of the memory stored, as this also slows down the game
+        long afterMemory = GC.GetTotalMemory(true);
+
         BenchmarkManager.StopBenchmark(BenchmarkManager.MethodServerRetrievalStopWatch);
     }
     #endregion

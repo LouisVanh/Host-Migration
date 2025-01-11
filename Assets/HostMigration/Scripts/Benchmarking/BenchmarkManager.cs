@@ -59,15 +59,15 @@ public static class BenchmarkManager
         // Write the CSV header if the file doesn't exist
         if (!File.Exists(CsvFilePath))
         {
-            File.AppendAllText(CsvFilePath, "Timestamp,Sync Method,Extra bytes/packets,Duration in microseconds\n");
+            File.AppendAllText(CsvFilePath, "Timestamp,Player Count,Sync Method,Extra bytes/packets,Duration in microseconds\n");
         }
     }
 
     public static MyStopwatch MethodClientStopWatch = new();
     public static MyStopwatch MethodServerRetrievalStopWatch = new();
 
-    public static uint AmountOfExtraClientBytes = 29;
-    public static uint AmountOfExtraServerDatas = 100;
+    public static uint AmountOfExtraClientBytes = 10000;
+    public static uint AmountOfExtraServerDatas = 10;
     /// <summary>
     /// Starts or restarts the benchmark timer.
     /// </summary>
@@ -108,7 +108,7 @@ public static class BenchmarkManager
     {
         // Write result to CSV file
         string timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-        string csvLine = $"{timestamp},{nameOfMethod}, {information}, {elapsedMicroseconds}\n";
+        string csvLine = $"{timestamp},{PlayersManager.Instance.GetClients().Count},{nameOfMethod}, {information}, {elapsedMicroseconds}\n";
         File.AppendAllText(CsvFilePath, csvLine);
     }
 }
