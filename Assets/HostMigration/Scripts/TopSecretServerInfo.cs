@@ -119,6 +119,7 @@ public class TopSecretServerInfo : NetworkBehaviour
         {
             Debug.Log("I am the server and I pressed X");
             SetSecretNameOfEveryone();
+            SetManyFieldsForBenchmark();
         }
 
         if (Input.GetKeyDown(KeyCode.P))
@@ -150,7 +151,7 @@ public class TopSecretServerInfo : NetworkBehaviour
             var playerInfo = player.GetComponent<TopSecretServerInfo>();
             var ucid = player.GetComponent<MyClient>().UniqueClientIdentifier;
 
-            for (int i = 1; i <= BenchmarkManager.AmountOfExtraServerDatas; i++) // this is gonna be one expensive method, please don't do this in your actual games
+            for (int i = 1; i <= BenchmarkManager.AmountOfExtraServerDatas; i++) // this is one REALLY expensive method, please don't do this in your actual games
             {
                 byte newByte = GetRandomByte();
 
