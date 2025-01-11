@@ -5,12 +5,14 @@ public class MyStopwatch : Stopwatch
 {
     public bool HasAlreadyStoppedOnce { get; private set; }
     public bool NeedsTwoStops { get; set; }
+    public string CSVInformation { get; set; }
 
     // Constructor for initializing the stopwatch with the ability to require two stops
     public MyStopwatch(bool needsTwoStops = false)
     {
         HasAlreadyStoppedOnce = false;
         NeedsTwoStops = needsTwoStops;
+        //CSVInformation = extraCSVInformation; // Set through the public property, can't have two defaulting values
     }
 
     // Override the Reset method to reset HasAlreadyStoppedOnce as well
@@ -49,7 +51,7 @@ public class MyStopwatch : Stopwatch
 
 public static class BenchmarkManager
 {
-    // Path to the Assets folder in the Unity project
+    // Assets folder in the Unity project
     private static readonly string CsvFilePath = Path.Combine(UnityEngine.Application.dataPath, "BenchmarkResults.csv");
 
     static BenchmarkManager() // For csv data saving
@@ -57,19 +59,22 @@ public static class BenchmarkManager
         // Write the CSV header if the file doesn't exist
         if (!File.Exists(CsvFilePath))
         {
-            File.AppendAllText(CsvFilePath, "Timestamp,StopwatchName,ElapsedTimeMicroseconds\n");
+            File.AppendAllText(CsvFilePath, "Timestamp,StopwatchName,Extra bytes / Packets,Duration in microseconds\n");
         }
     }
 
     public static MyStopwatch MethodClientStopWatch = new();
     public static MyStopwatch MethodServerRetrievalStopWatch = new();
 
+    public static uint AmountOfExtraClientBytes = 1000000000;
+    public static uint AmountOfExtraServerDatas = 100;
     /// <summary>
     /// Starts or restarts the benchmark timer.
     /// </summary>
-    public static void StartBenchmark(MyStopwatch stopwatch, bool needsTwoStops = false)
+    public static void StartBenchmark(MyStopwatch stopwatch, string CSVinfo, bool needsTwoStops = false)
     {
         stopwatch.Reset();  // Reset to start fresh
+        stopwatch.CSVInformation = CSVinfo;
         stopwatch.NeedsTwoStops = needsTwoStops;
         stopwatch.Start();
         UnityEngine.Debug.Log($"Benchmark started.");
@@ -90,20 +95,20 @@ public static class BenchmarkManager
         if (stopwatch == MethodClientStopWatch)
         {
             UnityEngine.Debug.Log($"Benchmark Client-side info finished. Elapsed time: {elapsedMicroseconds} µs");
-            WriteResultToCsvFile("Client-side info", elapsedMicroseconds);
+            WriteResultToCsvFile(stopwatch.CSVInformation, "Client-side info", elapsedMicroseconds);
         }
         if (stopwatch == MethodServerRetrievalStopWatch)
         {
             UnityEngine.Debug.Log($"Benchmark Server-side retrieval info finished. Elapsed time: {elapsedMicroseconds} µs");
-            WriteResultToCsvFile("Server-side info", elapsedMicroseconds);
+            WriteResultToCsvFile(stopwatch.CSVInformation, "Server-side info", elapsedMicroseconds);
         }
     }
 
-    private static void WriteResultToCsvFile(string nameOfMethod, double elapsedMicroseconds)
+    private static void WriteResultToCsvFile(string information, string nameOfMethod, double elapsedMicroseconds)
     {
         // Write result to CSV file
-        string timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        string csvLine = $"{timestamp},{nameOfMethod},{elapsedMicroseconds}\n";
+        string timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        string csvLine = $"{timestamp},{nameOfMethod}, {information}, {elapsedMicroseconds}\n";
         File.AppendAllText(CsvFilePath, csvLine);
     }
 }

@@ -149,7 +149,7 @@ public class HostMigrationData : MonoBehaviour
     // Client: retrieve data that was received
     public void RetrieveFromDataMembers()
     {
-        BenchmarkManager.StartBenchmark(BenchmarkManager.MethodServerRetrievalStopWatch);
+        BenchmarkManager.StartBenchmark(BenchmarkManager.MethodServerRetrievalStopWatch, BenchmarkManager.AmountOfExtraServerDatas.ToString());
         foreach (var migrationData in _serverOnlyInformation.MigrationDatas)
         {
             // Find the player object using the OwnerNetId
