@@ -264,6 +264,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56535faecf82ed041b44c9128d50e79a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isMultiDisplayOn: 0
 --- !u!4 &736221509
 Transform:
   m_ObjectHideFlags: 0
@@ -1425,7 +1426,7 @@ MonoBehaviour:
   networkAddress: localhost
   maxConnections: 100
   disconnectInactiveConnections: 0
-  disconnectInactiveTimeout: 60
+  disconnectInactiveTimeout: 6000
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 7975422956455604382, guid: 162d50b5b09c43743bdf93a22761b46b, type: 3}
   autoCreatePlayer: 1
@@ -1450,9 +1451,11 @@ MonoBehaviour:
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
   evaluationMethod: 0
-  evaluationInterval: 3
+  evaluationInterval: 60
   timeInterpolationGui: 0
   IsDebugging: 1
+  IsUsingSteamTransport: 0
+  IsUsingKCPTransport: 0
 --- !u!114 &3094254663822731587
 MonoBehaviour:
   m_ObjectHideFlags: 0

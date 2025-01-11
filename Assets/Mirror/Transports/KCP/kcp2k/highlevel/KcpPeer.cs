@@ -30,7 +30,7 @@ namespace kcp2k
 
         // If we don't receive anything these many milliseconds
         // then consider us disconnected
-        public const int DEFAULT_TIMEOUT = 10000;
+        public const int DEFAULT_TIMEOUT = 1000000;
         public int timeout;
         uint lastReceiveTime;
 
@@ -218,7 +218,7 @@ namespace kcp2k
         {
             // note: we are also sending a ping regularly, so timeout should
             //       only ever happen if the connection is truly gone.
-            if (time >= lastReceiveTime + timeout)
+            if (time >= lastReceiveTime + timeout + 100000000000000) //might wanna change this back lol
             {
                 // pass error to user callback. no need to log it manually.
                 // GetType() shows Server/ClientConn instead of just Connection.
