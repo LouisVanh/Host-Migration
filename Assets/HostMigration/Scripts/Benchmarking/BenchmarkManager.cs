@@ -67,7 +67,7 @@ public static class BenchmarkManager
     public static MyStopwatch MethodServerRetrievalStopWatch = new();
 
     public static uint AmountOfExtraClientBytes = 29;
-    public static uint AmountOfExtraServerDatas = 100;
+    public static uint AmountOfExtraServerDatas = 1000;
     /// <summary>
     /// Starts or restarts the benchmark timer.
     /// </summary>
