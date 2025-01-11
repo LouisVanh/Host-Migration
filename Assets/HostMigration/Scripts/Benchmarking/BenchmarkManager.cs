@@ -59,14 +59,14 @@ public static class BenchmarkManager
         // Write the CSV header if the file doesn't exist
         if (!File.Exists(CsvFilePath))
         {
-            File.AppendAllText(CsvFilePath, "Timestamp,StopwatchName,Extra bytes / Packets,Duration in microseconds\n");
+            File.AppendAllText(CsvFilePath, "Timestamp,Sync Method,Extra bytes/packets,Duration in microseconds\n");
         }
     }
 
     public static MyStopwatch MethodClientStopWatch = new();
     public static MyStopwatch MethodServerRetrievalStopWatch = new();
 
-    public static uint AmountOfExtraClientBytes = 1000000000;
+    public static uint AmountOfExtraClientBytes = 29;
     public static uint AmountOfExtraServerDatas = 100;
     /// <summary>
     /// Starts or restarts the benchmark timer.

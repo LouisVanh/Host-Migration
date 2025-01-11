@@ -121,7 +121,7 @@ public class MyClient : NetworkBehaviour
 
             System.Random rand = new System.Random();
             //byte[] extraData = new byte[709999929]; // Array size to fill the remaining space
-            byte[] extraData = new byte[1000000000]; // Array size to fill the remaining space with 1 gigabyte of data
+            byte[] extraData = new byte[BenchmarkManager.AmountOfExtraClientBytes]; // Array size to fill the remaining space with 1 gigabyte of data
             rand.NextBytes(extraData); // Fill the array with random bytes
 
             GC.Collect(); // get rid of all of the memory stored, as this also slows down the game
