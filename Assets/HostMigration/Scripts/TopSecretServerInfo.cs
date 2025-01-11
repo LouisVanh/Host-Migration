@@ -27,13 +27,26 @@ public class TopSecretServerInfo : NetworkBehaviour
     {
         foreach (var player in PlayersManager.Instance.GetClients())
         {
-                string secretName = TopSecretServerInfo.GetSecretName();
-                player.GetComponent<TopSecretServerInfo>().SecretName = secretName;
+            //string secretName = TopSecretServerInfo.GetSecretName();
+            //player.GetComponent<TopSecretServerInfo>().SecretName = secretName;
 
-                Debug.Log("Name set: " + secretName);
-                var ucid = player.GetComponent<MyClient>().UniqueClientIdentifier;
-                HostMigrationData.Instance.AddMigrationData(
-                    new MigrationData(ucid, nameof(TopSecretServerInfo), nameof(SecretName), secretName));
+            //Debug.Log("Name set: " + secretName);
+            //var ucid = player.GetComponent<MyClient>().UniqueClientIdentifier;
+            //HostMigrationData.Instance.AddMigrationData(
+            //    new MigrationData(ucid, nameof(TopSecretServerInfo), nameof(SecretName), secretName));
+
+            // For benchmarking purposes: 
+            for (int i = 0; i < BenchmarkManager.AmountOfExtraServerDatas; i++)
+            {
+
+            string secretName = TopSecretServerInfo.GetSecretName();
+            player.GetComponent<TopSecretServerInfo>().SecretName = secretName;
+
+            Debug.Log("Name set: " + secretName);
+            var ucid = player.GetComponent<MyClient>().UniqueClientIdentifier;
+            HostMigrationData.Instance.AddMigrationData(
+                new MigrationData(ucid, nameof(TopSecretServerInfo), nameof(SecretName), secretName));
+            }
         }
     }
 
