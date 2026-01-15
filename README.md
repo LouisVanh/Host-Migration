@@ -9,7 +9,7 @@ Researched and published a thesis on the feasability of host-migration in online
 https://www.youtube.com/watch?v=BuUQmS_t4VY
 
 ## Benchmarking setup:
-https://www.youtube.com/watch?v=SDYSpZgTO98&t=26s
+https://www.youtube.com/watch?v=SDYSpZgTO98
 
 ## Whitepaper:
 https://www.researchgate.net/publication/390559425_The_Host_Migration_Graveyard_A_feasibility_study_in_co-op_games
